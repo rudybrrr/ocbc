@@ -20,6 +20,9 @@
 # production
 /build
 
+# unused Create Next App placeholders
+/public/*.svg
+
 # misc
 .DS_Store
 .impeccable
