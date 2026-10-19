@@ -24,7 +24,16 @@ export function Activity() {
       <h1 id="screen-title" tabIndex={-1}>
         Activity
       </h1>
-      <p className="lede">Practice payments you make in this demo appear at the top.</p>
+      {store.snapshot.mode === "guided" ? (
+        <div className="coach">
+          <p>Newest payments are first. Ones you record in this demo sit above the sample history.</p>
+          <button type="button" className="btn btn-light" onClick={store.openHelp}>
+            Ask about a payment
+          </button>
+        </div>
+      ) : (
+        <p className="lede">Practice payments you make in this demo appear at the top.</p>
+      )}
       {[...groups.entries()].map(([key, group]) => (
         <section key={key} className="day-group" aria-labelledby={`day-${key}`}>
           <h2 id={`day-${key}`}>{dayLabel(group[0].at)}</h2>

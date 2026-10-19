@@ -195,15 +195,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       withTransition(() => patch({ screen, helpOpen: false }), "screen-title");
     },
     openHelp: () => {
-      const wide = window.matchMedia("(min-width: 960px)").matches;
-      if (wide) {
-        document.getElementById("assist-input")?.focus();
-        return;
-      }
-      withTransition(() => patch({ helpOpen: true }), "assist-title");
+      setPrefsOpen(false);
+      setPersonOpen(false);
+      patch({ helpOpen: true });
     },
     closeHelp: () => {
-      withTransition(() => patch({ helpOpen: false }), "screen-title");
+      patch({ helpOpen: false });
+      requestAnimationFrame(() => document.getElementById("screen-title")?.focus());
     },
     openPrefs: () => {
       setPersonOpen(false);
@@ -252,9 +250,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (action.type === "person") {
+        patch({ helpOpen: false });
         setPersonOpen(true);
         return;
       }
+      patch({ helpOpen: false });
       setPrefsOpen(true);
     },
     logBanker: (request) => {

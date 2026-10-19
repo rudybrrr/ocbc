@@ -1,8 +1,7 @@
 "use client";
 
 import { Activity } from "@/components/activity";
-import { Assistant } from "@/components/assistant";
-import { PersonDialog, PreferencesDialog } from "@/components/dialogs";
+import { AssistantDialog, PersonDialog, PreferencesDialog } from "@/components/dialogs";
 import { Home } from "@/components/home";
 import { Icon } from "@/components/icons";
 import { Invest } from "@/components/invest";
@@ -40,7 +39,7 @@ export function BankApp() {
       <div
         className="stage"
         data-screen={snapshot.onboarded ? snapshot.screen : "onboarding"}
-        data-help={snapshot.helpOpen ? "open" : "closed"}
+        data-mode={snapshot.onboarded ? snapshot.mode : undefined}
       >
         <header className="header">
           <div className="brand-row">
@@ -105,10 +104,8 @@ export function BankApp() {
             );
           })}
         </nav>
-        <aside className="dock">
-          <Assistant />
-        </aside>
       </div>
+      <AssistantDialog />
       <p className="sr-only" aria-live="polite">
         {store.announce}
       </p>

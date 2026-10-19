@@ -14,12 +14,20 @@ function hear(text: string) {
   return true;
 }
 
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 export function Home() {
   const store = useStore();
   const { snapshot, balances } = store;
   const guided = snapshot.mode === "guided";
-  const rows = activity(snapshot.transfers).slice(0, guided ? 2 : 5);
+  const rows = activity(snapshot.transfers).slice(0, guided ? 2 : 6);
   const plan = snapshot.invest.done ? snapshot.invest.monthly : null;
+  const first = CUSTOMER.split(" ")[0];
 
   const walkLabel = plan
     ? "View practice plan"
@@ -28,23 +36,20 @@ export function Home() {
       : "Start the walk";
 
   return (
-    <div className="screen">
+    <div className={guided ? "screen guided-home" : "screen dash"}>
       {guided ? (
         <>
           <h1 id="screen-title" tabIndex={-1}>
-            {CUSTOMER.split(" ")[0]}, you can use{" "}
-            <span className="balance">{sgd(balances.everyday)}</span> today.
+            {first}, you can use <span className="balance">{sgd(balances.everyday)}</span> today.
           </h1>
-          <p className="lede">
-            That is your Everyday Account. Savings holds {sgd(balances.savings)}, separate from spending.
-          </p>
+          <p className="lede">That figure is Everyday Account, the money ready to spend.</p>
           {snapshot.readAmounts && (
             <button
               type="button"
               className="btn btn-secondary"
               onClick={() =>
                 hear(
-                  `${CUSTOMER.split(" ")[0]}, you can use ${spokenSgd(balances.everyday)} today. Savings holds ${spokenSgd(balances.savings)}.`,
+                  `${first}, you can use ${spokenSgd(balances.everyday)} today. Savings holds ${spokenSgd(balances.savings)}.`,
                 )
               }
             >
@@ -52,69 +57,95 @@ export function Home() {
               Hear this amount
             </button>
           )}
-          <section className="band" aria-labelledby="next-title">
-            <h2 id="next-title">{plan ? "Practice plan saved" : "Practice investing walk"}</h2>
+          <section className="coach" aria-labelledby="next-title">
+            <h2 id="next-title">{plan ? "Your practice plan is saved" : "Next: a practice investing walk"}</h2>
             <p>
               {plan
                 ? `${sgd(plan)} a month into the sample Horizon Balanced mix. Nothing has been invested.`
-                : "Four short screens on a sample fund. You can stop at any point. Nothing is invested."}
+                : snapshot.invest.step > 0
+                  ? `You left the walk on screen ${snapshot.invest.step + 1} of 4. Your place is saved.`
+                  : "This walk teaches a sample fund. It does not invest your money."}
             </p>
+            {!plan && snapshot.invest.step === 0 && (
+              <ol className="coach-steps">
+                <li>See how many people share one pool</li>
+                <li>Check what a fall in value would mean</li>
+                <li>Save a practice amount on this phone</li>
+              </ol>
+            )}
             <button type="button" className="btn btn-light" onClick={() => store.go("invest")}>
               {walkLabel}
             </button>
           </section>
-          <div className="stack-actions">
-            <button type="button" className="btn btn-primary" onClick={() => store.go("move")}>
-              Move money
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={() => store.go("activity")}>
-              Review activity
-            </button>
-            <button type="button" className="btn btn-secondary" onClick={store.openHelp}>
-              Ask a question
-            </button>
-          </div>
+          <button type="button" className="btn btn-secondary" onClick={() => store.go("move")}>
+            Move money
+          </button>
+          <details className="other-money">
+            <summary>Other money</summary>
+            <ul className="ledger">
+              <li>
+                <span>
+                  <span className="row-title">Savings Account</span>
+                  <span className="row-detail">Set aside</span>
+                </span>
+                <span className="num">{sgd(balances.savings)}</span>
+              </li>
+              <li>
+                <span>
+                  <span className="row-title">{CARD.name}</span>
+                  <span className="row-detail">Due {CARD.dueLabel}</span>
+                </span>
+                <span className="num">{sgd(CARD.due)}</span>
+              </li>
+            </ul>
+          </details>
         </>
       ) : (
         <>
-          <h1 id="screen-title" tabIndex={-1}>
-            Accounts
+          <h1 id="screen-title" className="dash-title" tabIndex={-1}>
+            {greeting()}, {first}
           </h1>
-          <p className="lede">{CUSTOMER}</p>
-          <ul className="ledger">
-            <li>
-              <span>
-                <span className="row-title">Everyday Account</span>
-                <span className="row-detail">Ready to use</span>
-              </span>
-              <span className="balance num">{sgd(balances.everyday)}</span>
-            </li>
-            <li>
+          <section className="statement" aria-labelledby="everyday-title">
+            <h2 id="everyday-title">Everyday Account</h2>
+            <p className="statement-amount balance">{sgd(balances.everyday)}</p>
+            <p className="row-detail">Ready to use</p>
+            <div className="tool-row">
+              <button type="button" className="btn btn-primary" onClick={() => store.go("move")}>
+                Move
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => store.go("activity")}>
+                Activity
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => store.go("invest")}>
+                {plan ? "Plan" : "Invest"}
+              </button>
+            </div>
+          </section>
+          <div className="account-stack">
+            <div className="account-row">
               <span>
                 <span className="row-title">Savings Account</span>
                 <span className="row-detail">Set aside</span>
               </span>
               <span className="num">{sgd(balances.savings)}</span>
-            </li>
-            <li>
+            </div>
+            <div className="account-row">
               <span>
                 <span className="row-title">{CARD.name}</span>
                 <span className="row-detail">Due {CARD.dueLabel}</span>
               </span>
               <span className="num">{sgd(CARD.due)}</span>
-            </li>
+            </div>
             {plan && (
-              <li>
-                <button type="button" className="ledger-link" onClick={() => store.go("invest")}>
-                  <span>
-                    <span className="row-title">Practice plan</span>
-                    <span className="row-detail">Sample Horizon Balanced · not invested</span>
-                  </span>
-                  <span className="num">{sgd(plan)}/mo</span>
-                </button>
-              </li>
+              <button type="button" className="account-row" onClick={() => store.go("invest")}>
+                <span>
+                  <span className="row-title">Practice plan</span>
+                  <span className="row-detail">Horizon Balanced · not invested</span>
+                </span>
+                <span className="num">{sgd(plan)}/mo</span>
+              </button>
             )}
-          </ul>
+          </div>
           {snapshot.readAmounts && (
             <button
               type="button"
@@ -129,32 +160,18 @@ export function Home() {
               Hear the balances
             </button>
           )}
-          <button type="button" className="btn btn-primary" onClick={() => store.go("move")}>
-            Move money
-          </button>
         </>
       )}
 
       <section className="latest" aria-labelledby="latest-title">
         <div className="section-head">
           <h2 id="latest-title">Latest</h2>
-          {guided ? null : (
-            <button type="button" className="text-link" onClick={() => store.go("activity")}>
-              All activity
-            </button>
-          )}
+          <button type="button" className="text-link" onClick={() => store.go("activity")}>
+            All activity
+          </button>
         </div>
         <ActivityList rows={rows} />
       </section>
-
-      <details className="presenter">
-        <summary>Presenter path</summary>
-        <ol>
-          <li>Ask: explain a unit trust simply.</li>
-          <li>Finish the walk, then switch to Standard. The plan stays.</li>
-          <li>Try to move 20000. Use the recovery, or ask why it was blocked.</li>
-        </ol>
-      </details>
     </div>
   );
 }

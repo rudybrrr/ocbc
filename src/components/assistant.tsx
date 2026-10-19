@@ -16,6 +16,17 @@ export function Assistant() {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [snapshot.messages.length]);
 
+  const context =
+    snapshot.screen === "move"
+      ? snapshot.lastIssue
+        ? "This payment stopped. Ask what to change."
+        : "Ask about the payment on this screen."
+      : snapshot.screen === "invest"
+        ? "Ask about this practice walk. It is education, not advice."
+        : snapshot.screen === "activity"
+          ? "Ask what a transaction means."
+          : "Ask about the money you can use today.";
+
   const send = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -30,7 +41,7 @@ export function Assistant() {
           <h2 id="assist-title" tabIndex={-1}>
             Ask
           </h2>
-          <p>Plain answers about this practice bank. Not personal advice.</p>
+          <p>{context}</p>
         </div>
         <button type="button" className="btn btn-quiet assist-close" onClick={store.closeHelp}>
           Close
@@ -42,7 +53,7 @@ export function Assistant() {
         </p>
         {snapshot.messages.length === 0 && (
           <p className="assist-empty">
-            Try a question in your own words, or use one of the prompts below.
+            Replies stay on this phone. They explain this practice bank and are not advice for you.
           </p>
         )}
         {snapshot.messages.map((message, index) => {

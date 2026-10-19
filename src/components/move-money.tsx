@@ -17,6 +17,10 @@ export function MoveMoney() {
   );
   const [saving, setSaving] = useState(false);
   const [receipt, setReceipt] = useState<string | null>(null);
+  const [pending, setPending] = useState<Transfer | null>(null);
+  const [pendingFor, setPendingFor] = useState<string | null>(null);
+  const draftSignature = `${snapshot.draft.from}|${snapshot.draft.to}|${snapshot.draft.amount}|${snapshot.draft.note}`;
+  const ready = pending && pendingFor === draftSignature ? pending : null;
   const errorId = useId();
   const guided = snapshot.mode === "guided";
   const destinations = DESTINATIONS.filter((item) => item.id !== snapshot.draft.from);
@@ -58,21 +62,16 @@ export function MoveMoney() {
           requestAnimationFrame(() => document.getElementById("move-error")?.focus());
           return;
         }
-        setSaving(true);
-        const transfer: Transfer = {
+        setError(null);
+        setPendingFor(`${snapshot.draft.from}|${snapshot.draft.to}|${snapshot.draft.amount}|${snapshot.draft.note}`);
+        setPending({
           id: crypto.randomUUID(),
           from: snapshot.draft.from,
           to: snapshot.draft.to,
           amount: result.amount,
           note: snapshot.draft.note.trim(),
           at: new Date().toISOString(),
-        };
-        window.setTimeout(() => {
-          store.submitMove(transfer);
-          setReceipt(receiptLine(snapshot.draft, result.amount));
-          setSaving(false);
-          setError(null);
-        }, 350);
+        });
       }}
     >
       <button type="button" className="back" onClick={() => store.go("home")}>
@@ -82,7 +81,16 @@ export function MoveMoney() {
       <h1 id="screen-title" tabIndex={-1}>
         Move money
       </h1>
-      <p className="lede">Practice payments stay on this phone. They do not leave the demo.</p>
+      {guided ? (
+        <div className="coach">
+          <p>Pick the account, the recipient, then the amount. If the amount is too high, you can fix it on this screen.</p>
+          <button type="button" className="btn btn-light" onClick={store.openHelp}>
+            Ask about this payment
+          </button>
+        </div>
+      ) : (
+        <p className="lede">Practice payments stay on this phone. They do not leave the demo.</p>
+      )}
 
       {error && (
         <div id="move-error" className="error-summary" role="alert" tabIndex={-1}>
@@ -221,8 +229,58 @@ export function MoveMoney() {
         />
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={saving} aria-busy={saving}>
-        {saving ? "Recording…" : "Record payment"}
+      {ready && (
+        <div className="confirm-pay" role="region" aria-labelledby="confirm-title">
+          <h2 id="confirm-title">Confirm this practice payment</h2>
+          <p>
+            {receiptLine(
+              { from: ready.from, to: ready.to, amount: "", note: ready.note },
+              ready.amount,
+            )}{" "}
+            Nothing leaves this phone, and no bank is contacted.
+          </p>
+          <div className="row-actions">
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={saving}
+              aria-busy={saving}
+              onClick={() => {
+                const transfer = ready;
+                setSaving(true);
+                window.setTimeout(() => {
+                  store.submitMove(transfer);
+                  setReceipt(
+                    receiptLine(
+                      { from: transfer.from, to: transfer.to, amount: "", note: transfer.note },
+                      transfer.amount,
+                    ),
+                  );
+                  setPending(null);
+                  setPendingFor(null);
+                  setSaving(false);
+                }, 350);
+              }}
+            >
+              {saving ? "Recording…" : "Confirm practice payment"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setPending(null);
+                setPendingFor(null);
+              }}
+              disabled={saving}
+            >
+              Change it
+            </button>
+          </div>
+        </div>
+      )}
+
+      <button type="submit" className="btn btn-primary" disabled={saving || ready !== null}>
+        Review payment
       </button>
     </form>
   );

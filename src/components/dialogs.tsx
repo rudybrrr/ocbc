@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEffect, useRef } from "react";
+import { Assistant } from "@/components/assistant";
 import { useStore } from "@/lib/store";
 import type { BankerRequest } from "@/lib/types";
 
@@ -283,5 +284,21 @@ function PersonForm({
         Log request
       </button>
     </form>
+  );
+}
+
+export function AssistantDialog() {
+  const store = useStore();
+  const ref = useModalDialog(store.snapshot.helpOpen, store.closeHelp);
+
+  useEffect(() => {
+    if (!store.snapshot.helpOpen) return;
+    document.getElementById("assist-title")?.focus();
+  }, [store.snapshot.helpOpen]);
+
+  return (
+    <dialog ref={ref} className="drawer" aria-labelledby="assist-title">
+      <Assistant />
+    </dialog>
   );
 }

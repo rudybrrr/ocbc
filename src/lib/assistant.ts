@@ -82,7 +82,7 @@ function investReply(ctx: AssistContext, query: string): Reply {
 export function respond(input: string, ctx: AssistContext): Reply {
   const query = norm(input);
 
-  if (/advice|should i (buy|invest)|recommend|right for me|personal advice|for me/.test(query)) {
+  if (/advice|should i (buy|invest)|recommend|right for me|personal advice/.test(query)) {
     return {
       text: "This is education about a sample fund, not advice for you. It does not look at income, debts, or when the money is needed. You can log a practice request to talk to a banker. This demo will not contact anyone.",
       actions: [
