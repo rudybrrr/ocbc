@@ -1,8 +1,19 @@
+import type { Ref } from "react";
+
 // penny is inlined instead of loaded as an image so her eyes and mouth stay addressable
 // by class name, which lets us animate them later without changing this structure
-export function Penny({ className = "" }: { className?: string }) {
+export function Penny({
+  className = "",
+  waving = false,
+  ref,
+}: {
+  className?: string;
+  waving?: boolean;
+  ref?: Ref<SVGSVGElement>;
+}) {
   return (
     <svg
+      ref={ref}
       className={`penny-svg ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 300 300"
@@ -71,6 +82,16 @@ export function Penny({ className = "" }: { className?: string }) {
         <ellipse cx="92" cy="178" rx="11" ry="6" fill="#FF7B70" opacity="0.55" />
         <ellipse cx="208" cy="178" rx="11" ry="6" fill="#FF7B70" opacity="0.55" />
       </g>
+      {/* the hand pivots at the wrist (248, 150), set in css with transform-box: view-box */}
+      {waving && (
+        <g className="penny-hand">
+          <path d="M248 150 L262 112" stroke="#7A0C07" strokeWidth="18" strokeLinecap="round" />
+          <path d="M248 150 L262 112" stroke="#C81A12" strokeWidth="11" strokeLinecap="round" />
+          <ellipse cx="247" cy="96" rx="9" ry="12" fill="url(#penny-face)" stroke="#7A0C07" strokeWidth="4" transform="rotate(-25 247 96)" />
+          <circle cx="266" cy="94" r="22" fill="url(#penny-face)" stroke="#7A0C07" strokeWidth="4" />
+          <path d="M256 81 Q265 76 274 80" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.45" />
+        </g>
+      )}
     </svg>
   );
 }

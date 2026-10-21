@@ -61,6 +61,13 @@ export function stuckLine(view: string) {
   return "Ready to send? I can check this with you before you confirm.";
 }
 
+// short enough for the small bubble penny shows while she peeks from the corner
+export function peekLine(view: string) {
+  if (view === "pay") return "Need a hand finding someone?";
+  if (view === "amount") return "Stuck on the amount? I can help.";
+  return "Almost there! Want me to check it with you?";
+}
+
 export function issueLine(issue: string) {
   return `That did not go through. ${issue}`;
 }

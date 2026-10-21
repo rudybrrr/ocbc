@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Penny } from "@/components/penny";
 import type { useCompanion } from "@/lib/use-companion";
 import { speak, stopSpeaking, useListen } from "@/lib/use-voice";
@@ -9,7 +9,24 @@ export function Companion({ companion }: { companion: ReturnType<typeof useCompa
   const [draft, setDraft] = useState("");
   const [voiceOn, setVoiceOn] = useState(true);
   const voice = useListen(companion.ask);
-  const { open, line } = companion;
+  const { open, line, origin } = companion;
+  const avatar = useRef<SVGSVGElement>(null);
+
+  // opened by tapping the peek: the avatar starts where the peeking penny was and flies
+  // into place, so it reads as one penny moving rather than one leaving and another arriving.
+  // a layout effect so the first painted frame is already at the peek spot
+  useLayoutEffect(() => {
+    const el = avatar.current;
+    if (!open || !origin || !el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const to = el.getBoundingClientRect();
+    const dx = origin.left + origin.width / 2 - (to.left + to.width / 2);
+    const dy = origin.top + origin.height / 2 - (to.top + to.height / 2);
+    el.animate(
+      [{ transform: `translate(${dx}px, ${dy}px) scale(${origin.width / to.width})` }, { transform: "none" }],
+      { duration: 600, easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
+    );
+  }, [open, origin]);
 
   // speech is an external system, so syncing it to the current line is a proper use of an effect.
   // the short wait means typing "100" is spoken once instead of restarting on every key
@@ -30,9 +47,9 @@ export function Companion({ companion }: { companion: ReturnType<typeof useCompa
   };
 
   return (
-    <aside className="penny" aria-label="Penny, your banking companion">
+    <aside className={`penny ${origin ? "penny-from-peek" : ""}`} aria-label="Penny, your banking companion">
       <div className="penny-row">
-        <Penny className="penny-avatar" />
+        <Penny ref={avatar} className="penny-avatar" waving />
         <p className="penny-line" aria-live="polite">
           {line}
         </p>

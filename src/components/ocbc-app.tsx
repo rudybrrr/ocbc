@@ -14,6 +14,7 @@ import {
 } from "@/components/dialogs";
 import { Invest } from "@/components/invest";
 import { Companion } from "@/components/companion";
+import { PennyPeek } from "@/components/penny-peek";
 import { useCompanion } from "@/lib/use-companion";
 
 function Art({ name, className = "" }: { name: string; className?: string }) {
@@ -772,6 +773,7 @@ export function OcbcApp() {
         )}
       </main>
       {!welcome && <Companion companion={companion} />}
+      {!welcome && <PennyPeek companion={companion} aboveNav={!payment} />}
       {!welcome && !payment && (
         <nav className="oc-nav" aria-label="Primary">
           {[
