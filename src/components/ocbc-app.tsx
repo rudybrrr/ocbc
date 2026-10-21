@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { DemoSlide } from "@/lib/demo-slides";
 import {
   ContactRow,
   IgniteImage,
@@ -17,7 +18,7 @@ import { activity, DESTINATIONS } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import { parseAmount, validateMove } from "@/lib/move";
 import type { DestinationId } from "@/lib/types";
-import { PersonDialog, PreferencesDialog } from "@/components/dialogs";
+import { AssistantDialog, PersonDialog, PreferencesDialog } from "@/components/dialogs";
 import { Invest } from "@/components/invest";
 import { FixedDepositApplication } from "@/components/fixed-deposit";
 import { Companion } from "@/components/companion";
@@ -141,6 +142,32 @@ export function OcbcApp() {
   const payment = ["pay", "amount", "review", "receipt", "fixed-deposit"].includes(view);
   const welcome = view === "welcome" || view === "login";
   const info = (text: string) => setNotice(text);
+
+  const presentation: DemoSlide = store.prefsOpen
+    ? "preferences"
+    : store.personOpen
+      ? "person"
+      : store.snapshot.helpOpen
+        ? "assistant"
+        : welcome
+          ? "welcome"
+          : issue
+            ? "recovery"
+            : view;
+
+  useEffect(() => {
+    if (!store.ready || window.parent === window) return;
+    const publish = () => window.parent.postMessage(
+      { type: "ocbc:demo-slide", slide: presentation },
+      window.location.origin,
+    );
+    const receive = (event: MessageEvent) => {
+      if (event.origin === window.location.origin && event.source === window.parent && event.data?.type === "ocbc:request-demo-slide") publish();
+    };
+    window.addEventListener("message", receive);
+    publish();
+    return () => window.removeEventListener("message", receive);
+  }, [presentation, store.ready]);
 
   if (!store.ready)
     return (
@@ -757,6 +784,9 @@ export function OcbcApp() {
                 <button onClick={store.openPrefs}>
                   Accessibility & preferences
                 </button>
+                <button onClick={store.openHelp}>
+                  Ask OCBC Adaptive Assist
+                </button>
                 <button onClick={store.openPerson}>Speak to a person</button>
                 <button onClick={() => nav("login")}>Logout</button>
               </>
@@ -783,6 +813,7 @@ export function OcbcApp() {
           onNavigate={(target) => nav(target as View)}
         />
       )}
+      <AssistantDialog />
       <PreferencesDialog />
       <PersonDialog />
     </div>

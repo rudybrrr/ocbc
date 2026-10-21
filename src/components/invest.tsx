@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Icon } from "@/components/icons";
 import { SAMPLE_FUND } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import { useStore } from "@/lib/store";
@@ -21,10 +20,6 @@ export function Invest() {
 
   return (
     <div className="screen">
-      <button type="button" className="back" onClick={() => store.go("home")}>
-        <Icon name="back" />
-        Today
-      </button>
       <p className="steps">
         {LABELS.map((label, index) => (
           <span key={label} aria-current={index === screen ? "step" : undefined}>
