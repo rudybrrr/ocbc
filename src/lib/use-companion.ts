@@ -22,6 +22,7 @@ type Args = {
   issue: string;
   assist: AssistContext;
   pay: (to: DestinationId, amount: string) => void;
+  openFixedDeposit: () => void;
 };
 
 export function useCompanion({
@@ -33,11 +34,16 @@ export function useCompanion({
   issue,
   assist,
   pay,
+  openFixedDeposit,
 }: Args) {
   const [open, setOpen] = useState(false);
   const [guiding, setGuiding] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [reply, setReply] = useState<{ text: string; key: string } | null>(null);
+  const [reply, setReply] = useState<{
+    text: string;
+    key: string;
+    action?: "fixed-deposit";
+  } | null>(null);
 
   // a reply belongs to the screen state it was made for. once the user moves on or edits
   // the amount the key changes, so stale replies disappear without any cleanup code
@@ -86,6 +92,11 @@ export function useCompanion({
     guiding: active,
     target,
     line,
+    showFixedDepositAction: reply?.key === key && reply.action === "fixed-deposit",
+    openFixedDeposit: () => {
+      close();
+      openFixedDeposit();
+    },
     startGuide,
     close,
     // "not now" keeps penny quiet until the user changes screen
@@ -113,6 +124,11 @@ export function useCompanion({
       if (result.kind === "say") {
         setOpen(true);
         setReply({ text: result.text, key });
+        return;
+      }
+      if (result.kind === "fixed-deposit") {
+        setOpen(true);
+        setReply({ text: result.text, key, action: "fixed-deposit" });
         return;
       }
       startGuide();
