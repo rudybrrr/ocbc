@@ -1,6 +1,6 @@
 import { CARD, SAMPLE_FUND } from "@/lib/data";
 import { sgd } from "@/lib/format";
-import type { ChatAction, Mode, Screen } from "@/lib/types";
+import type { ChatAction, ChatTopic, Mode, Screen } from "@/lib/types";
 
 export type AssistContext = {
   mode: Mode;
@@ -12,9 +12,58 @@ export type AssistContext = {
   monthly: 50 | 100 | 200 | null;
   investDone: boolean;
   lastIssue: string | null;
+  lastTopic: ChatTopic | null;
 };
 
-export type Reply = { text: string; actions: ChatAction[] };
+export type Reply = { text: string; actions: ChatAction[]; topic?: ChatTopic };
+
+const FIXED_DEPOSIT_ACTION: ChatAction = {
+  label: "Explore Fixed Deposits",
+  type: "navigate",
+  actionId: "fixed_deposit.start",
+};
+
+function fixedDepositReply(query: string, affirmative = false): Reply {
+  if (affirmative) {
+    return {
+      text: "I can show you a simulated application using sample amounts and terms. Nothing will be opened and no money will move.",
+      actions: [FIXED_DEPOSIT_ACTION],
+      topic: "fixed-deposit",
+    };
+  }
+
+  if (/early|withdraw|access|need.*money|take.*out|break.*deposit/.test(query)) {
+    return {
+      text: "A fixed deposit is generally meant to stay in place until its maturity date. Depending on the product, an early withdrawal may not be allowed or may reduce or remove interest. Check the specific terms before setting money aside, and avoid locking away money you may need sooner.",
+      actions: [
+        { label: "How is interest set?", type: "ask", query: "How is fixed deposit interest set?" },
+        { label: "Would you like to explore opening one?", type: "ask", query: "Yes, show me how." },
+      ],
+      topic: "fixed-deposit",
+    };
+  }
+
+  if (/interest|rate|return|earn/.test(query)) {
+    return {
+      text: "A fixed deposit usually has an interest rate stated for a chosen term, so you can estimate the interest from the amount, rate, and term. Actual rates and eligibility depend on the bank's current offer. This demo does not show a live OCBC rate; any terms in its application are illustrative only.",
+      actions: [
+        { label: "What if I need the money early?", type: "ask", query: "What if I need the money early?" },
+        { label: "Would you like to explore opening one?", type: "ask", query: "Yes, show me how." },
+      ],
+      topic: "fixed-deposit",
+    };
+  }
+
+  return {
+    text: "A fixed deposit is money placed with a bank for an agreed period, often at an interest rate set for that term. It can make returns more predictable and may offer a higher rate than an easy-access account. The trade-offs are reduced access to your money, possible loss of interest if you withdraw early, and the chance that a fixed rate may be less attractive if rates later rise. This is general education, not personal financial advice.",
+    actions: [
+      { label: "What if I need the money early?", type: "ask", query: "What if I need the money early?" },
+      { label: "How is interest set?", type: "ask", query: "How is fixed deposit interest set?" },
+      { label: "Would you like to explore opening one?", type: "ask", query: "Yes, show me how." },
+    ],
+    topic: "fixed-deposit",
+  };
+}
 
 function norm(input: string) {
   return input
@@ -81,6 +130,25 @@ function investReply(ctx: AssistContext, query: string): Reply {
 
 export function respond(input: string, ctx: AssistContext): Reply {
   const query = norm(input);
+
+  if (
+    ctx.lastTopic === "fixed-deposit" &&
+    /^(yes|yeah|yep|sure|okay|ok)(\s|$)/.test(query) &&
+    /show|how|explore|open|go|please|one/.test(query)
+  ) {
+    return fixedDepositReply(query, true);
+  }
+
+  if (/fixed deposit|fixed deposits|time deposit|term deposit/.test(query)) {
+    return fixedDepositReply(query);
+  }
+
+  if (
+    ctx.lastTopic === "fixed-deposit" &&
+    /early|withdraw|access|interest|rate|return|earn|term|mature|risk|benefit|limit|how does|what happens/.test(query)
+  ) {
+    return fixedDepositReply(query);
+  }
 
   if (/advice|should i (buy|invest)|recommend|right for me|personal advice/.test(query)) {
     return {
@@ -168,6 +236,9 @@ export function respond(input: string, ctx: AssistContext): Reply {
 export function suggestions(ctx: AssistContext): string[] {
   if (ctx.lastIssue) {
     return ["Why was that payment blocked?", "How much can I use today?", "Talk to a person"];
+  }
+  if (ctx.lastTopic === "fixed-deposit") {
+    return ["What if I need the money early?", "How is interest set?", "Yes, show me how."];
   }
   if (ctx.screen === "invest") {
     return ["What if the value falls?", "Is this personal financial advice?", "Talk to a person"];
