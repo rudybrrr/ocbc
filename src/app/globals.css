@@ -159,17 +159,176 @@ button {
 }
 
 .device-preview {
-  min-height: 100dvh;
+  --device-height: min(800px, calc(100dvh - 96px), calc((100vw - 32px) * 2.051282));
+  --device-width: calc(var(--device-height) * 0.4875);
+  box-sizing: border-box;
+  height: 100dvh;
   display: grid;
   place-items: center;
   padding: 32px 16px;
   background: #f0eeec;
 }
 
+.presentation-header,
+.presentation-intro,
+.presentation-notes {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .device-preview {
+    --device-height: min(800px, calc(100dvh - 140px));
+    grid-template-columns: minmax(0, 1fr) var(--device-width) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 20px clamp(28px, 4vw, 80px);
+    padding: 24px clamp(32px, 4vw, 80px) 40px;
+    color: #303537;
+    background: #f0eeec;
+  }
+
+  .presentation-header {
+    display: flex;
+    grid-column: 1 / -1;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .presentation-brand {
+    color: #dc001b;
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .presentation-brand span {
+    margin-left: 14px;
+    color: #303537;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .presentation-intro,
+  .presentation-notes {
+    display: block;
+    width: 100%;
+    max-width: 390px;
+    align-self: center;
+  }
+
+  .presentation-intro h1 {
+    font-size: clamp(36px, min(4vw, 6dvh), 66px);
+    line-height: 1.08;
+    letter-spacing: -0.065em;
+    text-wrap: initial;
+    overflow-wrap: normal;
+  }
+
+  .presentation-description {
+    margin-top: 26px;
+    color: #62676a;
+    font-size: 16px;
+    line-height: 1.75;
+    max-width: 310px;
+  }
+
+  .presentation-cue {
+    display: flex;
+    gap: 14px;
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid #d2cfcc;
+    max-width: 290px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #62676a;
+  }
+
+  .presentation-cue > span {
+    color: #d6001b;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .presentation-caption {
+    color: #b70017;
+    font-size: 11px;
+    margin-bottom: 18px;
+  }
+
+  .presentation-notes h2 {
+    font-size: clamp(23px, 2.1vw, 32px);
+    line-height: 1.25;
+    letter-spacing: -0.04em;
+  }
+
+  .presentation-notes ol {
+    list-style: none;
+    padding: 0;
+    margin-top: 32px;
+  }
+
+  .presentation-notes li {
+    padding: 22px 0;
+    border-top: 1px solid #d2cfcc;
+  }
+
+  .presentation-notes h3 {
+    margin: 0 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .presentation-notes li p {
+    color: #62676a;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .device-fit {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+}
+
+@media (min-width: 1100px) and (max-height: 720px) {
+  .presentation-description {
+    margin-top: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .presentation-cue {
+    margin-top: 24px;
+    padding-top: 14px;
+  }
+
+  .presentation-caption {
+    margin-bottom: 12px;
+  }
+
+  .presentation-notes h2 {
+    font-size: 23px;
+  }
+
+  .presentation-notes ol {
+    margin-top: 20px;
+  }
+
+  .presentation-notes li {
+    padding: 14px 0;
+  }
+}
+
 .device {
   position: relative;
-  width: min(390px, calc(100vw - 32px));
-  height: min(800px, calc(100dvh - 64px));
+  width: 390px;
+  height: 800px;
+  transform: scale(calc(var(--device-height) / 800px));
+  transform-origin: top left;
   padding: 11px;
   border: 2px solid #716572;
   border-radius: 60px;
@@ -177,6 +336,11 @@ button {
   box-shadow:
     inset 0 0 0 2px #b0a6b0,
     inset 0 0 0 5px #343035;
+}
+
+.device-fit {
+  width: var(--device-width);
+  height: var(--device-height);
 }
 
 .device::after {
@@ -210,7 +374,7 @@ button {
   content: "";
   position: absolute;
   top: 17px;
-  left: calc(min(390px, 100vw - 32px) - 1px);
+  left: 389px;
   width: 3px;
   height: 76px;
   border-radius: 0 2px 2px 0;
@@ -220,9 +384,11 @@ button {
 .device-screen {
   position: relative;
   height: 100%;
+  /* Reserve device chrome outside the app's scrolling viewport. */
+  padding-top: 44px;
   overflow: hidden;
   border-radius: 47px;
-  background: var(--paper);
+  background: #fff;
 }
 
 .device-screen iframe {

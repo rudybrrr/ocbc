@@ -1,7 +1,8 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- supplied raster artwork is already sized for the mobile reference. */
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { DemoSlide } from "@/lib/demo-slides";
 import { useStore } from "@/lib/store";
 import { activity, DESTINATIONS } from "@/lib/data";
 import { sgd } from "@/lib/format";
@@ -90,6 +91,32 @@ export function OcbcApp() {
   const payment = ["pay", "amount", "review", "receipt"].includes(view);
   const welcome = view === "welcome" || view === "login";
   const info = (text: string) => setNotice(text);
+
+  const presentation: DemoSlide = store.prefsOpen
+    ? "preferences"
+    : store.personOpen
+      ? "person"
+      : store.snapshot.helpOpen
+        ? "assistant"
+        : welcome
+          ? "welcome"
+          : issue
+            ? "recovery"
+            : view;
+
+  useEffect(() => {
+    if (!store.ready || window.parent === window) return;
+    const publish = () => window.parent.postMessage(
+      { type: "ocbc:demo-slide", slide: presentation },
+      window.location.origin,
+    );
+    const receive = (event: MessageEvent) => {
+      if (event.origin === window.location.origin && event.source === window.parent && event.data?.type === "ocbc:request-demo-slide") publish();
+    };
+    window.addEventListener("message", receive);
+    publish();
+    return () => window.removeEventListener("message", receive);
+  }, [presentation, store.ready]);
 
   if (!store.ready)
     return (
