@@ -7,11 +7,21 @@ import {
   FLOW_VIEWS,
   guideStep,
   issueLine,
+  peekLine,
   STUCK_MS,
   STUCK_VIEWS,
   stuckLine,
 } from "@/lib/companion";
 import type { DestinationId } from "@/lib/types";
+
+// penny is tucked away, peeking from the corner, or showing the full panel.
+// more peek moods (happy, thinking, alert) can hang off "peek" later
+export type CompanionMode = "hidden" | "peek" | "panel";
+
+// anything that shows the user is still working. scroll does not bubble, so every
+// listener is attached to the document in the capture phase
+const ACTIVITY = ["pointerdown", "keydown", "wheel", "touchmove", "scroll"] as const;
+const LISTEN = { capture: true, passive: true } as const;
 
 type Args = {
   view: string;
@@ -36,7 +46,9 @@ export function useCompanion({
   pay,
   openFixedDeposit,
 }: Args) {
-  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<CompanionMode>("hidden");
+  // where penny was peeking when tapped, so the panel avatar can fly in from that spot
+  const [origin, setOrigin] = useState<DOMRect | null>(null);
   const [guiding, setGuiding] = useState(false);
   const [muted, setMuted] = useState(false);
   const [reply, setReply] = useState<{
@@ -56,16 +68,29 @@ export function useCompanion({
     (active && step.line) ||
     "Hi, I'm Penny. Ask me anything about this payment.";
 
-  // stuck detection: a timer that restarts whenever the screen or the amount changes.
-  // if it runs out the user has not made progress, so penny offers help on her own
+  // stuck detection: an idle timer that restarts on any activity, screen or amount change.
+  // if it runs out the user has stopped, so penny peeks in. activity while she peeks means
+  // the user is not stuck after all, so she tucks away and the timer starts again
   useEffect(() => {
-    if (!STUCK_VIEWS.includes(view) || open || guiding || muted) return;
-    const timer = window.setTimeout(() => {
-      setOpen(true);
-      setReply({ text: stuckLine(view), key });
-    }, STUCK_MS);
-    return () => window.clearTimeout(timer);
-  }, [view, key, open, guiding, muted]);
+    if (!STUCK_VIEWS.includes(view) || mode === "panel" || guiding || muted) return;
+    let timer = 0;
+    const arm = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setMode("peek"), STUCK_MS);
+    };
+    const onActivity = (event: Event) => {
+      // taps on penny herself are handled by her own buttons
+      if (event.target instanceof Element && event.target.closest("[data-penny-peek]")) return;
+      if (mode === "peek") setMode("hidden");
+      else arm();
+    };
+    if (mode === "hidden") arm();
+    for (const type of ACTIVITY) document.addEventListener(type, onActivity, LISTEN);
+    return () => {
+      window.clearTimeout(timer);
+      for (const type of ACTIVITY) document.removeEventListener(type, onActivity, LISTEN);
+    };
+  }, [view, key, mode, guiding, muted]);
 
   // bring the highlighted control into view, since the contact list and form can scroll
   useEffect(() => {
@@ -76,19 +101,23 @@ export function useCompanion({
   }, [target]);
 
   const startGuide = () => {
-    setOpen(true);
+    setMode("panel");
     setGuiding(true);
     setReply(null);
   };
 
   const close = () => {
-    setOpen(false);
+    setMode("hidden");
+    setOrigin(null);
     setGuiding(false);
     setReply(null);
   };
 
   return {
-    open,
+    open: mode === "panel",
+    peeking: mode === "peek",
+    peekLine: peekLine(view),
+    origin,
     guiding: active,
     target,
     line,
@@ -99,6 +128,12 @@ export function useCompanion({
     },
     startGuide,
     close,
+    // tapping penny while she peeks opens the full panel with the stuck offer
+    expand: (from: DOMRect) => {
+      setOrigin(from);
+      setMode("panel");
+      setReply({ text: stuckLine(view), key });
+    },
     // "not now" keeps penny quiet until the user changes screen
     dismiss: () => {
       close();
@@ -107,11 +142,12 @@ export function useCompanion({
     // called by the app on every screen change
     navigate: (next: string) => {
       setMuted(false);
+      setMode((current) => (current === "peek" ? "hidden" : current));
       if (!FLOW_VIEWS.includes(next)) close();
     },
     // an error is the clearest sign of being stuck, so penny explains it straight away
     explain: (text: string) => {
-      setOpen(true);
+      setMode("panel");
       setReply({ text: issueLine(text), key });
     },
     ask: (text: string) => {
@@ -122,12 +158,12 @@ export function useCompanion({
         return;
       }
       if (result.kind === "say") {
-        setOpen(true);
+        setMode("panel");
         setReply({ text: result.text, key });
         return;
       }
       if (result.kind === "fixed-deposit") {
-        setOpen(true);
+        setMode("panel");
         setReply({ text: result.text, key, action: "fixed-deposit" });
         return;
       }

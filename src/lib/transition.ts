@@ -17,5 +17,7 @@ export function withTransition(update: () => void, focusId?: string) {
   const transition = document.startViewTransition(() => {
     flushSync(update);
   });
+  // a quick second tap skips this transition; the update still runs, so the rejection is expected
+  transition.ready.catch(() => {});
   transition.finished.then(focus, focus);
 }

@@ -21,6 +21,7 @@ import { PersonDialog, PreferencesDialog } from "@/components/dialogs";
 import { Invest } from "@/components/invest";
 import { FixedDepositApplication } from "@/components/fixed-deposit";
 import { Companion } from "@/components/companion";
+import { PennyPeek } from "@/components/penny-peek";
 import { useCompanion } from "@/lib/use-companion";
 
 type View =
@@ -774,6 +775,7 @@ export function OcbcApp() {
         )}
       </main>
       {!welcome && <Companion companion={companion} />}
+      {!welcome && <PennyPeek companion={companion} aboveNav={!payment} />}
       {!welcome && !payment && (
         <BottomNavigation
           current={view === "invest" ? "plan" : view}
