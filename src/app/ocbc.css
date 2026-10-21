@@ -32,30 +32,30 @@
   box-sizing: border-box;
 }
 
-.oc-app button,
-.oc-app input {
+:where(.oc-app) button,
+:where(.oc-app) input {
   font: inherit;
 }
 
-.oc-app button {
+:where(.oc-app) button {
   color: inherit;
   cursor: pointer;
 }
 
-.oc-app button:disabled {
+:where(.oc-app) button:disabled {
   cursor: not-allowed;
 }
 
-.oc-app h1,
-.oc-app h2,
-.oc-app p {
+:where(.oc-app) h1,
+:where(.oc-app) h2,
+:where(.oc-app) p {
   margin: 0;
   letter-spacing: normal;
   overflow-wrap: anywhere;
 }
 
-.oc-app h1,
-.oc-app h2 {
+:where(.oc-app) h1,
+:where(.oc-app) h2 {
   color: var(--ocbc-ink);
   line-height: 1.2;
 }
@@ -110,8 +110,8 @@
 
 .oc-welcome-hero {
   position: relative;
-  height: min(114vw, 442px);
-  min-height: 345px;
+  /* sized to the viewport so welcome and login fit without scrolling */
+  height: min(100vw, 44dvh);
   overflow: hidden;
   background: #f7f2ef;
 }
@@ -169,7 +169,7 @@
   min-height: 70px;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 7px;
   padding: 7px 4px !important;
   border-radius: 10px !important;
@@ -326,7 +326,8 @@
   align-items: flex-start;
   justify-content: center;
   gap: 8px;
-  padding: 17px 14px 24px 18px;
+  /* bottom clears the shortcuts card, which overlaps by 27px */
+  padding: 17px 14px 42px 18px;
   background: var(--ocbc-red);
   color: #fff;
 }
@@ -634,7 +635,7 @@
 
 .oc-plan {
   min-height: 100%;
-  padding: 28px 12px 18px;
+  padding: 16px 12px 14px;
   background: var(--ocbc-background);
 }
 
@@ -725,9 +726,9 @@
 
 .oc-plan-grid > section {
   position: relative;
-  min-height: 190px;
+  min-height: 140px;
   overflow: hidden;
-  padding: 17px 12px 56px;
+  padding: 14px 12px 50px;
 }
 
 .oc-plan-grid h2 {
@@ -758,13 +759,13 @@
   position: absolute;
   right: 13px;
   bottom: 0;
-  width: 62px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
 }
 
 .oc-plan-grid > section:nth-child(1) {
-  padding-bottom: 47px;
+  padding-bottom: 14px;
 }
 
 .oc-card-arrow {
@@ -853,9 +854,17 @@
   min-height: 40px;
   padding: 0;
   border: 0;
-  outline-offset: 1px;
   background: transparent;
   font-size: calc(12px * var(--oc-font-scale));
+}
+
+.oc-search input:focus-visible {
+  outline: none;
+}
+
+.oc-search:focus-within {
+  outline: 3px solid #1677c8;
+  outline-offset: 2px;
 }
 
 .oc-search input::placeholder {
@@ -1171,7 +1180,8 @@
   bottom: 8px;
   z-index: 2;
   margin-top: auto;
-  box-shadow: 0 4px 14px rgb(255 255 255 / 80%);
+  /* solid strip in the page colour so cards scrolling beneath don't peek around it */
+  box-shadow: 0 0 0 10px var(--ocbc-background);
 }
 
 .oc-review-screen {
@@ -1483,4 +1493,33 @@ html[data-text="largest"] .oc-app {
   .oc-button {
     transition: none;
   }
+}
+
+/* legacy screens (invest walk, assistant) rendered inside the OCBC shell */
+.oc-app .screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 14px 20px;
+}
+
+.oc-app .screen article {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oc-app .btn-primary {
+  background: var(--ocbc-teal);
+  border-radius: var(--ocbc-control-radius);
+}
+
+.oc-app .btn-primary:disabled {
+  background: #e5e8e9;
+  color: #69757a;
+}
+
+/* without the bottom nav, penny is the last bar and must clear the home indicator */
+.penny:not(:has(+ .oc-bottom-nav)) {
+  padding-bottom: 20px;
 }

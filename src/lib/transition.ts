@@ -17,5 +17,7 @@ export function withTransition(update: () => void, focusId?: string) {
   const transition = document.startViewTransition(() => {
     flushSync(update);
   });
+  // a newer transition skips this one; the update still runs, so the rejection is noise
+  transition.ready.catch(() => {});
   transition.finished.then(focus, focus);
 }
