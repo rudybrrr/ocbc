@@ -20,6 +20,8 @@ import type { DestinationId } from "@/lib/types";
 import { PersonDialog, PreferencesDialog } from "@/components/dialogs";
 import { Invest } from "@/components/invest";
 import { FixedDepositApplication } from "@/components/fixed-deposit";
+import { Companion } from "@/components/companion";
+import { useCompanion } from "@/lib/use-companion";
 
 type View =
   | "welcome"
@@ -96,6 +98,7 @@ export function OcbcApp() {
     setView(next === "invest" ? "plan" : next);
     setNotice("");
     setIssue("");
+    companion.navigate(next);
   };
   const login = () => {
     if (!store.snapshot.onboarded)
@@ -109,14 +112,29 @@ export function OcbcApp() {
       });
     nav("home");
   };
-  const choose = (id: DestinationId) => {
+  const choose = (id: DestinationId, amountValue = "") => {
     setRecipient(id);
-    store.updateDraft({ from: "everyday", to: id, amount: "", note: "" });
+    store.updateDraft({ from: "everyday", to: id, amount: amountValue, note: "" });
     setBalance(false);
     setMessage(false);
     nav("amount");
   };
   const amount = parseAmount(store.snapshot.draft.amount);
+  const companion = useCompanion({
+    view,
+    amountRaw: store.snapshot.draft.amount,
+    amountOk: amount.ok,
+    amount: amount.ok ? amount.amount : 0,
+    name: name ?? "them",
+    issue,
+    assist: store.assistContext,
+    pay: choose,
+  });
+  // every error also goes to penny, because a blocked payment is the moment people get stuck
+  const flag = (text: string) => {
+    setIssue(text);
+    companion.explain(text);
+  };
   const payment = ["pay", "amount", "review", "receipt", "fixed-deposit"].includes(view);
   const welcome = view === "welcome" || view === "login";
   const info = (text: string) => setNotice(text);
@@ -136,7 +154,10 @@ export function OcbcApp() {
     );
 
   return (
-    <div className={`oc-app ${welcome ? "oc-welcome-app" : ""}`}>
+    <div
+      className={`oc-app ${welcome ? "oc-welcome-app" : ""}`}
+      data-guide-active={companion.target ?? undefined}
+    >
       <a className="skip" href="#oc-main">
         Skip to content
       </a>
@@ -558,7 +579,7 @@ export function OcbcApp() {
               </button>
             </div>
             <section className="oc-contacts">
-              <label className="oc-search">
+              <label className="oc-search" data-guide="search">
                 <SpriteIcon name="search" size={19} />
                 <input
                   aria-label="Search by name or mobile number"
@@ -621,11 +642,13 @@ export function OcbcApp() {
                   store.snapshot.transfers,
                 );
                 if (!result.ok) {
-                  setIssue(`${result.title} ${result.recovery}`);
+                  flag(`${result.title} ${result.recovery}`);
                   return;
                 }
                 if (result.amount > 1000) {
-                  setIssue("This amount exceeds the 1,000.00 SGD demo daily limit.");
+                  flag(
+                    "This amount exceeds the 1,000.00 SGD demo daily limit.",
+                  );
                   return;
                 }
                 nav("review");
@@ -660,18 +683,18 @@ export function OcbcApp() {
                   {issue}
                 </p>
               )}
-              <OcbcButton
+              <OcbcButton data-guide="confirm"
                 onClick={() => {
                   const result = validateMove(
                     store.snapshot.draft,
                     store.snapshot.transfers,
                   );
                   if (!result.ok) {
-                    setIssue(result.title);
+                    flag(result.title);
                     return;
                   }
                   if (result.amount > 1000) {
-                    setIssue("Daily demo limit exceeded.");
+                    flag("Daily demo limit exceeded.");
                     return;
                   }
                   store.submitMove({
@@ -749,6 +772,7 @@ export function OcbcApp() {
           </div>
         )}
       </main>
+      {!welcome && <Companion companion={companion} />}
       {!welcome && !payment && (
         <BottomNavigation
           current={view === "invest" ? "plan" : view}

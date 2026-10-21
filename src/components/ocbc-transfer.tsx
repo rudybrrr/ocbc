@@ -56,6 +56,7 @@ export function TransferForm({
           <span aria-hidden="true">S$</span>
           <input
             id="oc-amount"
+            data-guide="amount"
             inputMode="decimal"
             autoComplete="off"
             placeholder="0.00"
@@ -121,6 +122,7 @@ export function TransferForm({
       </p>
       <OcbcButton
         className="oc-transfer-next"
+        data-guide="next"
         type="button"
         disabled={!amountValid}
         onClick={onContinue}
