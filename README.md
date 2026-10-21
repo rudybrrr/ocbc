@@ -15,7 +15,7 @@ Open http://localhost:3000. On a laptop the app sits in a centered iPhone frame,
 
 1. Log in, open **Customise**, and change text size or assistance mode. Close the panel to return to Home.
 2. Open **Plan → Start investing** to explore Pool, Risk, Mix, and Plan, then save a practice monthly amount.
-3. Open **Pay & Transfer**, select a contact, enter `20000`, and tap **Next** to demonstrate recovery. Reduce the amount, review, and confirm a practice payment.
+3. Open **Pay & Transfer**, select a contact, enter `20000`, and tap **Review transfer** to demonstrate recovery. Reduce the amount, review, and confirm a practice payment.
 4. Open **More** to try **Accessibility & preferences**, **Ask OCBC Adaptive Assist**, or **Speak to a person**.
 5. Side slides explain each feature, its customer benefit, and what to demonstrate next. Closing a support dialog restores the underlying screen's slide; slide changes do not reload the app.
 
@@ -23,9 +23,9 @@ Open http://localhost:3000. On a laptop the app sits in a centered iPhone frame,
 
 1. Tap **Log in as existing customer**, then **Log in to OCBC Singapore**. On Home tap **PayNow**.
 2. Wait about 8 seconds without tapping. Penny appears and offers help.
-3. Tap **Speak** and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Next**.
-4. Tap **Next**. Penny highlights **Confirm practice payment**. Tap it and she confirms on the receipt.
-5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Next, Confirm.
+3. Tap **Speak** and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Review transfer**.
+4. Tap **Review transfer**. Penny highlights **Confirm practice payment**. Tap it and she confirms on the receipt.
+5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Review transfer, Confirm.
 6. Try `99999` as the amount. The payment is blocked and Penny explains why right away.
 
 The stuck delay is `STUCK_MS` in `src/lib/companion.ts`.

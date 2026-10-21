@@ -47,6 +47,18 @@ export const demoSlides = {
     ],
     cue: "Walk through Pool, Risk, Mix, and Plan. This is education, not an investment recommendation.",
   },
+  "fixed-deposit": {
+    label: "Fixed-deposit simulation",
+    title: "From explanation to a practice application.",
+    description: "Explore a sample fixed-deposit application after learning how the product works.",
+    heading: "Understand the details before confirming.",
+    points: [
+      ["Choose sample details", "Enter an illustrative deposit amount, tenure, and funding account."],
+      ["Review before confirming", "Check the application summary and return to edit if needed."],
+      ["Practice without commitment", "Confirmation creates a simulated reference. No account opens, no money moves, and no live rate is quoted."],
+    ],
+    cue: "Review the sample application, then confirm the simulation or return Home.",
+  },
   pay: {
     label: "PayNow",
     title: "A clear start to every payment.",
@@ -69,7 +81,7 @@ export const demoSlides = {
       ["Check available money", "Show available balance without leaving the task."],
       ["Review comes next", "Valid amounts continue to a separate review screen before confirmation."],
     ],
-    cue: "Try a small amount and tap Next, or enter 20,000 to demonstrate recovery.",
+    cue: "Try a small amount and tap Review transfer, or enter 20,000 to demonstrate recovery.",
   },
   recovery: {
     label: "Payment recovery",
@@ -81,7 +93,7 @@ export const demoSlides = {
       ["Keep the context", "The recipient and typed details remain available for correction."],
       ["Try again confidently", "Change to an affordable amount, then return to review."],
     ],
-    cue: "Read the message in the phone, reduce the amount, and tap Next again.",
+    cue: "Read the message in the phone, reduce the amount, and tap Review transfer again.",
   },
   review: {
     label: "Payment review",
