@@ -2461,3 +2461,111 @@ html[data-text="largest"] .oc-app {
 
 .oc-search input { min-height:0; }
 .oc-note { min-height:40px; }
+
+/* penny, the proactive companion. she sits in the app's flex column between the content
+   and the nav, so she takes her own space and never covers the button she points at */
+.penny {
+  flex: none;
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  background: #fff;
+  border-top: 1px solid #d8dcdf;
+  box-shadow: 0 -6px 16px rgb(41 41 41 / 0.08);
+}
+.penny-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.penny-avatar {
+  flex: none;
+  width: 46px;
+  height: 46px;
+}
+.penny-line {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 11px;
+  border-radius: 4px 12px 12px 12px;
+  background: #f3f4f6;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  line-height: 1.4;
+}
+.oc-app .penny-close {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  font-size: 20px;
+  line-height: 1;
+  color: #62686c;
+}
+.penny-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.oc-app .penny-chips button {
+  border: 1px solid #405660;
+  border-radius: 30px;
+  padding: 5px 11px;
+  color: #405660;
+  font-size: calc(11px * var(--oc-font-scale, 1));
+}
+.oc-app .penny-chips button[aria-pressed="false"] {
+  border-color: #bec3c6;
+  color: #62686c;
+}
+.penny-ask {
+  display: flex;
+  gap: 6px;
+}
+.penny-ask input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #edecf2;
+  padding: 8px 10px;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+}
+.oc-app .penny-mic,
+.oc-app .penny-send {
+  flex: none;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 4px;
+  background: #405660;
+  color: #fff;
+  font-size: calc(12px * var(--oc-font-scale, 1));
+  font-weight: 600;
+}
+.oc-app .penny-mic[aria-pressed="true"] {
+  background: var(--red);
+}
+.oc-app .penny-send:disabled {
+  background: #e5e8ea;
+  color: #9aa1a5;
+}
+
+/* the guide highlight. the app root names the active target and only the matching control
+   lights up, so moving the highlight is just changing one attribute */
+.oc-app[data-guide-active="search"] [data-guide="search"],
+.oc-app[data-guide-active="amount"] [data-guide="amount"],
+.oc-app[data-guide-active="next"] [data-guide="next"],
+.oc-app[data-guide-active="confirm"] [data-guide="confirm"] {
+  outline: 3px solid var(--red);
+  outline-offset: 3px;
+  animation: penny-guide 1.4s ease-in-out infinite;
+}
+@keyframes penny-guide {
+  50% {
+    outline-color: rgb(237 0 23 / 0.35);
+    outline-offset: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .oc-app [data-guide] {
+    animation: none !important;
+  }
+}

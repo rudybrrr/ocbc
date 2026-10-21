@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. On a laptop the app sits in a centered iPhone frame, with presentation slides on either side. The slides automatically follow the feature or support dialog open in the phone. Narrow screens show the phone alone.
+Open http://localhost:3000. On a laptop the app sits in a centered iPhone frame, with presentation slides on either side. The slides automatically follow the feature or support dialog open in the phone. Narrow screens show the phone alone. Penny supports voice in Chrome or Edge with microphone permission; typing remains available without voice support.
 
 ## Demo path
 
@@ -18,6 +18,17 @@ Open http://localhost:3000. On a laptop the app sits in a centered iPhone frame,
 3. Open **Pay & Transfer**, select a contact, enter `20000`, and tap **Next** to demonstrate recovery. Reduce the amount, review, and confirm a practice payment.
 4. Open **More** to try **Accessibility & preferences**, **Ask OCBC Adaptive Assist**, or **Speak to a person**.
 5. Side slides explain each feature, its customer benefit, and what to demonstrate next. Closing a support dialog restores the underlying screen's slide; slide changes do not reload the app.
+
+## Demo path: Penny, the proactive companion
+
+1. Tap **Log in as existing customer**, then **Log in to OCBC Singapore**. On Home tap **PayNow**.
+2. Wait about 8 seconds without tapping. Penny appears and offers help.
+3. Tap **Speak** and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Next**.
+4. Tap **Next**. Penny highlights **Confirm practice payment**. Tap it and she confirms on the receipt.
+5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Next, Confirm.
+6. Try `99999` as the amount. The payment is blocked and Penny explains why right away.
+
+The stuck delay is `STUCK_MS` in `src/lib/companion.ts`.
 
 ## Presentation architecture
 

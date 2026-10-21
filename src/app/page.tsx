@@ -40,6 +40,7 @@ export default function Page() {
             <iframe
               ref={frame}
               src="/mobile"
+              allow="microphone"
               title="OCBC Adaptive Assist mobile app"
               onLoad={() => frame.current?.contentWindow?.postMessage({ type: "ocbc:request-demo-slide" }, window.location.origin)}
             />
