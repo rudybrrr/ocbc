@@ -97,8 +97,8 @@ export function OcbcApp() {
     amount: amount.ok ? amount.amount : 0,
     name: name ?? "them",
     issue,
-    assist: store.assistContext,
     pay: choose,
+    go: (next) => nav(next as View),
   });
   // every error also goes to penny, because a blocked payment is the moment people get stuck
   const flag = (text: string) => {
@@ -771,7 +771,7 @@ export function OcbcApp() {
           </div>
         )}
       </main>
-      {!welcome && <Companion companion={companion} />}
+      {!welcome && <Companion companion={companion} aboveNav={!payment} />}
       {!welcome && !payment && (
         <nav className="oc-nav" aria-label="Primary">
           {[

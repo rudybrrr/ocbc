@@ -9,7 +9,9 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000 in Chrome or Edge. The app runs inside a phone frame. Voice needs microphone permission. Firefox and Safari still work with typing, but the Speak button is hidden.
+Open http://localhost:3000. The app runs inside a phone frame.
+
+Voice uses Groq Whisper for transcription. Put your key in `.env` as `GROQ_API_KEY=...`, then restart `npm run dev`. The browser records the mic and stops on its own after a short silence. The clip goes to `/api/transcribe`, which calls Groq on the server, so the key never reaches the browser. Voice needs microphone permission and an internet connection. Typing works without either.
 
 ## Demo path: Penny, the proactive companion
 

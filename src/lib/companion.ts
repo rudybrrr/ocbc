@@ -1,4 +1,3 @@
-import { respond, type AssistContext } from "@/lib/assistant";
 import { DESTINATIONS } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import type { DestinationId } from "@/lib/types";
@@ -20,7 +19,30 @@ export type CompanionResult =
   | { kind: "say"; text: string }
   | { kind: "guide" }
   | { kind: "pay"; to: DestinationId; amount: string }
-  | { kind: "stop"; text: string };
+  | { kind: "stop"; text: string }
+  | { kind: "go"; view: string; text: string };
+
+// copies the ‹ back buttons on each screen, so "go back" by voice lands where a tap would
+const BACK: Record<string, string> = {
+  amount: "pay",
+  review: "amount",
+  invest: "plan",
+};
+
+const SCREEN_NAMES: Record<string, string> = {
+  home: "Home",
+  pay: "PayNow",
+  plan: "Plan your finances",
+};
+
+// the 4 voice navigation commands. home is checked before back,
+// so "go back home" goes home instead of one screen back
+const NAV: [RegExp, string][] = [
+  [/\b(go|take me|back) (to )?home\b|\bhome (screen|page)\b|\bmain (screen|page)\b/, "home"],
+  [/\b(go back|back|previous)\b/, "back"],
+  [/\b(paynow|payments? (screen|page)|pay (and|&) transfer|transfer (screen|page))\b/, "pay"],
+  [/\b(open|go to|show)( my| the)? plan\b|\bplan (screen|page)\b/, "plan"],
+];
 
 // the step is worked out from what is on screen instead of a step counter,
 // so going back or editing the amount can never leave the guide out of sync
@@ -61,6 +83,11 @@ export function stuckLine(view: string) {
   return "Ready to send? I can check this with you before you confirm.";
 }
 
+// shown when no rule matches, so the user is never left with silence or a wrong action.
+// it suggests phrases that are known to work instead of just saying "error"
+export const FALLBACK_LINE =
+  "Sorry, I didn't catch that. Try “help me pay”, “pay Mum 10”, or tap “Yes, guide me”.";
+
 export function issueLine(issue: string) {
   return `That did not go through. ${issue}`;
 }
@@ -80,12 +107,17 @@ function words(text: string) {
 }
 
 export function findContact(text: string) {
-  const said = new Set(words(text));
+  const said = words(text);
   return DESTINATIONS.find(
     (item) =>
       item.detail === "PayNow" &&
-      [...words(item.name), ...(ALIASES[item.id] ?? [])].some(
-        (word) => word.length >= 2 && said.has(word),
+      [...words(item.name), ...(ALIASES[item.id] ?? [])].some((name) =>
+        said.some((word) => {
+          // transcription sometimes glues the verb onto the name, like "paymum", so only that
+          // prefix is stripped. names still match exactly, which keeps "feeling" from matching ling
+          const bare = word.replace(/^(pay|send)(?=[a-z]{2})/, "");
+          return word === name || bare === name;
+        }),
       ),
   );
 }
@@ -111,6 +143,32 @@ function wordNumber(text: string) {
   return found && total > 0 ? String(total) : "";
 }
 
+// words that can follow "pay" or "to" without being a person's name
+const NOT_NAMES = new Set([
+  "me", "my", "money", "dollar", "dollars", "sgd", "bucks", "someone", "somebody",
+  "them", "him", "her", "it", "now", "please", "the", "a", "an", "back", "to", "pay",
+  "send", "and", "for", "this", "that", "here", "there", "you", "hundred",
+  ...ONES,
+  ...TENS.filter(Boolean),
+]);
+
+// finds the word used as the recipient, like "john" in "pay john 10" or "send 20 to john".
+// used after contact matching fails, so penny can say the person is not in the contacts
+export function findNamedPerson(text: string) {
+  const clean = words(text).join(" ");
+  // without a payment verb, "to" is just grammar, as in "what do i need to do"
+  if (!/\b(pay|send|transfer)\b/.test(clean)) return "";
+  const patterns = [
+    /\b(?:pay|send|transfer)\s+(?:\$?\d+(?:\.\d+)?\s+(?:dollars?\s+)?)?([a-z]+)/,
+    /\bto\s+([a-z]+)/,
+  ];
+  for (const pattern of patterns) {
+    const name = clean.match(pattern)?.[1];
+    if (name && !NOT_NAMES.has(name)) return name;
+  }
+  return "";
+}
+
 export function findAmount(text: string) {
   const digits = text.replace(/,/g, "").match(/\d+(?:\.\d{1,2})?/);
   return digits ? digits[0] : wordNumber(text);
@@ -119,7 +177,7 @@ export function findAmount(text: string) {
 // rule based "understanding": each regex is one intent, checked from most to least specific
 export function companionReply(
   input: string,
-  ctx: { issue: string; guiding: boolean; assist: AssistContext },
+  ctx: { issue: string; guiding: boolean; view: string },
 ): CompanionResult {
   const text = input.toLowerCase();
 
@@ -129,11 +187,28 @@ export function companionReply(
   const contact = findContact(text);
   if (contact) return { kind: "pay", to: contact.id, amount: findAmount(text) };
 
+  // navigation runs before the unknown person check, otherwise "transfer screen"
+  // would be read as a person called "screen"
+  const target = NAV.find(([pattern]) => pattern.test(text))?.[1];
+  if (target) {
+    const view = target === "back" ? (BACK[ctx.view] ?? "home") : target;
+    if (view === ctx.view || (target === "back" && ctx.view === "home"))
+      return { kind: "say", text: `You're already on ${SCREEN_NAMES[ctx.view] ?? "this screen"}.` };
+    return { kind: "go", view, text: `Opening ${SCREEN_NAMES[view] ?? "the previous screen"}.` };
+  }
+
+  const unknown = findNamedPerson(text);
+  if (unknown)
+    return {
+      kind: "say",
+      text: `There is no ${unknown[0].toUpperCase()}${unknown.slice(1)} in your contacts.`,
+    };
+
   if (ctx.issue && /why|error|wrong|blocked|declined|problem|can.?t|cannot|fail/.test(text))
     return { kind: "say", text: issueLine(ctx.issue) };
 
   if (/\b(help|how|stuck|guide|show me|walk|what now|next|what do i|send|pay|transfer|yes|ok|okay|sure)\b/.test(text))
     return { kind: "guide" };
 
-  return { kind: "say", text: respond(input, ctx.assist).text };
+  return { kind: "say", text: FALLBACK_LINE };
 }

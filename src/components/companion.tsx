@@ -5,10 +5,16 @@ import { Penny } from "@/components/penny";
 import type { useCompanion } from "@/lib/use-companion";
 import { speak, stopSpeaking, useListen } from "@/lib/use-voice";
 
-export function Companion({ companion }: { companion: ReturnType<typeof useCompanion> }) {
+export function Companion({
+  companion,
+  aboveNav,
+}: {
+  companion: ReturnType<typeof useCompanion>;
+  aboveNav: boolean;
+}) {
   const [draft, setDraft] = useState("");
   const [voiceOn, setVoiceOn] = useState(true);
-  const voice = useListen(companion.ask);
+  const voice = useListen(companion.ask, companion.notify);
   const { open, line } = companion;
 
   // speech is an external system, so syncing it to the current line is a proper use of an effect.
@@ -21,7 +27,17 @@ export function Companion({ companion }: { companion: ReturnType<typeof useCompa
 
   useEffect(() => () => stopSpeaking(), []);
 
-  if (!open) return null;
+  // penny can only listen while her panel is open, so a small button keeps her one tap away
+  if (!open)
+    return (
+      <button
+        className={`penny-launcher ${aboveNav ? "above-nav" : ""}`}
+        aria-label="Open Penny"
+        onClick={companion.openPanel}
+      >
+        <Penny />
+      </button>
+    );
 
   const send = (text: string) => {
     if (!text.trim()) return;
@@ -78,10 +94,15 @@ export function Companion({ companion }: { companion: ReturnType<typeof useCompa
           <button
             type="button"
             className="penny-mic"
-            aria-pressed={voice.listening}
+            aria-pressed={voice.state === "listening"}
+            disabled={voice.state === "transcribing"}
             onClick={voice.listen}
           >
-            {voice.listening ? "Listening…" : "Speak"}
+            {voice.state === "listening"
+              ? "Stop"
+              : voice.state === "transcribing"
+                ? "Hearing…"
+                : "Speak"}
           </button>
         )}
         <button type="submit" className="penny-send" disabled={!draft.trim()}>

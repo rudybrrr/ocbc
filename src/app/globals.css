@@ -2403,3 +2403,29 @@ html[data-text="largest"] .oc-app {
     animation: none !important;
   }
 }
+
+/* the closed state of penny. it floats so it takes no layout space, and sits higher
+   on screens with the bottom nav so it never covers a nav item or the Next button */
+.oc-app {
+  position: relative;
+}
+.oc-app .penny-launcher {
+  position: absolute;
+  right: 14px;
+  bottom: 90px;
+  z-index: 15;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 4px 14px rgb(41 41 41 / 0.22);
+  display: grid;
+  place-items: center;
+}
+.oc-app .penny-launcher.above-nav {
+  bottom: 84px;
+}
+.penny-launcher .penny-svg {
+  width: 42px;
+  height: 42px;
+}
