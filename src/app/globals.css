@@ -221,10 +221,8 @@ button {
   position: relative;
   height: 100%;
   overflow: hidden;
-  border-radius: 46px;
+  border-radius: 47px;
   background: var(--paper);
-  padding-top: 38px;
-  padding-bottom: 18px;
 }
 
 .device-screen iframe {
@@ -236,6 +234,8 @@ button {
 
 .device-island {
   position: absolute;
+  z-index: 2;
+  pointer-events: none;
   top: 10px;
   left: 50%;
   transform: translateX(-50%);
