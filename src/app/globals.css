@@ -1470,6 +1470,9 @@ dialog.drawer::backdrop {
   font-family: Arial, Helvetica, sans-serif;
   font-size: calc(12px * var(--oc-font-scale, 1));
   line-height: 1.4;
+  /* penny's peek is positioned against the phone screen and slides in from past its edge */
+  position: relative;
+  overflow: clip;
 }
 .oc-app *,
 .oc-app *::before,
@@ -2382,6 +2385,105 @@ html[data-text="largest"] .oc-app {
   color: #9aa1a5;
 }
 
+/* the panel rises from the bottom as the peek slides away, and penny's avatar lands in
+   step with it: panel 0-320ms, avatar pop 80-480ms, line 200-420ms, controls 260-480ms */
+.penny {
+  animation: penny-panel-rise 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.penny-avatar {
+  transform-origin: 50% 100%;
+  animation: penny-panel-avatar 400ms 80ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.penny-line {
+  transform-origin: 0 0;
+  animation: penny-panel-line 220ms 200ms ease-out both;
+}
+.penny-chips,
+.penny-ask {
+  animation: penny-panel-fade 220ms 260ms ease-out both;
+}
+/* opened from the peek: penny flies across from the corner (see companion.tsx), so the
+   panel itself must not move or fade or it would carry her with it. only its backdrop rises,
+   then the line pops out of her once she lands and the controls follow */
+.penny.penny-from-peek {
+  isolation: isolate;
+  position: relative;
+  background: transparent;
+  border-top-color: transparent;
+  box-shadow: none;
+  animation: none;
+}
+.penny-from-peek::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #fff;
+  border-top: 1px solid #d8dcdf;
+  box-shadow: 0 -6px 16px rgb(41 41 41 / 0.08);
+  animation: penny-panel-rise 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.penny-from-peek .penny-avatar {
+  transform-origin: center;
+  animation: none;
+}
+.penny-from-peek .penny-hand {
+  transform-box: view-box;
+  transform-origin: 248px 150px;
+  animation: penny-peek-wave 900ms 560ms ease-in-out;
+}
+.penny-from-peek .penny-line {
+  animation: penny-panel-line 240ms 520ms ease-out both;
+}
+.penny-from-peek .penny-chips,
+.penny-from-peek .penny-ask {
+  animation: penny-panel-fade 240ms 600ms ease-out both;
+}
+@keyframes penny-panel-rise {
+  from {
+    translate: 0 100%;
+    opacity: 0;
+  }
+}
+@keyframes penny-panel-avatar {
+  0% {
+    scale: 0.3;
+    rotate: -18deg;
+    opacity: 0;
+  }
+  60% {
+    scale: 1.08 0.92;
+    rotate: 0deg;
+    opacity: 1;
+  }
+}
+@keyframes penny-panel-line {
+  from {
+    scale: 0.85;
+    opacity: 0;
+  }
+}
+@keyframes penny-panel-fade {
+  from {
+    translate: 0 6px;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .penny,
+  .penny.penny-from-peek {
+    animation: penny-peek-fade-in 200ms ease-out both;
+  }
+  .penny-from-peek::before,
+  .penny-from-peek .penny-hand,
+  .penny-avatar,
+  .penny-line,
+  .penny-chips,
+  .penny-ask {
+    animation: none;
+  }
+}
+
 /* the guide highlight. the app root names the active target and only the matching control
    lights up, so moving the highlight is just changing one attribute */
 .oc-app[data-guide-active="search"] [data-guide="search"],
@@ -2428,4 +2530,196 @@ html[data-text="largest"] .oc-app {
 .penny-launcher .penny-svg {
   width: 42px;
   height: 42px;
+}
+/* penny peeking in from the bottom right corner. she floats over the screen without taking
+   layout space, and only her own footprint catches taps.
+   timeline: ease down-left about 50px into the corner 0-600ms, land 600-850ms,
+   bubble 650-850ms, wave 800-2000ms, then bob, blink and a small extra wave every 12s */
+.penny-peek {
+  position: absolute;
+  z-index: 15;
+  right: 10px;
+  bottom: 14px;
+  pointer-events: none;
+  transform-origin: 100% 100%;
+  animation: penny-peek-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.penny-peek-above-nav {
+  bottom: 96px;
+}
+.penny-peek.penny-peek-leaving {
+  animation: penny-peek-exit 250ms ease-in forwards;
+}
+/* tapped open: the panel avatar is now penny, so this one disappears at once and only the
+   bubble fades out */
+.penny-peek.penny-peek-handoff {
+  animation: penny-peek-handoff 160ms ease-out forwards;
+}
+.penny-peek-handoff .penny-peek-figure {
+  visibility: hidden;
+}
+@keyframes penny-peek-handoff {
+  to {
+    opacity: 0;
+  }
+}
+.oc-app .penny-peek-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  pointer-events: auto;
+}
+.penny-peek-bubble {
+  position: relative;
+  max-width: 180px;
+  margin-top: 12px;
+  padding: 8px 11px;
+  border: 1px solid #d8dcdf;
+  border-radius: 14px 14px 4px 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgb(41 41 41 / 0.14);
+  color: var(--ink);
+  font-size: calc(12.5px * var(--oc-font-scale, 1));
+  line-height: 1.35;
+  transform-origin: 100% 100%;
+  animation: penny-peek-bubble 200ms 650ms ease-out both;
+}
+.penny-peek-bubble::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 9px;
+  width: 10px;
+  height: 10px;
+  border: solid #d8dcdf;
+  border-width: 1px 1px 0 0;
+  background: #fff;
+  transform: rotate(45deg);
+}
+.oc-app .penny-peek-close {
+  position: absolute;
+  top: 0;
+  left: -14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #405660;
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  pointer-events: auto;
+  animation: penny-peek-bubble 200ms 650ms ease-out both;
+}
+.penny-peek-figure {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  overflow: visible;
+  transform-origin: 50% 100%;
+  animation:
+    penny-peek-land 250ms 600ms ease-out,
+    penny-peek-lean 1200ms 800ms ease-in-out,
+    penny-peek-bob 3.2s 2000ms ease-in-out infinite,
+    penny-peek-lean-again 12s 2000ms ease-in-out infinite;
+}
+.penny-peek .penny-hand {
+  transform-box: view-box;
+  transform-origin: 248px 150px;
+  animation:
+    penny-peek-wave 1200ms 800ms ease-in-out,
+    penny-peek-wave-again 12s 2000ms ease-in-out infinite;
+}
+.penny-peek .penny-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    penny-peek-squint 1200ms 800ms ease-in-out,
+    penny-peek-eyes 12s 2000ms linear infinite;
+}
+/* the cheek fill opacity lives on each ellipse, so the blush animates the ellipses */
+.penny-peek .penny-cheeks ellipse {
+  animation:
+    penny-peek-blush 1200ms 800ms ease-in-out,
+    penny-peek-blush-again 12s 2000ms ease-in-out infinite;
+}
+@keyframes penny-peek-enter {
+  from {
+    transform: translate(50px, -50px);
+    opacity: 0;
+  }
+}
+@keyframes penny-peek-exit {
+  to {
+    transform: translate(50px, -50px);
+    opacity: 0;
+  }
+}
+@keyframes penny-peek-land {
+  from {
+    scale: 1.08 0.92;
+  }
+}
+@keyframes penny-peek-bubble {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+/* each loop keeps its separate transform property (rotate, scale, translate, transform),
+   so the one-off wave, the idle loop and the landing never fight over the same value */
+@keyframes penny-peek-wave {
+  8%, 42%, 75% { rotate: -20deg; }
+  25%, 58%, 92% { rotate: 25deg; }
+}
+@keyframes penny-peek-wave-again {
+  0%, 93% { rotate: 0deg; }
+  94.5%, 97.5% { rotate: -20deg; }
+  96%, 99% { rotate: 25deg; }
+}
+@keyframes penny-peek-lean {
+  8%, 42%, 75% { rotate: -2deg; }
+  25%, 58%, 92% { rotate: 2.5deg; }
+}
+@keyframes penny-peek-lean-again {
+  0%, 93% { rotate: 0deg; }
+  94.5%, 97.5% { rotate: -2deg; }
+  96%, 99% { rotate: 2.5deg; }
+}
+@keyframes penny-peek-bob {
+  50% { translate: 0 -4px; }
+}
+@keyframes penny-peek-squint {
+  10%, 90% { scale: 1 0.6; }
+}
+/* blinks at about 3s and 8s, then the squint that goes with the extra wave */
+@keyframes penny-peek-eyes {
+  0%, 25%, 26%, 66%, 67%, 92.5%, 100% { transform: none; }
+  25.5%, 66.5% { transform: scaleY(0.08); }
+  93.5%, 99% { transform: scaleY(0.6); }
+}
+@keyframes penny-peek-blush {
+  10%, 90% { opacity: 1; }
+}
+@keyframes penny-peek-blush-again {
+  0%, 92.5%, 100% { opacity: 0.55; }
+  93.5%, 99% { opacity: 1; }
+}
+@keyframes penny-peek-fade-in {
+  from { opacity: 0; }
+}
+@keyframes penny-peek-fade-out {
+  to { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .penny-peek {
+    animation: penny-peek-fade-in 200ms ease-out both;
+  }
+  .penny-peek.penny-peek-leaving {
+    animation: penny-peek-fade-out 200ms ease-in forwards;
+  }
+  .penny-peek *,
+  .oc-app .penny-peek-close {
+    animation: none !important;
+  }
 }

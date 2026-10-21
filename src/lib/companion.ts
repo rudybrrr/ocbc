@@ -1,3 +1,4 @@
+import { respond, type AssistContext } from "@/lib/assistant";
 import { DESTINATIONS } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import type { DestinationId } from "@/lib/types";
@@ -19,6 +20,7 @@ export type CompanionResult =
   | { kind: "say"; text: string }
   | { kind: "guide" }
   | { kind: "pay"; to: DestinationId; amount: string }
+  | { kind: "fixed-deposit"; text: string }
   | { kind: "stop"; text: string }
   | { kind: "go"; view: string; text: string };
 
@@ -87,6 +89,13 @@ export function stuckLine(view: string) {
 // it suggests phrases that are known to work instead of just saying "error"
 export const FALLBACK_LINE =
   "Sorry, I didn't catch that. Try “help me pay”, “pay Mum 10”, or tap “Yes, guide me”.";
+
+// short enough for the small bubble penny shows while she peeks from the corner
+export function peekLine(view: string) {
+  if (view === "pay") return "Need a hand finding someone?";
+  if (view === "amount") return "Stuck on the amount? I can help.";
+  return "Almost there! Want me to check it with you?";
+}
 
 export function issueLine(issue: string) {
   return `That did not go through. ${issue}`;
@@ -177,7 +186,7 @@ export function findAmount(text: string) {
 // rule based "understanding": each regex is one intent, checked from most to least specific
 export function companionReply(
   input: string,
-  ctx: { issue: string; guiding: boolean; view: string },
+  ctx: { issue: string; guiding: boolean; view: string; assist: AssistContext },
 ): CompanionResult {
   const text = input.toLowerCase();
 
@@ -186,6 +195,9 @@ export function companionReply(
 
   const contact = findContact(text);
   if (contact) return { kind: "pay", to: contact.id, amount: findAmount(text) };
+
+  if (/\bfixed deposits?\b|\btime deposits?\b|\bterm deposits?\b/.test(text))
+    return { kind: "fixed-deposit", text: respond(input, ctx.assist).text };
 
   // navigation runs before the unknown person check, otherwise "transfer screen"
   // would be read as a person called "screen"

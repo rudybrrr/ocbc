@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="272" viewBox="0 0 380 272">
+<rect x="4" y="4" width="372" height="264" rx="20" fill="#fff" stroke="#E8E7E9" stroke-width="2"/>
+<circle cx="40" cy="44" r="18" fill="#EBF5F0"/><path d="m31 44 7 7 12-15" fill="none" stroke="#25856A" stroke-width="3" stroke-linecap="round"/>
+<text x="68" y="51" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#243642">Review this transfer</text>
+<text x="26" y="100" font-family="Arial, sans-serif" font-size="15" fill="#6D747A">To</text><text x="354" y="100" text-anchor="end" font-family="Arial, sans-serif" font-size="17" font-weight="bold" fill="#273943">Demo Recipient</text>
+<text x="26" y="134" font-family="Arial, sans-serif" font-size="15" fill="#6D747A">Amount</text><text x="354" y="134" text-anchor="end" font-family="Arial, sans-serif" font-size="19" font-weight="bold" fill="#273943">S$ 25.00</text>
+<rect x="26" y="159" width="328" height="45" rx="8" fill="#E60012"/><text x="190" y="188" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="16" fill="#fff">Continue to secure verification</text>
+<rect x="26" y="214" width="328" height="39" rx="8" fill="#fff" stroke="#AEB8BE"/><text x="190" y="239" text-anchor="middle" font-family="Arial,sans-serif" font-size="15" fill="#415563">Cancel</text>
+</svg>
