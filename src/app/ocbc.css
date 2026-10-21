@@ -382,6 +382,8 @@
 
 .oc-shortcuts {
   position: relative;
+  /* above the promo photo's curved edge, which overlaps this card */
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
