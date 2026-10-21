@@ -2,7 +2,19 @@ export type Mode = "standard" | "guided";
 export type TextSize = "default" | "large" | "largest";
 export type Screen = "home" | "move" | "invest" | "activity";
 export type AccountId = "everyday" | "savings";
-export type DestinationId = "everyday" | "savings" | "mum" | "fairprice";
+export type DestinationId =
+  | "everyday"
+  | "savings"
+  | "mum"
+  | "fairprice"
+  | "alicia"
+  | "amanda"
+  | "aqil"
+  | "arc"
+  | "aren"
+  | "ashneel1"
+  | "ashneel2"
+  | "asther";
 
 export type Draft = {
   from: AccountId;

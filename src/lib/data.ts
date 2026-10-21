@@ -3,8 +3,8 @@ import type { AccountId, DestinationId, Transfer } from "@/lib/types";
 export const CUSTOMER = "Aisha Rahman";
 
 export const OPENING = {
-  everyday: 12480.35,
-  savings: 8240,
+  everyday: 256.05,
+  savings: 0,
 } as const;
 
 export const CARD = {
@@ -18,9 +18,32 @@ export const ACCOUNTS: { id: AccountId; name: string; detail: string }[] = [
   { id: "savings", name: "Savings Account", detail: "Set aside" },
 ];
 
-export const DESTINATIONS: { id: DestinationId; name: string; detail: string }[] = [
+export const DESTINATIONS: {
+  id: DestinationId;
+  name: string;
+  detail: string;
+  phone?: string;
+}[] = [
   { id: "everyday", name: "Everyday Account", detail: "Your account" },
   { id: "savings", name: "Savings Account", detail: "Your account" },
+  { id: "alicia", name: "Alex Tan", detail: "PayNow", phone: "+65 •••• 0001" },
+  {
+    id: "amanda",
+    name: "Jamie Lim",
+    detail: "PayNow",
+    phone: "+65 •••• 0002",
+  },
+  { id: "aqil", name: "Casey Lee", detail: "PayNow", phone: "+65 •••• 0003" },
+  { id: "arc", name: "Robin Wong", detail: "PayNow", phone: "+65 •••• 0004" },
+  {
+    id: "aren",
+    name: "Morgan Chua",
+    detail: "PayNow",
+    phone: "+65 •••• 0005",
+  },
+  { id: "ashneel1", name: "Taylor Goh", detail: "PayNow", phone: "+65 •••• 0006" },
+  { id: "ashneel2", name: "Sam Teo", detail: "PayNow", phone: "+65 •••• 0007" },
+  { id: "asther", name: "Riley Ng", detail: "PayNow", phone: "+65 •••• 0008" },
   { id: "mum", name: "Mum · Tan Mei Ling", detail: "PayNow" },
   { id: "fairprice", name: "NTUC FairPrice", detail: "PayNow" },
 ];

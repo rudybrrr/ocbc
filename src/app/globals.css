@@ -1,9 +1,3 @@
-/* Hallmark · pre-emit critique: P5 H4 E4 S5 R4 V4
-   THESIS: The bank changes shape with the person.
-   Guided is one next step; Standard is the same money as a ledger.
-   OWN-WORLD: daylight paper, harbour ink, crimson only on money actions. Be Vietnam Pro.
-   seed: harbour-ledger-2026 */
-
 @import "tailwindcss";
 
 :root {
@@ -107,7 +101,7 @@ h1 {
   font-size: 1.7rem;
 }
 
-html[data-mode="standard"] h1 {
+html[data-mode="standard"] .screen h1 {
   font-size: 1.45rem;
 }
 
@@ -162,6 +156,117 @@ button {
   display: grid;
   place-items: center;
   background: var(--paper);
+}
+
+.device-preview {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background: #f0eeec;
+}
+
+.device {
+  position: relative;
+  width: min(390px, calc(100vw - 32px));
+  height: min(800px, calc(100dvh - 64px));
+  padding: 11px;
+  border: 2px solid #716572;
+  border-radius: 60px;
+  background: #1c1a1c;
+  box-shadow:
+    inset 0 0 0 2px #b0a6b0,
+    inset 0 0 0 5px #343035;
+}
+
+.device::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  bottom: -28px;
+  left: 8%;
+  width: 84%;
+  height: 8px;
+  border-radius: 50%;
+  background: #302a32;
+  filter: blur(6px);
+  opacity: 0.25;
+}
+
+.device-buttons {
+  position: absolute;
+  top: 155px;
+  left: -4px;
+  width: 3px;
+  height: 48px;
+  border-radius: 2px 0 0 2px;
+  background: #716572;
+  box-shadow:
+    0 62px #716572,
+    0 -57px #716572;
+}
+
+.device-buttons::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: calc(min(390px, 100vw - 32px) - 1px);
+  width: 3px;
+  height: 76px;
+  border-radius: 0 2px 2px 0;
+  background: #716572;
+}
+
+.device-screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 46px;
+  background: var(--paper);
+  padding-top: 38px;
+  padding-bottom: 18px;
+}
+
+.device-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.device-island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 24px;
+  border: 1px solid #39363a;
+  border-radius: 20px;
+  background: #171717;
+}
+
+.device-island::after {
+  content: "";
+  position: absolute;
+  right: 9px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #14283b;
+  box-shadow: inset 1px 1px 2px #30506b;
+}
+
+.device-home {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  border-radius: 4px;
+  background: #1c1a1c;
 }
 
 .stage {
@@ -910,6 +1015,7 @@ dialog.drawer .assist {
 dialog.drawer {
   margin: 0 0 0 auto;
   width: min(26rem, 100%);
+  max-width: 100%;
   height: 100dvh;
   max-height: 100dvh;
   padding: 0;
@@ -1347,3 +1453,845 @@ dialog.drawer::backdrop {
     margin-inline: -0.9rem;
   }
 }
+
+/* OCBC screenshot reference, app content only; the outer device owns its chrome. */
+.oc-app {
+  --ink: #292929;
+  --paper: #fff;
+  --card: #fff;
+  --line: #bec3c6;
+  --red: #ed0017;
+  --harbour: #405660;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: #292929;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: calc(12px * var(--oc-font-scale, 1));
+  line-height: 1.4;
+}
+.oc-app *,
+.oc-app *::before,
+.oc-app *::after {
+  box-sizing: border-box;
+}
+.oc-app button,
+.oc-app input {
+  font: inherit;
+}
+.oc-app button {
+  cursor: pointer;
+}
+.oc-app h1,
+.oc-app h2,
+.oc-app p {
+  margin: 0;
+  letter-spacing: normal;
+}
+.oc-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  scrollbar-width: none;
+}
+.oc-art {
+  display: block;
+  object-fit: contain;
+}
+.oc-app button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+.oc-app button:disabled {
+  cursor: default;
+  color: #bbc0c3;
+}
+.oc-app .oc-link,
+.oc-maintenance button {
+  color: #1476c8;
+}
+.oc-splash {
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: white;
+}
+.oc-splash img {
+  width: 140px;
+}
+.oc-welcome-app {
+  background: #f6f6f6;
+}
+.oc-welcome-hero {
+  position: relative;
+  width: 100%;
+}
+.oc-welcome-hero > img {
+  width: 100%;
+  height: auto;
+}
+.oc-language {
+  position: absolute;
+  right: 20px;
+  top: 22px;
+  color: #0677ff !important;
+  font-size: calc(14px * var(--oc-font-scale, 1)) !important;
+}
+.oc-welcome-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 4px;
+  margin: -5px 20px 22px;
+  position: relative;
+}
+.oc-welcome-actions button {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  font-size: calc(12px * var(--oc-font-scale, 1));
+}
+.oc-welcome-actions button > span {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fcfcfc;
+}
+.oc-welcome-actions img {
+  width: 19px;
+  height: 22px;
+  mix-blend-mode: multiply;
+}
+.oc-welcome-actions.expanded {
+  margin-top: -24px;
+}
+.oc-welcome-buttons {
+  padding: 0 15px;
+  display: grid;
+  gap: 14px;
+}
+.oc-app .oc-primary,
+.oc-app .oc-outline {
+  min-height: 44px;
+  border-radius: 4px;
+  font-size: calc(16px * var(--oc-font-scale, 1));
+  font-weight: 600;
+  width: 100%;
+}
+.oc-app .oc-primary {
+  background: #405660;
+  color: white;
+}
+.oc-app .oc-outline {
+  border: 1px solid #34434b;
+  color: #405660;
+}
+.oc-maintenance {
+  padding: 16px 15px 24px;
+  color: #363c40;
+  font-size: calc(12px * var(--oc-font-scale, 1));
+}
+.oc-back {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  font-size: calc(32px * var(--oc-font-scale, 1)) !important;
+}
+.oc-toolbar {
+  height: 47px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.oc-tokens {
+  border: 1.5px solid #f0c79b !important;
+  border-radius: 30px;
+  min-width: 144px;
+  height: 30px;
+  font-size: calc(12px * var(--oc-font-scale, 1)) !important;
+}
+.oc-bell {
+  margin-left: auto;
+  font-size: calc(26px * var(--oc-font-scale, 1)) !important;
+  line-height: 1;
+}
+.oc-toolbar > .oc-link {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+}
+.oc-home-hero {
+  position: relative;
+  height: auto;
+  aspect-ratio: 920/560;
+}
+.oc-home-hero > img {
+  width: 100%;
+  height: 100%;
+}
+.oc-shortcuts {
+  position: absolute;
+  bottom: 9px;
+  left: 14px;
+  right: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: white;
+  padding: 10px 0 13px;
+  border-radius: 8px;
+  min-height: 91px;
+}
+.oc-shortcuts button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  padding: 0 6px;
+  line-height: 1.3;
+}
+.oc-shortcuts button:last-child {
+  border-left: 1px solid #bfc4c7;
+}
+.oc-shortcuts img {
+  width: 29px;
+  height: 27px;
+}
+.oc-shortcuts button:last-child img {
+  width: 36px;
+  height: 36px;
+  margin-top: -5px;
+  margin-bottom: -4px;
+}
+.oc-categories {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow: auto;
+  scrollbar-width: none;
+  padding: 12px 14px 14px;
+  white-space: nowrap;
+}
+.oc-categories button {
+  height: 28px;
+  border: 1px solid #343434;
+  border-radius: 24px;
+  padding: 0 14px;
+  font-size: calc(11px * var(--oc-font-scale, 1));
+  flex-shrink: 0;
+}
+.oc-categories button:first-child {
+  border: 0;
+  background: #f2efed;
+  width: 29px;
+  padding: 8px;
+  margin-right: 7px;
+}
+.oc-categories img {
+  width: 16px;
+  height: 14px;
+  mix-blend-mode: multiply;
+}
+.oc-categories button[aria-pressed="true"],
+.oc-networth-tabs button[aria-pressed="true"] {
+  background: #ed0017;
+  color: white;
+  border-color: #ed0017;
+}
+.oc-account {
+  margin: 0 14px;
+  background: #f4f0ee;
+  border-radius: 8px;
+  padding: 18px 14px 15px;
+}
+.oc-account-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  width: 100%;
+  text-align: left;
+  font-size: calc(14px * var(--oc-font-scale, 1)) !important;
+}
+.oc-360 {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f7d2b4;
+  width: 36px;
+  height: 36px;
+  font-size: calc(12px * var(--oc-font-scale, 1));
+}
+.oc-chevron {
+  margin-left: auto;
+  font-size: calc(28px * var(--oc-font-scale, 1));
+  line-height: 22px;
+  padding-right: 7px;
+}
+.oc-account-balance {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  padding-bottom: 10px;
+  border-bottom: 1px solid #bdc1c4;
+}
+.oc-account-balance strong {
+  font-size: calc(14px * var(--oc-font-scale, 1));
+}
+.oc-debit {
+  padding-top: 10px;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+}
+.oc-promo-row {
+  display: flex;
+  gap: 14px;
+  overflow: auto;
+  scrollbar-width: none;
+  padding: 29px 14px 22px;
+}
+.oc-promo-row button {
+  background: #f6eeeb;
+  border-radius: 8px;
+  padding: 14px;
+  min-width: 290px;
+  width: 80%;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+}
+.oc-promo-row button:nth-child(2) {
+  background: #fbe4d3;
+}
+.oc-promo-row small {
+  font-size: calc(9px * var(--oc-font-scale, 1));
+  color: #656565;
+}
+.oc-promo-row strong {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  line-height: 1.35;
+}
+.oc-promo-row span {
+  color: #1476c8;
+  font-size: calc(11px * var(--oc-font-scale, 1));
+}
+.oc-transactions {
+  background: #f8f7f6;
+  padding: 22px 14px;
+}
+.oc-transactions h1 {
+  font-size: calc(18px * var(--oc-font-scale, 1));
+  font-weight: 700;
+}
+.oc-transactions > p {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  margin: 4px 0 15px;
+}
+.oc-transaction {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 12px;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+.oc-transaction:first-of-type {
+  border-radius: 8px 8px 0 0;
+}
+.oc-transaction small {
+  display: block;
+  color: #666;
+  font-size: calc(10px * var(--oc-font-scale, 1));
+  margin-top: 4px;
+}
+.oc-nav {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  background: white;
+  border-top: 1px solid #afb7bc;
+  padding: 10px 0 22px;
+}
+.oc-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: calc(10px * var(--oc-font-scale, 1));
+  white-space: nowrap;
+  min-height: 48px;
+}
+.oc-nav img {
+  width: 23px;
+  height: 25px;
+}
+.oc-nav button:nth-child(3) img {
+  width: 32px;
+  height: 32px;
+}
+.oc-nav button[aria-current="page"] {
+  color: #ed0017;
+}
+.oc-plan {
+  padding: 58px 14px 0;
+  background: #fcfcfc;
+  min-height: 100%;
+}
+.oc-plan-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 0 7px;
+}
+.oc-plan h1 {
+  font-size: calc(18px * var(--oc-font-scale, 1));
+  font-weight: 700;
+}
+.oc-plan-heading button {
+  font-size: calc(12px * var(--oc-font-scale, 1));
+}
+.oc-plan > p {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  margin: 5px 7px 14px;
+  color: #4b4b4b;
+}
+.oc-networth,
+.oc-plan-grid > section {
+  background: white;
+  border-radius: 9px;
+  box-shadow: 0 2px 12px #00000009;
+}
+.oc-networth {
+  padding: 16px 14px 14px;
+}
+.oc-card-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: calc(11px * var(--oc-font-scale, 1));
+  font-weight: 700;
+  color: #505456;
+}
+.oc-card-label button {
+  font-size: calc(23px * var(--oc-font-scale, 1));
+  font-weight: 400;
+  line-height: 1;
+}
+.oc-networth-tabs {
+  display: flex;
+  gap: 7px;
+  margin: 18px 0 15px;
+}
+.oc-networth-tabs button {
+  border: 1px solid #404040;
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: calc(10px * var(--oc-font-scale, 1));
+}
+.oc-money-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  margin-bottom: 8px;
+}
+.oc-money-row strong {
+  font-size: calc(14px * var(--oc-font-scale, 1));
+}
+.oc-networth > .oc-link {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  margin-top: 5px;
+}
+.oc-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 14px;
+}
+.oc-plan-grid > section {
+  min-height: 198px;
+  padding: 23px 14px 60px;
+  position: relative;
+  overflow: hidden;
+}
+.oc-plan-grid h2 {
+  font-size: calc(11px * var(--oc-font-scale, 1));
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #4c5051;
+}
+.oc-plan-grid p {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  color: #4b4b4b;
+  line-height: 1.35;
+}
+.oc-plan-grid strong {
+  display: block;
+  font-size: calc(14px * var(--oc-font-scale, 1));
+  margin: 4px 0 14px;
+}
+.oc-plan-grid .oc-link {
+  text-align: left;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  margin-top: 8px;
+  line-height: 1.3;
+}
+.oc-plan-grid img {
+  position: absolute;
+  width: 62px;
+  height: 64px;
+  bottom: 0;
+  right: 17px;
+}
+.oc-plan-grid > section:nth-child(1) {
+  padding-bottom: 47px;
+}
+.oc-card-arrow {
+  position: absolute;
+  right: 14px;
+  top: 15px;
+  font-size: calc(27px * var(--oc-font-scale, 1)) !important;
+}
+.oc-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  position: relative;
+}
+.oc-page-heading h1 {
+  font-size: calc(14px * var(--oc-font-scale, 1));
+  font-weight: 400;
+}
+.oc-page-heading > button {
+  position: absolute;
+  left: 15px;
+  top: 8px;
+  font-size: calc(34px * var(--oc-font-scale, 1));
+  font-weight: 300;
+  min-width: 30px;
+  text-align: left;
+}
+.oc-pay-types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #f8f2f3;
+  padding: 22px 14px 16px;
+  height: 118px;
+}
+.oc-pay-types button {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  align-self: end;
+}
+.oc-contacts {
+  background: white;
+  border-radius: 10px 10px 0 0;
+  margin-top: -1px;
+  overflow: hidden;
+}
+.oc-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 17px 14px 6px;
+  background: #edecf2;
+  border-radius: 4px;
+  padding: 7px 10px;
+}
+.oc-search span {
+  font-size: calc(25px * var(--oc-font-scale, 1));
+  line-height: 1;
+}
+.oc-search input {
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  outline-offset: 5px;
+}
+.oc-contact-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #b8bfc3;
+}
+.oc-contact-tabs button {
+  height: 35px;
+  font-size: calc(15px * var(--oc-font-scale, 1));
+  font-weight: 700;
+  border-bottom: 3px solid transparent;
+}
+.oc-contact-tabs button[aria-pressed="true"] {
+  border-bottom-color: #e80017;
+}
+.oc-contact {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 1px solid #b8bfc3 !important;
+  width: 100%;
+  padding: 15px 18px !important;
+  text-align: left;
+  min-height: 74px;
+}
+.oc-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #435262;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: calc(12px * var(--oc-font-scale, 1));
+}
+.oc-contact strong {
+  font-size: calc(15px * var(--oc-font-scale, 1));
+  display: block;
+  font-weight: 600;
+}
+.oc-contact small {
+  font-size: calc(12px * var(--oc-font-scale, 1));
+  display: block;
+  margin-top: 5px;
+}
+.oc-payment {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.oc-pay-to {
+  padding: 22px 14px 28px;
+  border-bottom: 1px solid #b8bfc3;
+}
+.oc-pay-to > p,
+.oc-pay-from p {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+}
+.oc-pay-to h1 {
+  font-size: calc(23px * var(--oc-font-scale, 1));
+  font-weight: 700;
+  margin: 3px 0;
+}
+.oc-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin: 23px 0 15px;
+}
+.oc-amount input {
+  border: 0;
+  background: transparent;
+  width: 110px;
+  max-width: 75%;
+  font-size: calc(27px * var(--oc-font-scale, 1));
+  font-weight: 300;
+  padding: 0;
+  outline-offset: 4px;
+}
+.oc-amount input::placeholder {
+  color: #c8c8c8;
+}
+.oc-amount span {
+  font-size: calc(13px * var(--oc-font-scale, 1));
+}
+.oc-app .oc-message-toggle {
+  background: #405660;
+  color: white;
+  border-radius: 30px;
+  padding: 7px 10px;
+  font-size: calc(11px * var(--oc-font-scale, 1));
+  margin-top: 15px;
+}
+.oc-note {
+  display: block;
+  width: 100%;
+  padding: 10px !important;
+  margin-top: 10px;
+  border: 1px solid #bcc4c7;
+}
+.oc-pay-from {
+  padding: 23px 14px;
+}
+.oc-pay-from h2 {
+  font-size: calc(15px * var(--oc-font-scale, 1));
+  font-weight: 700;
+  margin-top: 4px;
+}
+.oc-pay-from button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: calc(13px * var(--oc-font-scale, 1));
+  margin-top: 30px;
+}
+.oc-pay-from img {
+  width: 18px;
+  height: 16px;
+}
+.oc-app .oc-next {
+  display: block;
+  width: calc(100% - 28px);
+  min-height: 43px;
+  margin: auto 14px 36px;
+  border: 1px solid #bfc5c9;
+  border-radius: 4px;
+  font-size: calc(15px * var(--oc-font-scale, 1));
+  font-weight: 600;
+  background: #405660;
+  color: white;
+}
+.oc-app .oc-next:disabled {
+  background: white;
+  color: #bcc1c5;
+}
+.oc-error {
+  color: #b00020;
+  margin-top: 12px !important;
+}
+.oc-notice {
+  position: fixed;
+  z-index: 20;
+  bottom: 95px;
+  left: 14px;
+  right: 14px;
+  background: #fff;
+  box-shadow: 0 3px 30px #0003;
+  border: 1px solid #bec5c8;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: calc(14px * var(--oc-font-scale, 1));
+}
+.oc-notice button {
+  margin-top: 12px;
+  color: #1476c8;
+}
+.oc-menu {
+  padding: 30px 20px;
+}
+.oc-menu h1 {
+  font-size: calc(23px * var(--oc-font-scale, 1));
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.oc-menu > button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  padding: 18px 0;
+  font-size: calc(15px * var(--oc-font-scale, 1));
+}
+.oc-empty {
+  padding: 24px 14px;
+}
+@media (min-width: 600px) {
+  .oc-app {
+    max-width: 460px;
+    margin: auto;
+    box-shadow: 0 0 30px #0001;
+  }
+  .oc-notice {
+    max-width: 430px;
+    left: 50%;
+    right: auto;
+    width: calc(100% - 28px);
+    transform: translateX(-50%);
+  }
+}
+.oc-language {
+  width: 32px;
+  height: 25px;
+}
+.oc-review {
+  padding: 28px 18px;
+  display: grid;
+  gap: 20px;
+  font-size: calc(15px * var(--oc-font-scale, 1));
+}
+.oc-review h2 {
+  font-size: calc(26px * var(--oc-font-scale, 1));
+  font-weight: 700;
+}
+.oc-demo-label {
+  color: #62686c;
+}
+.oc-bell img {
+  width: 23px;
+  height: 24px;
+}
+.oc-pay-types button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.oc-pay-types img {
+  width: 24px;
+  height: 23px;
+  mix-blend-mode: multiply;
+}
+.oc-search > img {
+  width: 18px;
+  height: 18px;
+  mix-blend-mode: multiply;
+}
+
+html[data-text="large"] .oc-app {
+  --oc-font-scale: 1.125;
+}
+html[data-text="largest"] .oc-app {
+  --oc-font-scale: 1.25;
+}
+.oc-nav button {
+  white-space: normal;
+}
+
+/* PayNow content starts below the device-owned status bar. */
+.oc-pay-types {
+  height: 74px;
+  padding-top: 2px;
+}
+.oc-pay-types button {
+  gap: 10px;
+}
+.oc-contacts {
+  border-radius: 10px 10px 0 0;
+}
+.oc-search {
+  min-height: 36px;
+  margin-top: 17px;
+}
+.oc-search input {
+  line-height: 22px;
+}
+.oc-contact {
+  gap: 18px;
+  min-height: 74px;
+}
+.oc-contact strong {
+  font-size: calc(14px * var(--oc-font-scale, 1));
+}
+.oc-avatar {
+  text-transform: uppercase;
+}
+.oc-amount input {
+  field-sizing: content;
+  width: auto;
+  min-width: 2.2em;
+  font-size: calc(26px * var(--oc-font-scale, 1));
+}
+.oc-pay-to h1 {
+  font-size: calc(22px * var(--oc-font-scale, 1));
+}
+
+.oc-search input { min-height:0; }
+.oc-note { min-height:40px; }
