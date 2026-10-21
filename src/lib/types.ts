@@ -1,6 +1,6 @@
 export type Mode = "standard" | "guided";
 export type TextSize = "default" | "large" | "largest";
-export type Screen = "home" | "move" | "invest" | "activity";
+export type Screen = "home" | "move" | "invest" | "activity" | "fixed-deposit";
 export type AccountId = "everyday" | "savings";
 export type DestinationId =
   | "everyday"
@@ -35,14 +35,18 @@ export type Transfer = {
 export type ChatAction =
   | { label: string; type: "ask"; query: string }
   | { label: string; type: "screen"; screen: Screen }
+  | { label: string; type: "navigate"; actionId: "fixed_deposit.start" }
   | { label: string; type: "person" }
   | { label: string; type: "prefs" };
+
+export type ChatTopic = "fixed-deposit";
 
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   text: string;
   actions?: ChatAction[];
+  topic?: ChatTopic;
 };
 
 export type BankerRequest = {

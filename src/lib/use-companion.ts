@@ -32,6 +32,7 @@ type Args = {
   issue: string;
   assist: AssistContext;
   pay: (to: DestinationId, amount: string) => void;
+  openFixedDeposit: () => void;
 };
 
 export function useCompanion({
@@ -43,13 +44,18 @@ export function useCompanion({
   issue,
   assist,
   pay,
+  openFixedDeposit,
 }: Args) {
   const [mode, setMode] = useState<CompanionMode>("hidden");
   // where penny was peeking when tapped, so the panel avatar can fly in from that spot
   const [origin, setOrigin] = useState<DOMRect | null>(null);
   const [guiding, setGuiding] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [reply, setReply] = useState<{ text: string; key: string } | null>(null);
+  const [reply, setReply] = useState<{
+    text: string;
+    key: string;
+    action?: "fixed-deposit";
+  } | null>(null);
 
   // a reply belongs to the screen state it was made for. once the user moves on or edits
   // the amount the key changes, so stale replies disappear without any cleanup code
@@ -115,6 +121,11 @@ export function useCompanion({
     guiding: active,
     target,
     line,
+    showFixedDepositAction: reply?.key === key && reply.action === "fixed-deposit",
+    openFixedDeposit: () => {
+      close();
+      openFixedDeposit();
+    },
     startGuide,
     close,
     // tapping penny while she peeks opens the full panel with the stuck offer
@@ -149,6 +160,11 @@ export function useCompanion({
       if (result.kind === "say") {
         setMode("panel");
         setReply({ text: result.text, key });
+        return;
+      }
+      if (result.kind === "fixed-deposit") {
+        setMode("panel");
+        setReply({ text: result.text, key, action: "fixed-deposit" });
         return;
       }
       startGuide();

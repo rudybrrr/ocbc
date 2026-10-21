@@ -2,7 +2,7 @@ import { flushSync } from "react-dom";
 
 export function withTransition(update: () => void, focusId?: string) {
   const focus = () => {
-    document.getElementById("main")?.scrollTo(0, 0);
+    document.querySelector<HTMLElement>(".oc-main")?.scrollTo(0, 0);
     if (!focusId) return;
     document.getElementById(focusId)?.focus();
   };
@@ -19,5 +19,5 @@ export function withTransition(update: () => void, focusId?: string) {
   });
   // a quick second tap skips this transition; the update still runs, so the rejection is expected
   transition.ready.catch(() => {});
-  transition.finished.finally(focus);
+  transition.finished.then(focus, focus);
 }
