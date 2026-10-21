@@ -130,6 +130,7 @@ export function OcbcApp() {
     issue,
     assist: store.assistContext,
     pay: choose,
+    openFixedDeposit: () => nav("fixed-deposit"),
   });
   // every error also goes to penny, because a blocked payment is the moment people get stuck
   const flag = (text: string) => {

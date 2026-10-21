@@ -20,6 +20,7 @@ export type CompanionResult =
   | { kind: "say"; text: string }
   | { kind: "guide" }
   | { kind: "pay"; to: DestinationId; amount: string }
+  | { kind: "fixed-deposit"; text: string }
   | { kind: "stop"; text: string };
 
 // the step is worked out from what is on screen instead of a step counter,
@@ -128,6 +129,9 @@ export function companionReply(
 
   const contact = findContact(text);
   if (contact) return { kind: "pay", to: contact.id, amount: findAmount(text) };
+
+  if (/\bfixed deposits?\b|\btime deposits?\b|\bterm deposits?\b/.test(text))
+    return { kind: "fixed-deposit", text: respond(input, ctx.assist).text };
 
   if (ctx.issue && /why|error|wrong|blocked|declined|problem|can.?t|cannot|fail/.test(text))
     return { kind: "say", text: issueLine(ctx.issue) };

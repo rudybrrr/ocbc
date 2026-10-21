@@ -51,6 +51,11 @@ export function Companion({ companion }: { companion: ReturnType<typeof useCompa
             <button onClick={companion.dismiss}>Not now</button>
           </>
         )}
+        {companion.showFixedDepositAction && (
+          <button type="button" onClick={companion.openFixedDeposit}>
+            Explore Fixed Deposits
+          </button>
+        )}
         <button
           aria-pressed={voiceOn}
           onClick={() => {
