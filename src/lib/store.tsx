@@ -135,6 +135,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     monthly: snapshot.invest.monthly,
     investDone: snapshot.invest.done,
     lastIssue: snapshot.lastIssue,
+    lastTopic: snapshot.messages.at(-1)?.topic ?? null,
   };
 
   const patch = (partial: Partial<Snapshot>) => {
@@ -156,6 +157,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         mode: current.mode,
         plainLanguage: current.plainLanguage,
         screen: current.screen,
+        lastTopic: current.messages.at(-1)?.topic ?? null,
       });
       const user: ChatMessage = { id: crypto.randomUUID(), role: "user", text: trimmed };
       const assistant: ChatMessage = {
@@ -163,6 +165,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         role: "assistant",
         text: reply.text,
         actions: reply.actions,
+        topic: reply.topic,
       };
       return { ...current, messages: [...current.messages, user, assistant].slice(-40) };
     });
@@ -247,6 +250,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       if (action.type === "screen") {
         withTransition(() => patch({ screen: action.screen, helpOpen: false }), "screen-title");
+        return;
+      }
+      if (action.type === "navigate" && action.actionId === "fixed_deposit.start") {
+        withTransition(() => patch({ screen: "fixed-deposit", helpOpen: false }), "screen-title");
         return;
       }
       if (action.type === "person") {

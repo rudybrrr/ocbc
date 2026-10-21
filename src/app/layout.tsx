@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import "./globals.css";
+import "./ocbc.css";
 
 const sans = Be_Vietnam_Pro({
   subsets: ["latin"],

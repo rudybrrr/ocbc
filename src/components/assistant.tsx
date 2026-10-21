@@ -1,20 +1,43 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { IgniteImage, SpriteIcon } from "@/components/ocbc-ui";
+import { FinancialEducationResponse } from "@/components/chat-response";
 import { suggestions } from "@/lib/assistant";
 import { useStore } from "@/lib/store";
 import type { ChatAction } from "@/lib/types";
+
+type SpeechRecognitionInstance = {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+type SpeechCapableWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+};
 
 export function Assistant() {
   const store = useStore();
   const { snapshot, assistContext } = store;
   const [draft, setDraft] = useState("");
+  const [voiceStatus, setVoiceStatus] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const prompts = suggestions(assistContext);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [snapshot.messages.length]);
+
+  useEffect(() => () => recognitionRef.current?.stop(), []);
 
   const context =
     snapshot.screen === "move"
@@ -34,13 +57,57 @@ export function Assistant() {
     setDraft("");
   };
 
+  const startVoice = () => {
+    const speechWindow = window as SpeechCapableWindow;
+    const SpeechRecognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceStatus("Voice input is not available in this browser. Type your request below.");
+      inputRef.current?.focus();
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.lang = "en-SG";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+      if (transcript) {
+        setDraft(transcript);
+        setVoiceStatus("Review what I heard, then choose Send.");
+      } else {
+        setVoiceStatus("I did not catch that. Type your request below.");
+      }
+    };
+    recognition.onerror = () => setVoiceStatus("I could not hear that. Type your request below.");
+    recognition.onend = () => {
+      recognitionRef.current = null;
+    };
+    setVoiceStatus("Listening… Say “Pay someone” or ask a question.");
+    recognition.start();
+  };
+
   return (
     <section className="assist" aria-labelledby="assist-title">
       <header className="assist-head">
-        <div>
-          <h2 id="assist-title" tabIndex={-1}>
-            Ask
-          </h2>
+        <div className="assist-brand">
+          <IgniteImage
+            src="/ignite/prototype/bankbuddy-avatar.png"
+            width={96}
+            height={96}
+            alt=""
+            className="assist-avatar"
+          />
+          <div>
+            <h2 id="assist-title" tabIndex={-1}>BankBuddy</h2>
+            <p className="assist-subtitle">Your local banking guide</p>
+          </div>
+        </div>
+        <div className="assist-head-copy">
           <p>{context}</p>
         </div>
         <button type="button" className="btn btn-quiet assist-close" onClick={store.closeHelp}>
@@ -58,24 +125,19 @@ export function Assistant() {
         )}
         {snapshot.messages.map((message, index) => {
           const last = index === snapshot.messages.length - 1;
+          if (message.role === "assistant") {
+            return (
+              <FinancialEducationResponse
+                key={message.id}
+                message={message}
+                onAction={(action) => run(action, store.runAction, send)}
+                latest={last}
+              />
+            );
+          }
           return (
-            <article key={message.id} className={`bubble ${message.role}`}>
+            <article key={message.id} className="bubble user">
               <p>{message.text}</p>
-              {message.role === "assistant" && message.actions && message.actions.length > 0 && (
-                <div className="bubble-actions">
-                  {message.actions.map((action) => (
-                    <button
-                      key={action.label}
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => run(action, store.runAction, send)}
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {last ? <span className="sr-only">Latest reply</span> : null}
             </article>
           );
         })}
@@ -101,6 +163,7 @@ export function Assistant() {
           Your question
         </label>
         <input
+          ref={inputRef}
           id="assist-input"
           name="question"
           value={draft}
@@ -109,10 +172,19 @@ export function Assistant() {
           placeholder="Ask about a balance, a fund, or a payment"
           onChange={(event) => setDraft(event.target.value)}
         />
+        <button
+          type="button"
+          className="assist-voice"
+          onClick={startVoice}
+          aria-label="Speak your question"
+        >
+          <SpriteIcon name="microphone-accent" size={20} />
+        </button>
         <button type="submit" className="btn btn-primary" disabled={!draft.trim()}>
           Send
         </button>
       </form>
+      <p className="assist-voice-status" role="status" aria-live="polite">{voiceStatus}</p>
     </section>
   );
 }
