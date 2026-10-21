@@ -8,6 +8,8 @@ import { speak, stopSpeaking, useListen } from "@/lib/use-voice";
 export function Companion({ companion }: { companion: ReturnType<typeof useCompanion> }) {
   const [draft, setDraft] = useState("");
   const [voiceOn, setVoiceOn] = useState(true);
+  // the ask box stays folded so penny doesn't push the task off a small screen
+  const [asking, setAsking] = useState(false);
   const voice = useListen(companion.ask);
   const { open, line, origin } = companion;
   const avatar = useRef<SVGSVGElement>(null);
@@ -80,36 +82,40 @@ export function Companion({ companion }: { companion: ReturnType<typeof useCompa
         >
           {voiceOn ? "Sound on" : "Sound off"}
         </button>
+        {!asking && <button onClick={() => setAsking(true)}>Ask</button>}
       </div>
-      <form
-        className="penny-ask"
-        onSubmit={(event) => {
-          event.preventDefault();
-          send(draft);
-        }}
-      >
-        <input
-          aria-label="Ask Penny"
-          placeholder="Try “pay Mum 10”"
-          maxLength={160}
-          enterKeyHint="send"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-        />
-        {voice.supported && (
-          <button
-            type="button"
-            className="penny-mic"
-            aria-pressed={voice.listening}
-            onClick={voice.listen}
-          >
-            {voice.listening ? "Listening…" : "Speak"}
+      {asking && (
+        <form
+          className="penny-ask"
+          onSubmit={(event) => {
+            event.preventDefault();
+            send(draft);
+          }}
+        >
+          <input
+            autoFocus
+            aria-label="Ask Penny"
+            placeholder="Try “pay Mum 10”"
+            maxLength={160}
+            enterKeyHint="send"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+          />
+          {voice.supported && (
+            <button
+              type="button"
+              className="penny-mic"
+              aria-pressed={voice.listening}
+              onClick={voice.listen}
+            >
+              {voice.listening ? "Listening…" : "Speak"}
+            </button>
+          )}
+          <button type="submit" className="penny-send" disabled={!draft.trim()}>
+            Send
           </button>
-        )}
-        <button type="submit" className="penny-send" disabled={!draft.trim()}>
-          Send
-        </button>
-      </form>
+        </form>
+      )}
     </aside>
   );
 }
