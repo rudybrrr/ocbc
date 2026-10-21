@@ -9,12 +9,15 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. On a laptop the assistant sits beside the bank. On a phone it opens from Ask.
+Open http://localhost:3000 in Chrome or Edge. The app runs inside a phone frame. Voice needs microphone permission. Firefox and Safari still work with typing, but the Speak button is hidden.
 
-## Demo path
+## Demo path: Penny, the proactive companion
 
-1. Choose **Demo path**, or set Guided mode yourself.
-2. On Today, start the practice investing walk and save a monthly figure.
-3. Switch **Standard** in the header. The plan is still there.
-4. Move `20000` and use the recovery, Ask, or Talk to someone.
-5. **Adjust** changes text size and help without clearing progress. **Reset demo** starts over.
+1. Tap **Log in as existing customer**, then **Log in to OCBC Singapore**. On Home tap **PayNow**.
+2. Wait about 8 seconds without tapping. Penny appears and offers help.
+3. Tap **Speak** and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Next**.
+4. Tap **Next**. Penny highlights **Confirm practice payment**. Tap it and she confirms on the receipt.
+5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Next, Confirm.
+6. Try `99999` as the amount. The payment is blocked and Penny explains why right away.
+
+The stuck delay is `STUCK_MS` in `src/lib/companion.ts`.

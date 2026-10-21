@@ -13,6 +13,8 @@ import {
   PreferencesDialog,
 } from "@/components/dialogs";
 import { Invest } from "@/components/invest";
+import { Companion } from "@/components/companion";
+import { useCompanion } from "@/lib/use-companion";
 
 function Art({ name, className = "" }: { name: string; className?: string }) {
   return (
@@ -66,6 +68,7 @@ export function OcbcApp() {
     setView(next === "invest" ? "plan" : next);
     setNotice("");
     setIssue("");
+    companion.navigate(next);
   };
   const login = () => {
     if (!store.snapshot.onboarded)
@@ -79,14 +82,29 @@ export function OcbcApp() {
       });
     nav("home");
   };
-  const choose = (id: DestinationId) => {
+  const choose = (id: DestinationId, amountValue = "") => {
     setRecipient(id);
-    store.updateDraft({ from: "everyday", to: id, amount: "", note: "" });
+    store.updateDraft({ from: "everyday", to: id, amount: amountValue, note: "" });
     setBalance(false);
     setMessage(false);
     nav("amount");
   };
   const amount = parseAmount(store.snapshot.draft.amount);
+  const companion = useCompanion({
+    view,
+    amountRaw: store.snapshot.draft.amount,
+    amountOk: amount.ok,
+    amount: amount.ok ? amount.amount : 0,
+    name: name ?? "them",
+    issue,
+    assist: store.assistContext,
+    pay: choose,
+  });
+  // every error also goes to penny, because a blocked payment is the moment people get stuck
+  const flag = (text: string) => {
+    setIssue(text);
+    companion.explain(text);
+  };
   const payment = ["pay", "amount", "review", "receipt"].includes(view);
   const welcome = view === "welcome" || view === "login";
   const info = (text: string) => setNotice(text);
@@ -99,7 +117,10 @@ export function OcbcApp() {
     );
 
   return (
-    <div className={`oc-app ${welcome ? "oc-welcome-app" : ""}`}>
+    <div
+      className={`oc-app ${welcome ? "oc-welcome-app" : ""}`}
+      data-guide-active={companion.target ?? undefined}
+    >
       <a className="skip" href="#oc-main">
         Skip to content
       </a>
@@ -497,7 +518,7 @@ export function OcbcApp() {
               </button>
             </div>
             <section className="oc-contacts">
-              <label className="oc-search">
+              <label className="oc-search" data-guide="search">
                 <Art name="search" />
                 <input
                   aria-label="Search by name or mobile number"
@@ -568,7 +589,7 @@ export function OcbcApp() {
                 {name}
               </h1>
               <p>{contact?.phone ?? "Demo PayNow recipient"}</p>
-              <label className="oc-amount">
+              <label className="oc-amount" data-guide="amount">
                 <input
                   aria-label="Amount in SGD"
                   inputMode="decimal"
@@ -619,6 +640,7 @@ export function OcbcApp() {
             </section>
             <button
               className="oc-next"
+              data-guide="next"
               disabled={!amount.ok}
               onClick={() => {
                 const result = validateMove(
@@ -626,11 +648,11 @@ export function OcbcApp() {
                   store.snapshot.transfers,
                 );
                 if (!result.ok) {
-                  setIssue(`${result.title} ${result.recovery}`);
+                  flag(`${result.title} ${result.recovery}`);
                   return;
                 }
                 if (result.amount > 1000) {
-                  setIssue(
+                  flag(
                     "This amount exceeds the 1,000.00 SGD demo daily limit.",
                   );
                   return;
@@ -668,17 +690,18 @@ export function OcbcApp() {
               )}
               <button
                 className="oc-primary"
+                data-guide="confirm"
                 onClick={() => {
                   const result = validateMove(
                     store.snapshot.draft,
                     store.snapshot.transfers,
                   );
                   if (!result.ok) {
-                    setIssue(result.title);
+                    flag(result.title);
                     return;
                   }
                   if (result.amount > 1000) {
-                    setIssue("Daily demo limit exceeded.");
+                    flag("Daily demo limit exceeded.");
                     return;
                   }
                   store.submitMove({
@@ -748,6 +771,7 @@ export function OcbcApp() {
           </div>
         )}
       </main>
+      {!welcome && <Companion companion={companion} />}
       {!welcome && !payment && (
         <nav className="oc-nav" aria-label="Primary">
           {[
