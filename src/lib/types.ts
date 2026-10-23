@@ -1,6 +1,20 @@
 export type Mode = "standard" | "guided";
 export type TextSize = "default" | "large" | "largest";
-export type Screen = "home" | "move" | "invest" | "activity" | "fixed-deposit";
+export type Screen =
+  | "welcome" | "login" | "onboarding"
+  | "home" | "plan" | "move" | "amount" | "review" | "receipt"
+  | "invest" | "activity" | "fixed-deposit" | "rewards" | "more"
+  | "explore" | "scan-pay" | "foreign-exchange";
+
+export const EVERYDAY_ACTIONS = [
+  ["paynow", "PayNow"],
+  ["scan-pay", "Scan & Pay"],
+  ["transfer", "Transfer"],
+  ["foreign-exchange", "Foreign Exchange"],
+  ["fixed-deposit", "Fixed Deposit"],
+  ["invest", "Invest"],
+] as const;
+export type EverydayAction = (typeof EVERYDAY_ACTIONS)[number][0];
 export type AccountId = "everyday" | "savings";
 export type DestinationId =
   | "everyday"
@@ -57,12 +71,15 @@ export type BankerRequest = {
 };
 
 export type Preferences = {
+  homeLayout: "calm" | "classic";
   onboarded: boolean;
   mode: Mode;
   textSize: TextSize;
   plainLanguage: boolean;
   offerPerson: boolean;
   readAmounts: boolean;
+  everydayActions: EverydayAction[];
+  idleHelp: boolean;
 };
 
 export type InvestState = {
@@ -71,10 +88,19 @@ export type InvestState = {
   done: boolean;
 };
 
+export type FixedDepositState = {
+  step: number;
+  amount: string;
+  tenor: string;
+  account: AccountId;
+  reference: string;
+};
+
 export type Snapshot = Preferences & {
   screen: Screen;
   helpOpen: boolean;
   invest: InvestState;
+  fixedDeposit: FixedDepositState;
   transfers: Transfer[];
   messages: ChatMessage[];
   draft: Draft;

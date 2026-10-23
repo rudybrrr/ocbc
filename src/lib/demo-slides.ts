@@ -30,7 +30,7 @@ export const demoSlides = {
     heading: "From an overview to an opportunity to learn.",
     points: [
       ["Understand net worth", "View fictional balances and read how the total is calculated."],
-      ["Learn before committing", "Start investing opens an interactive lesson about unit trusts."],
+      ["Learn before committing", "Start investing opens a process covering terms, fees, risks and confirmation."],
       ["Know the demo boundary", "External accounts, savings goals, and insurance planning are placeholders."],
     ],
     cue: "Select Start investing to demonstrate the guided learning experience.",
@@ -38,14 +38,14 @@ export const demoSlides = {
   invest: {
     label: "Learn to invest",
     title: "Understand it. Then decide.",
-    description: "Make an unfamiliar product easier to understand through a hands-on, four-step lesson.",
+    description: "Follow the investing process through terms, fees, risks, review and explicit confirmation.",
     heading: "A practice journey from curiosity to confidence.",
     points: [
-      ["Pool and risk", "Tap a person to explore pooled money, then see why timing affects risk."],
-      ["Explore the mix", "Tap bonds and shares in the fictional 60/40 fund to understand each part."],
-      ["Save a practice plan", "Choose $50, $100, or $200 monthly. The plan stays on this device; no money moves."],
+      ["Choose guidance", "Guidance applies only to this journey and leaves preferences unchanged."],
+      ["Understand the process", "Read key terms, fees and risks. No product, amount or allocation is selected."],
+      ["Review and confirm", "Progress stays on this device. Completion places no order and moves no money."],
     ],
-    cue: "Walk through Pool, Risk, Mix, and Plan. This is education, not an investment recommendation.",
+    cue: "Choose guidance, read each step, then review and confirm process completion.",
   },
   "fixed-deposit": {
     label: "Fixed-deposit simulation",

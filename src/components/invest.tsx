@@ -1,367 +1,60 @@
 "use client";
 
-import { useState } from "react";
-import { SAMPLE_FUND } from "@/lib/data";
-import { sgd } from "@/lib/format";
+import { OcbcButton } from "@/components/ocbc-ui";
+import { JourneyHelp } from "@/components/journey-guidance";
 import { useStore } from "@/lib/store";
 
-const PEOPLE = ["Aisha", "Ben", "Mei", "Omar"] as const;
-const LABELS = ["Pool", "Risk", "Mix", "Plan"] as const;
+const LABELS = ["Before you begin", "Key terms", "Fees", "Risks", "Review", "Confirm"];
+const TARGETS = ["invest-intro", "invest-terms", "invest-fees", "invest-risks", "invest-review", "invest-confirm"];
 
 export function Invest() {
   const store = useStore();
-  const { snapshot } = store;
-  const plain = snapshot.plainLanguage;
-  const guided = snapshot.mode === "guided";
-  const [reviewing, setReviewing] = useState(false);
-  const step = snapshot.invest.step;
-  const showSummary = snapshot.invest.done && !reviewing;
-  const screen = showSummary ? 3 : Math.min(step, 3);
+  const { invest, plainLanguage: plain } = store.snapshot;
+  const step = invest.step;
 
-  return (
-    <div className="screen">
-      <p className="steps">
-        {LABELS.map((label, index) => (
-          <span key={label} aria-current={index === screen ? "step" : undefined}>
-            {label}
-          </span>
-        ))}
-      </p>
-      <ol className="track" aria-label="Walk progress">
-        {LABELS.map((label, index) => (
-          <li key={label} className={index < screen ? "done" : index === screen ? "now" : ""}>
-            <span className="sr-only">{label}</span>
-          </li>
-        ))}
-      </ol>
-      {guided && !showSummary && (
-        <p className="lede">This is a lesson. Leave and come back whenever you want. No money moves.</p>
-      )}
-      {showSummary ? (
-        <Summary
-          monthly={snapshot.invest.monthly}
-          onReview={() => {
-            setReviewing(true);
-            store.setInvestStep(0);
-          }}
-          onClear={() => {
-            store.clearPlan();
-            setReviewing(false);
-          }}
-          onHome={() => store.go("home")}
-          onPerson={store.openPerson}
-        />
-      ) : step === 0 ? (
-        <PoolStep plain={plain} onNext={() => store.setInvestStep(1)} />
-      ) : step === 1 ? (
-        <RiskStep plain={plain} onBack={() => store.setInvestStep(0)} onNext={() => store.setInvestStep(2)} />
-      ) : step === 2 ? (
-        <MixStep plain={plain} onBack={() => store.setInvestStep(1)} onNext={() => store.setInvestStep(3)} />
-      ) : (
-        <PlanStep
-          selected={snapshot.invest.monthly}
-          onSave={(monthly) => {
-            store.savePlan(monthly);
-            setReviewing(false);
-          }}
-          onBack={() => store.setInvestStep(2)}
-        />
-      )}
-    </div>
+  if (invest.done) return (
+    <section className="fd-screen">
+      <h2 id="screen-title" tabIndex={-1}>Investing process completed</h2>
+      <p>Your progress is saved on this device. No product, amount or allocation was selected, and no money moved.</p>
+      <OcbcButton onClick={() => store.go("home")}>Back to Home</OcbcButton>
+      <OcbcButton variant="secondary" onClick={store.clearPlan}>Read the process again</OcbcButton>
+      <JourneyHelp />
+    </section>
   );
-}
-
-function PoolStep({ plain, onNext }: { plain: boolean; onNext: () => void }) {
-  const [person, setPerson] = useState<(typeof PEOPLE)[number] | "">("");
 
   return (
-    <article>
-      <h1 id="screen-title" tabIndex={-1}>
-        Many people, one pool
-      </h1>
-      <p className="lede">
-        {plain
-          ? "Tap a person. Their money joins the same pool, and they receive units of that pool."
-          : "A unit trust pools contributions. Tap a person to see their money become units in the pool."}
-      </p>
-      <div className="pool">
-        {PEOPLE.map((name) => (
-          <button
-            key={name}
-            type="button"
-            className="person"
-            aria-pressed={person === name}
-            onClick={() => setPerson(name)}
-          >
-            {name}
-          </button>
-        ))}
-        <div className="pot">{person ? `${person}'s money is in the pool` : "The pool"}</div>
-      </div>
-      <p className="disclaimer">
-        {person
-          ? `${person} would own units, not a private pile of the underlying investments. The unit price can rise or fall.`
-          : "Educational only. Not personal financial advice, and not an offer to invest."}
-      </p>
-      <button type="button" className="btn btn-primary" onClick={onNext}>
-        Continue
-      </button>
-    </article>
-  );
-}
-
-function RiskStep({
-  plain,
-  onBack,
-  onNext,
-}: {
-  plain: boolean;
-  onBack: () => void;
-  onNext: () => void;
-}) {
-  const [when, setWhen] = useState<"soon" | "year" | "later" | "">("");
-  const copy = {
-    soon: "Money needed soon is a poor fit for a fund that can fall. Everyday Account is the place for that.",
-    year: "A year can still be a short time. The sample mix can be down when you need it.",
-    later: "Several years gives a fall more time to recover. It still can be worth less than you put in.",
-  } as const;
-
-  return (
-    <article>
-      <h1 id="screen-title" tabIndex={-1}>
-        When would you need it?
-      </h1>
-      <p className="lede">
-        {plain
-          ? "The same fund is a better or worse fit depending on when you need the money."
-          : "Time horizon changes the risk. Choose one and read what that means for a fund that can fall."}
-      </p>
-      <div
-        className="meter"
-        data-level={when || "none"}
-        role="img"
-        aria-label={
-          when
-            ? `Lesson only. A fund that can fall is a poorer fit when the money is needed ${when === "soon" ? "soon" : when === "year" ? "this year" : "in several years"}. Not a score for you.`
-            : "Lesson only. Not a risk score and not a suggestion to invest."
-        }
-      >
-        <span />
-      </div>
-      <p className="disclaimer">This bar is a lesson about timing. It is not a risk score and not a suggestion to invest.</p>
-      <fieldset>
-        <legend>Need the money</legend>
-        <div className="choice-list">
-          {(
-            [
-              ["soon", "Soon"],
-              ["year", "This year"],
-              ["later", "In several years"],
-            ] as const
-          ).map(([value, label]) => (
-            <label className="choice" key={value}>
-              <input type="radio" name="horizon" checked={when === value} onChange={() => setWhen(value)} />
-              <span>
-                <strong>{label}</strong>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <p className="disclaimer" aria-live="polite">
-        {when ? copy[when] : "Choose one. This is a general explanation, not advice for you."}
-      </p>
-      <div className="row-actions">
-        <button type="button" className="btn btn-secondary" onClick={onBack}>
-          Back
-        </button>
-        <button type="button" className="btn btn-primary" onClick={onNext}>
-          Continue
-        </button>
-      </div>
-    </article>
-  );
-}
-
-function MixStep({
-  plain,
-  onBack,
-  onNext,
-}: {
-  plain: boolean;
-  onBack: () => void;
-  onNext: () => void;
-}) {
-  const [part, setPart] = useState<"bonds" | "shares" | "">("");
-
-  return (
-    <article>
-      <h1 id="screen-title" tabIndex={-1}>
-        Sample mix: {SAMPLE_FUND}
-      </h1>
-      <p className="lede">
-        {plain
-          ? "This fictional sample is 60% bonds and 40% shares. Tap a part to see what it is."
-          : "Horizon Balanced is fictional. Tap bonds or shares to read what that slice means."}
-      </p>
-      <div className="mix" aria-label="60 percent bonds and 40 percent shares">
-        <button
-          type="button"
-          className="mix-bonds"
-          aria-pressed={part === "bonds"}
-          aria-label="Bonds, 60 percent"
-          onClick={() => setPart("bonds")}
-        >
-          Bonds
-        </button>
-        <button
-          type="button"
-          className="mix-shares"
-          aria-pressed={part === "shares"}
-          aria-label="Shares, 40 percent"
-          onClick={() => setPart("shares")}
-        >
-          Shares
-        </button>
-      </div>
-      <p className="disclaimer">
-        {part === "bonds"
-          ? "Bonds are loans to governments and companies. They can still fall in price."
-          : part === "shares"
-            ? "Shares are slices of companies. Their prices move more than bonds."
-            : "Tap the bar. This mix is for learning. It is not a pick for you."}
-      </p>
-      <div className="row-actions">
-        <button type="button" className="btn btn-secondary" onClick={onBack}>
-          Back
-        </button>
-        <button type="button" className="btn btn-primary" onClick={onNext}>
-          Continue
-        </button>
-      </div>
-    </article>
-  );
-}
-
-function PlanStep({
-  selected,
-  onSave,
-  onBack,
-}: {
-  selected: 50 | 100 | 200 | null;
-  onSave: (monthly: 50 | 100 | 200) => void;
-  onBack: () => void;
-}) {
-  const [amount, setAmount] = useState<50 | 100 | 200 | "">(selected ?? "");
-  const [missing, setMissing] = useState(false);
-  const months = amount === "" ? 0 : 12;
-
-  return (
-    <form
-      method="post"
-      action="#plan"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (amount === "") {
-          setMissing(true);
-          document.getElementById("plan-error")?.focus();
-          return;
-        }
-        onSave(amount);
-      }}
-    >
-      <h1 id="screen-title" tabIndex={-1}>
-        Save a practice amount
-      </h1>
-      <p className="lede">Each block is one month. The figure is stored on this phone. It does not invest money.</p>
-      <div className={`year-strip${amount === "" ? "" : ` amt-${amount}`}`} aria-hidden="true">
-        {Array.from({ length: 12 }, (_, index) => (
-          <span key={index} className={index < months ? "on" : ""} />
-        ))}
-      </div>
-      <p className="row-detail">{amount === "" ? "Choose a monthly figure." : `${sgd(amount)} × 12 months, practice only.`}</p>
-      {missing && (
-        <p id="plan-error" className="error-summary" role="alert" tabIndex={-1}>
-          Choose $50, $100, or $200 a month to save the practice plan.
-        </p>
-      )}
-      <fieldset>
-        <legend>Practice amount each month</legend>
-        <div className="amount-picks">
-          {([50, 100, 200] as const).map((value) => (
-            <label className="choice" key={value}>
-              <input
-                type="radio"
-                name="monthly"
-                value={value}
-                checked={amount === value}
-                onChange={() => {
-                  setAmount(value);
-                  setMissing(false);
-                }}
-                required
-              />
-              <span>
-                <strong>{sgd(value)} a month</strong>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <p className="disclaimer">Educational only. Not personal financial advice, and not an offer to invest.</p>
-      <div className="row-actions">
-        <button type="button" className="btn btn-secondary" onClick={onBack}>
-          Back
-        </button>
-        <button type="submit" className="btn btn-primary">
-          Save practice plan
-        </button>
-      </div>
-    </form>
-  );
-}
-
-function Summary({
-  monthly,
-  onReview,
-  onClear,
-  onHome,
-  onPerson,
-}: {
-  monthly: 50 | 100 | 200 | null;
-  onReview: () => void;
-  onClear: () => void;
-  onHome: () => void;
-  onPerson: () => void;
-}) {
-  return (
-    <article>
-      <h1 id="screen-title" tabIndex={-1}>
-        Practice plan saved
-      </h1>
-      <div className="plan-card">
-        <p className="statement-amount">{monthly ? sgd(monthly) : "—"}</p>
-        <p>a month into the sample {SAMPLE_FUND} mix</p>
-        <div className="mix" aria-hidden="true">
-          <span className="mix-bonds">Bonds</span>
-          <span className="mix-shares">Shares</span>
-        </div>
-        <p>Stored on this phone. No money moved. Not a recommendation.</p>
-      </div>
-      <div className="stack-actions">
-        <button type="button" className="btn btn-primary" onClick={onHome}>
-          Back to today
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={onReview}>
-          Read it again
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={onPerson}>
-          Talk to a person
-        </button>
-        <button type="button" className="btn btn-quiet align-start" onClick={onClear}>
-          Clear practice plan
-        </button>
-      </div>
-    </article>
+    <section className="fd-screen">
+      <p className="oc-demo-label">Step {step + 1} of {LABELS.length} · {LABELS[step]}</p>
+      <h2 id="screen-title" tabIndex={-1}>{LABELS[step]}</h2>
+      {step === 0 ? <>
+        <p>You are about to walk through the investing process: read the terms, check fees and risks, then review before confirming.</p>
+        <p>This demo saves your place only. It does not select a product, amount or allocation, open an investment account or place an order.</p>
+      </> : step === 1 ? <dl>
+        <dt>Units</dt><dd>{plain ? "Your portions of a fund. Their price can go up or down." : "Units represent holdings in a pooled investment; their value changes with the fund's assets."}</dd>
+        <dt>Dealing price</dt><dd>{plain ? "The price used when buying or selling. You may not know the final price when you place an order." : "The execution price may be determined at a subsequent valuation point."}</dd>
+        <dt>Settlement</dt><dd>{plain ? "The time it takes for payment and ownership to be completed." : "The completion of payment and delivery after a transaction."}</dd>
+      </dl> : step === 2 ? <>
+        <p>{plain ? "Check what you pay to buy, hold and sell before placing an order." : "Review subscription, ongoing management, platform and redemption charges before submitting an order."}</p>
+        <p>Some fees are deducted from the investment; others may be charged separately. Currency conversion may also cost money.</p>
+        <p>No product is selected here, so no fee is quoted. Read the specific fee schedule in a real application.</p>
+      </> : step === 3 ? <>
+        <p>{plain ? "The value can fall. You could get back less than you put in. Returns are not guaranteed." : "Capital is at risk. Market movements can cause losses, and past performance does not guarantee future returns."}</p>
+        <p>Currency movements can affect value. Selling may take time, and access to your money may be restricted.</p>
+        <p>Read the product documents for its risks and withdrawal conditions. Ask a person if anything is unclear.</p>
+      </> : step === 4 ? <>
+        <p>You have reached the review: check the terms, fees, risks and any details you enter in a real application before confirming.</p>
+        <p>No product, amount or allocation has been selected in this process. You can go back to read each step.</p>
+        <p className="disclaimer">This is not financial advice.</p>
+        <p>Continuing opens the final confirmation. It does not place an order.</p>
+      </> : <>
+        <p>Confirm that you want to mark this process as completed and save your progress on this device.</p>
+        <p>No investment order will be submitted and no money will move.</p>
+      </>}
+      {step > 0 && <OcbcButton variant="secondary" onClick={() => store.setInvestStep(step - 1)}>Back</OcbcButton>}
+      <OcbcButton data-guide={TARGETS[step]} onClick={() => step === 5 ? store.completeInvest() : store.setInvestStep(step + 1)}>
+        {step === 5 ? "Confirm process completion" : "Continue"}
+      </OcbcButton>
+      <JourneyHelp />
+    </section>
   );
 }

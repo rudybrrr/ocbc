@@ -1,4 +1,4 @@
-import { CARD, SAMPLE_FUND } from "@/lib/data";
+import { CARD } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import type { ChatAction, ChatTopic, Mode, Screen } from "@/lib/types";
 
@@ -89,20 +89,10 @@ function balanceReply(ctx: AssistContext): Reply {
 function investReply(ctx: AssistContext, query: string): Reply {
   if (/what if|falls|fall|drop|lose|loss|risk/.test(query)) {
     return {
-      text: "The sample mix can fall in price. If it was sold then, you could get back less than was put in. Money needed soon fits Everyday Account better than a fund. This is a general explanation, not advice for you.",
+      text: "Investments can fall in value. You could get back less than you put in. Read the risks, fees and withdrawal conditions before confirming any real order. This is not financial advice.",
       actions: [
         { label: "Continue the walk", type: "screen", screen: "invest" },
         { label: "Talk to a person", type: "person" },
-      ],
-    };
-  }
-
-  if (ctx.investDone && ctx.monthly && /plan|a month|per month|horizon|saved/.test(query)) {
-    return {
-      text: `Your practice plan is ${sgd(ctx.monthly)} a month into the sample ${SAMPLE_FUND} mix. It is stored on this phone only. No money has moved, and this is not a recommendation.`,
-      actions: [
-        { label: "View practice plan", type: "screen", screen: "invest" },
-        { label: "Is this advice?", type: "ask", query: "Is this personal financial advice?" },
       ],
     };
   }
@@ -112,14 +102,14 @@ function investReply(ctx: AssistContext, query: string): Reply {
     : `A unit trust is a pooled fund. Investors own units, and the manager buys a stated mix of assets. Unit prices move with those assets, so the value can fall below what was paid.`;
 
   const offer = ctx.investDone
-    ? ` You already have a practice plan for the sample ${SAMPLE_FUND} mix.`
-    : ` The walk uses a fictional ${SAMPLE_FUND} mix and does not invest money.`;
+    ? ` You have completed the investing process on this device. No investment was made.`
+    : ` The process covers terms, fees, risks, review and confirmation. It does not choose a product, amount or allocation.`;
 
   return {
     text: `${definition}${offer} It is education, not advice for you.`,
     actions: [
       {
-        label: ctx.investDone ? "View practice plan" : ctx.investStep > 0 ? "Continue the walk" : "Start the walk",
+        label: ctx.investDone ? "View completed process" : ctx.investStep > 0 ? "Continue the walk" : "Start the walk",
         type: "screen",
         screen: "invest",
       },
@@ -152,7 +142,7 @@ export function respond(input: string, ctx: AssistContext): Reply {
 
   if (/advice|should i (buy|invest)|recommend|right for me|personal advice/.test(query)) {
     return {
-      text: "This is education about a sample fund, not advice for you. It does not look at income, debts, or when the money is needed. You can log a practice request to talk to a banker. This demo will not contact anyone.",
+      text: "This explains the investing process. This is not financial advice. It does not look at income, debts, or when the money is needed. You can log a practice request to talk to a banker. This demo will not contact anyone.",
       actions: [
         { label: "Talk to a person", type: "person" },
         { label: "Back to the walk", type: "screen", screen: "invest" },
@@ -244,7 +234,7 @@ export function suggestions(ctx: AssistContext): string[] {
     return ["What if the value falls?", "Is this personal financial advice?", "Talk to a person"];
   }
   if (ctx.investDone) {
-    return ["What is my practice plan?", "How much can I use today?", "I want to move money"];
+    return ["What is the investing process?", "How much can I use today?", "I want to move money"];
   }
   return ["How much can I use today?", "Explain a unit trust simply", "I want to move money"];
 }

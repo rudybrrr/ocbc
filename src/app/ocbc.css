@@ -1527,3 +1527,26 @@ html[data-text="largest"] .oc-app {
 .penny:not(:has(+ .oc-bottom-nav)) {
   padding-bottom: 20px;
 }
+
+/* Calm home keeps the existing account and transaction styles. */
+.oc-calm-home { padding: 20px 0; }
+.oc-calm-home .oc-account { margin-top: 0; }
+.oc-calm-home .oc-account h1 { flex: 1; font-size: 18px; }
+.oc-everyday, .oc-intent { margin: 22px 18px; }
+.oc-everyday-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.oc-everyday-grid .oc-quick-action { min-height: 100px; justify-content: center; padding: 14px !important; background: #fff !important; border: 1px solid var(--ocbc-line); font-size: calc(14px * var(--oc-font-scale)); }
+.oc-everyday > p { margin-top: 10px; color: var(--ocbc-muted); font-size: calc(12px * var(--oc-font-scale)); }
+.oc-everyday > p .oc-link { min-height: 44px; padding: 4px; }
+.oc-intent h2, .oc-calm-home .oc-transactions h2 { font-size: calc(18px * var(--oc-font-scale)); }
+.oc-intent form { display: flex; align-items: center; gap: 6px; margin: 12px 0; padding: 6px; border: 1px solid var(--ocbc-line); border-radius: 10px; background: #fff; }
+.oc-intent input { width: 0; min-width: 0; flex: 1; padding: 10px 6px; border: 0; background: transparent; }
+.oc-intent form button { flex-shrink: 0; min-width: 44px; min-height: 44px; }
+.oc-intent-mic { display: grid; place-items: center; border: 0; border-radius: 8px; background: var(--ocbc-tint); }
+.oc-intent-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.oc-intent [role="status"] p { margin-top: 8px; }
+.oc-explore-link { display: flex; align-items: center; gap: 4px; margin: 0 18px; min-height: 44px; }
+.oc-explore-offer { margin: 16px 18px; padding: 18px; }
+.oc-explore-offer h2 { margin: 8px 0 14px; font-size: calc(18px * var(--oc-font-scale)); }
+.oc-journey-offer { margin: 12px 18px; padding: 12px; border: 1px solid var(--ocbc-line); border-radius: 10px; background: #fff; font-size: calc(12px * var(--oc-font-scale)); }
+.oc-journey-offer > button:first-child { float: right; min-height: 32px; }
+.oc-journey-offer p { clear: both; margin: 6px 0; }
