@@ -17,27 +17,32 @@ import { useStore } from "@/lib/store";
 import { activity, DESTINATIONS } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import { parseAmount, validateMove } from "@/lib/move";
-import type { DestinationId } from "@/lib/types";
+import type { DestinationId, Screen } from "@/lib/types";
 import { AssistantDialog, PersonDialog, PreferencesDialog } from "@/components/dialogs";
+import { GuidanceChoice } from "@/components/journey-guidance";
 import { Invest } from "@/components/invest";
 import { FixedDepositApplication } from "@/components/fixed-deposit";
 import { Companion } from "@/components/companion";
 import { PennyPeek } from "@/components/penny-peek";
 import { useCompanion } from "@/lib/use-companion";
+import { Onboarding } from "@/components/onboarding";
+import { Activity } from "@/components/activity";
+import { IntentEntry } from "@/components/intent-entry";
+import { EVERYDAY_ACTIONS, type EverydayAction } from "@/lib/types";
+import { findIntentContact } from "@/lib/intent";
+import { type Intent, type Journey } from "@/lib/journeys";
+import { OFFERS, type Offer } from "@/lib/offers";
 
-type View =
-  | "welcome"
-  | "login"
-  | "home"
-  | "plan"
-  | "pay"
-  | "amount"
-  | "review"
-  | "invest"
-  | "fixed-deposit"
-  | "rewards"
-  | "more"
-  | "receipt";
+const ACTION_JOURNEYS: Record<EverydayAction, Journey> = {
+  paynow: "paynow", "scan-pay": "scan_and_pay", transfer: "transfer",
+  "foreign-exchange": "foreign_exchange", "fixed-deposit": "fixed_deposit", invest: "start_investing",
+};
+const ACTION_ICONS: Record<EverydayAction, SpriteName> = {
+  paynow: "transfer-accent", "scan-pay": "scan", transfer: "transfer",
+  "foreign-exchange": "exchange", "fixed-deposit": "calendar", invest: "lightbulb",
+};
+
+type View = Exclude<Screen, "move"> | "pay";
 
 function Art({ name, className = "" }: { name: string; className?: string }) {
   return (
@@ -53,28 +58,16 @@ function Art({ name, className = "" }: { name: string; className?: string }) {
 
 export function OcbcApp() {
   const store = useStore();
-  const [localView, setView] = useState<View>("welcome");
-  const view =
-    localView !== "welcome" &&
-    localView !== "login" &&
-    store.snapshot.screen === "invest"
-      ? "invest"
-      : localView !== "welcome" &&
-          localView !== "login" &&
-          store.snapshot.screen === "move"
-        ? "pay"
-        : localView !== "welcome" &&
-            localView !== "login" &&
-            store.snapshot.screen === "fixed-deposit"
-          ? "fixed-deposit"
-          : localView;
+  const view: View = store.snapshot.screen === "move" ? "pay" : store.snapshot.screen;
+  const [journeyOffer, setJourneyOffer] = useState<Offer | null>(null);
+  const [intentAmount, setIntentAmount] = useState("");
   const [category, setCategory] = useState("Accounts");
   const [hidden, setHidden] = useState(false);
   const [query, setQuery] = useState("");
   const [recent, setRecent] = useState(false);
   const [message, setMessage] = useState(false);
   const [balance, setBalance] = useState(false);
-  const [issue, setIssue] = useState("");
+  const issue = store.snapshot.lastIssue ?? "";
   const [notice, setNotice] = useState("");
   const [oneView, setOneView] = useState(false);
   const [receipt, setReceipt] = useState("");
@@ -90,29 +83,16 @@ export function OcbcApp() {
   const contact = DESTINATIONS.find((item) => item.id === recipient);
   const name = contact?.name;
   const nav = (next: View) => {
-    store.go(
-      next === "invest"
-        ? "invest"
-        : next === "fixed-deposit"
-          ? "fixed-deposit"
-          : "home",
-    );
-    setView(next === "invest" ? "plan" : next);
+    if (!store.go(next === "pay" ? "move" : next)) return false;
     setNotice("");
-    setIssue("");
+    setJourneyOffer(null);
+    setIntentAmount("");
+    store.setIssue(null);
     companion.navigate(next);
+    return true;
   };
   const login = () => {
-    if (!store.snapshot.onboarded)
-      store.completeOnboarding({
-        onboarded: true,
-        mode: "standard",
-        textSize: "default",
-        plainLanguage: true,
-        offerPerson: true,
-        readAmounts: false,
-      });
-    nav("home");
+    nav(store.snapshot.onboarded ? "home" : "onboarding");
   };
   const choose = (id: DestinationId, amountValue = "") => {
     setRecipient(id);
@@ -129,6 +109,12 @@ export function OcbcApp() {
     amount: amount.ok ? amount.amount : 0,
     name: name ?? "them",
     issue,
+    idleHelp: store.snapshot.idleHelp,
+    onJourneyGuidanceChange: store.chooseJourneyGuidance,
+    journey: {
+      guided: store.journeyGuidance === true,
+      step: view === "invest" ? store.snapshot.invest.step : store.snapshot.fixedDeposit.step,
+    },
     pay: choose,
     assist: store.assistContext,
     go: (next) => nav(next as View),
@@ -136,12 +122,40 @@ export function OcbcApp() {
   });
   // every error also goes to penny, because a blocked payment is the moment people get stuck
   const flag = (text: string) => {
-    setIssue(text);
+    store.setIssue(text);
     companion.explain(text);
   };
   const payment = ["pay", "amount", "review", "receipt", "fixed-deposit"].includes(view);
   const welcome = view === "welcome" || view === "login";
+  const setup = view === "onboarding";
   const info = (text: string) => setNotice(text);
+
+  const startJourney = ({ journey, slots }: Intent) => {
+    if (journey === "out_of_scope" || journey === "unclear") return;
+    if (journey === "transfer" || journey === "paynow") {
+      const matched = slots.recipient ? findIntentContact(slots.recipient) : undefined;
+      const amountValue = slots.amount === undefined ? "" : String(slots.amount);
+      if (matched) choose(matched.id, amountValue);
+      else {
+        nav("pay");
+        setQuery(slots.recipient ?? "");
+        setRecent(false);
+        setIntentAmount(amountValue);
+        store.updateDraft({ amount: amountValue });
+        if (slots.recipient) info(`Choose a saved contact for “${slots.recipient}”. If they are not listed, this demo cannot pay them.`);
+      }
+    } else if (journey === "talk_to_person") {
+      store.openPerson();
+    } else {
+      const screens = { scan_and_pay: "scan-pay", foreign_exchange: "foreign-exchange", fixed_deposit: "fixed-deposit", start_investing: "invest", view_transactions: "activity", explore_offers: "explore" } as const;
+      if (journey === "fixed_deposit" && slots.amount !== undefined) store.updateFixedDeposit({ amount: String(slots.amount) });
+      nav(screens[journey]);
+    }
+    setJourneyOffer(OFFERS.find((offer) => offer.journeys.includes(journey)) ?? null);
+  };
+  const openOffer = (offer: Offer) => offer.screen ? nav(offer.screen === "move" ? "pay" : offer.screen) : info(`${offer.label === "Welcome" ? "Important information" : offer.label === "GOALS" ? "Savings goals" : "Insurance planning"} is unavailable in this demo.`);
+  const banner = OFFERS[0];
+  const recentRows = activity(store.snapshot.transfers).slice(0, 4);
 
   const presentation: DemoSlide = store.prefsOpen
     ? "preferences"
@@ -153,7 +167,11 @@ export function OcbcApp() {
           ? "welcome"
           : issue
             ? "recovery"
-            : view;
+            : setup
+              ? "preferences"
+              : ["activity", "explore", "scan-pay", "foreign-exchange"].includes(view)
+                ? "home"
+                : view as DemoSlide;
 
   useEffect(() => {
     if (!store.ready || window.parent === window) return;
@@ -192,6 +210,14 @@ export function OcbcApp() {
         Skip to content
       </a>
       <main id="oc-main" className="oc-main" key={view}>
+        {journeyOffer && !welcome && !setup && view !== "home" && view !== "receipt" && view !== "explore" && (
+          <aside className="oc-journey-offer" aria-label="Related offer">
+            <button className="oc-link" aria-label="Dismiss related offer" onClick={() => setJourneyOffer(null)}>Dismiss</button>
+            <small>{journeyOffer.label}</small>
+            <p>{journeyOffer.title}</p>
+            <button className="oc-link" onClick={() => openOffer(journeyOffer)}>{journeyOffer.action}</button>
+          </aside>
+        )}
         {welcome ? (
           <>
             <div className="oc-welcome-hero">
@@ -288,6 +314,31 @@ export function OcbcApp() {
               </button>
             </p>
           </>
+        ) : setup ? (
+          <Onboarding />
+        ) : view === "activity" ? (
+          <Activity />
+        ) : view === "explore" ? (
+          <section className="oc-explore">
+            <header className="oc-page-heading"><button aria-label="Back to Home" onClick={() => nav("home")}><SpriteIcon name="arrow-left" size={21} /></button><h1>Explore offers</h1></header>
+            {OFFERS.map((offer) => <SectionCard key={offer.id} className="oc-explore-offer"><small>{offer.label}</small><h2>{offer.title}</h2><button className="oc-link" onClick={() => openOffer(offer)}>{offer.action}</button></SectionCard>)}
+          </section>
+        ) : view === "scan-pay" || view === "foreign-exchange" ? (
+          <section className="oc-menu"><button className="oc-link" onClick={() => nav("home")}>Back to Home</button><h1>{view === "scan-pay" ? "Scan & Pay" : "Foreign Exchange"}</h1><p>{view === "scan-pay" ? "QR scanning" : "Currency conversion"} is unavailable in this local demo.</p></section>
+        ) : view === "home" && store.snapshot.homeLayout === "calm" ? (
+          <div className="oc-calm-home">
+            <section className="oc-account" aria-label="Account balance">
+              <div className="oc-account-heading"><span className="oc-360"><SpriteIcon name="wallet" size={21} /></span><h1>360 Account</h1><button className="oc-link" aria-label={hidden ? "Show balances" : "Hide balances"} onClick={() => setHidden(!hidden)}><SpriteIcon name="eye" size={20} /></button></div>
+              <div className="oc-account-balance"><span>Available balance</span><strong>{hidden ? "••••••" : `${money.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SGD`}</strong></div>
+            </section>
+            <section className="oc-everyday" aria-label="Your everyday actions">
+              <div className="oc-everyday-grid">{store.snapshot.everydayActions.map((id) => <QuickAction key={id} icon={ACTION_ICONS[id]} label={EVERYDAY_ACTIONS.find(([action]) => action === id)![1]} onClick={() => startJourney({ journey: ACTION_JOURNEYS[id], confidence: 1, slots: {} })} />)}</div>
+              <p>Your everyday actions, chosen during setup <button className="oc-link" onClick={() => store.openPrefs("everyday-actions")}>Edit</button></p>
+            </section>
+            <IntentEntry onStart={startJourney} />
+            <button className="oc-link oc-explore-link" onClick={() => nav("explore")}>Explore offers <SpriteIcon name="chevron-right" size={17} /></button>
+            <section className="oc-transactions"><h2>Recent transactions</h2><p>{recentRows.length} most recent transactions</p>{recentRows.map((row) => <div className="oc-transaction" key={row.id}><span>{row.title}<small>{row.detail}</small></span><strong>{sgd(row.amount)}</strong></div>)}</section>
+          </div>
         ) : view === "home" ? (
           <>
             <header className="oc-toolbar">
@@ -313,19 +364,19 @@ export function OcbcApp() {
             <section className="oc-home-hero">
               <div className="oc-home-promo">
                 <div className="oc-home-promo-copy">
-                  <span>Welcome</span>
-                  <p>Enhance your cancer coverage, and enjoy up to S$2,250 in rewards.</p>
+                  <span>{banner.label}</span>
+                  <p>{banner.title}</p>
                   <button
                     className="oc-promo-link"
                     onClick={() => info("Important information is unavailable in this local demo.")}
                   >
-                    Important information <SpriteIcon name="chevron-right" size={17} />
+                    {banner.action} <SpriteIcon name="chevron-right" size={17} />
                   </button>
                 </div>
                 <div className="oc-home-promo-photo">
                   <IgniteImage
-                    src="/ignite/home/family-banner-photo.webp"
-                    alt="A family walking together outdoors"
+                    src={banner.image!}
+                    alt={banner.imageAlt!}
                     className="oc-family-photo"
                     fill
                     eager
@@ -409,18 +460,12 @@ export function OcbcApp() {
               </section>
             )}
             <div className="oc-promo-row">
-              <SectionCard className="oc-promo-tile">
-                <small>SAVINGS GOAL</small>
-                <strong>Stay on track and make your dreams a reality</strong>
-                <span>View/manage goals</span>
-                <button className="oc-card-hit-area" aria-label="View savings goals" onClick={() => nav("plan")} />
-              </SectionCard>
-              <SectionCard className="oc-promo-tile">
-                <small>MONEY INSIGHTS</small>
-                <strong>Set budgets and see your spending breakdown</strong>
-                <span>Take control</span>
-                <button className="oc-card-hit-area" aria-label="Open money insights" onClick={() => nav("plan")} />
-              </SectionCard>
+              {OFFERS.filter((offer) => ["savings-goal", "money-insights"].includes(offer.id)).map((offer) => (
+                <SectionCard className="oc-promo-tile" key={offer.id}>
+                  <small>{offer.label}</small><strong>{offer.title}</strong><span>{offer.action}</span>
+                  <button className="oc-card-hit-area" aria-label={offer.accessibleAction} onClick={() => openOffer(offer)} />
+                </SectionCard>
+              ))}
             </div>
             <section className="oc-transactions">
               <h1>Recent transactions</h1>
@@ -515,24 +560,7 @@ export function OcbcApp() {
             <div className="oc-plan-grid">
               {[
                 ["TRACK", "Money in (SGD)", "0.00", "track-art"],
-                [
-                  "INVEST",
-                  "Check out our products and insights",
-                  "Start investing",
-                  "invest-art",
-                ],
-                [
-                  "GOALS",
-                  "Save regularly for your needs and wants",
-                  "Create new goal",
-                  "goal-art",
-                ],
-                [
-                  "INSURE",
-                  "Find policies to fill the gaps in your insurance",
-                  "Calculate your needs",
-                  "insure-art",
-                ],
+                ...OFFERS.filter((offer) => ["invest", "goals", "insure"].includes(offer.id)).map((offer) => [offer.label, offer.title, offer.action, offer.image!.replace("/ocbc/", "").replace(".webp", "")]),
               ].map(([title, description, action, art]) => (
                 <section key={title}>
                   <h2>{title}</h2>
@@ -631,7 +659,7 @@ export function OcbcApp() {
                   key={item.id}
                   name={item.name}
                   detail={item.phone ?? "Demo PayNow contact"}
-                  onClick={() => choose(item.id)}
+                  onClick={() => choose(item.id, intentAmount)}
                 />
               ))}
               {visibleContacts.length === 0 && (
@@ -661,7 +689,7 @@ export function OcbcApp() {
               issue={issue}
               onAmountChange={(value) => {
                 store.updateDraft({ amount: value });
-                setIssue("");
+                store.setIssue(null);
               }}
               onNoteChange={(value) => store.updateDraft({ note: value })}
               onToggleNote={() => setMessage(!message)}
@@ -764,24 +792,25 @@ export function OcbcApp() {
               </button>
               <h1>Fixed deposit</h1>
             </header>
-            <FixedDepositApplication onBack={() => nav("home")} />
+            {store.journeyGuidance === null && !store.snapshot.fixedDeposit.reference
+              ? <GuidanceChoice /> : <FixedDepositApplication />}
           </>
         ) : view === "invest" ? (
           <>
             <header className="oc-page-heading">
-              <button aria-label="Back" onClick={() => nav("plan")}>
+              <button aria-label="Back to Home" onClick={() => nav("home")}>
                 <SpriteIcon name="arrow-left" size={21} />
               </button>
               <h1>Invest</h1>
             </header>
-            <Invest />
+            {store.journeyGuidance === null && !store.snapshot.invest.done ? <GuidanceChoice /> : <Invest />}
           </>
         ) : (
           <section className="oc-menu">
             <h1>{view === "more" ? "More" : "Rewards"}</h1>
             {view === "more" ? (
               <>
-                <button onClick={store.openPrefs}>
+                <button onClick={() => store.openPrefs()}>
                   Accessibility & preferences
                 </button>
                 <button onClick={store.openHelp}>
@@ -805,9 +834,9 @@ export function OcbcApp() {
           </div>
         )}
       </main>
-      {!welcome && <Companion companion={companion} aboveNav={!payment} />}
-      {!welcome && <PennyPeek companion={companion} aboveNav={!payment} />}
-      {!welcome && !payment && (
+      {!welcome && !setup && <Companion companion={companion} aboveNav={!payment} />}
+      {!welcome && !setup && <PennyPeek companion={companion} aboveNav={!payment} />}
+      {!welcome && !setup && !payment && (
         <BottomNavigation
           current={view === "invest" ? "plan" : view}
           onNavigate={(target) => nav(target as View)}

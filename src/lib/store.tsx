@@ -9,13 +9,17 @@ import {
   type ReactNode,
 } from "react";
 import { respond, type AssistContext } from "@/lib/assistant";
+import { validFixedDeposit } from "@/lib/fixed-deposit-data";
 import { balances } from "@/lib/data";
 import { withTransition } from "@/lib/transition";
+import { EVERYDAY_ACTIONS } from "@/lib/types";
 import type {
   BankerRequest,
   ChatAction,
   ChatMessage,
   Draft,
+  EverydayAction,
+  FixedDepositState,
   Mode,
   Preferences,
   Screen,
@@ -26,6 +30,18 @@ import type {
 
 const KEY = "ocbc-adaptive-assist-v1";
 
+export const DEFAULT_PREFERENCES: Preferences = {
+  homeLayout: "calm",
+  onboarded: false,
+  mode: "standard",
+  textSize: "default",
+  plainLanguage: true,
+  offerPerson: true,
+  readAmounts: false,
+  everydayActions: ["paynow", "scan-pay", "transfer"],
+  idleHelp: false,
+};
+
 const defaultDraft: Draft = {
   from: "everyday",
   to: "mum",
@@ -35,15 +51,14 @@ const defaultDraft: Draft = {
 
 function fresh(): Snapshot {
   return {
-    onboarded: false,
+    ...DEFAULT_PREFERENCES,
+    // Keep the existing pre-login appearance; Skip uses the login defaults above.
     mode: "guided",
     textSize: "large",
-    plainLanguage: true,
-    offerPerson: true,
-    readAmounts: false,
-    screen: "home",
+    screen: "welcome",
     helpOpen: false,
     invest: { step: 0, monthly: null, done: false },
+    fixedDeposit: { step: 0, amount: "", tenor: "", account: "everyday", reference: "" },
     transfers: [],
     messages: [],
     draft: defaultDraft,
@@ -57,7 +72,29 @@ function read(): Snapshot {
     const raw = localStorage.getItem(KEY);
     if (!raw) return fresh();
     const parsed = JSON.parse(raw) as Partial<Snapshot>;
-    return { ...fresh(), ...parsed, helpOpen: false, draft: { ...defaultDraft, ...parsed.draft } };
+    return {
+      ...fresh(),
+      ...parsed,
+      // Preserve the login entry point; saved task state is still available after login.
+      screen: "welcome",
+      helpOpen: false,
+      everydayActions: Array.isArray(parsed.everydayActions)
+        ? [...new Set(parsed.everydayActions)].filter((action) => EVERYDAY_ACTIONS.some(([id]) => id === action)).slice(0, 4)
+        : DEFAULT_PREFERENCES.everydayActions,
+      homeLayout: parsed.homeLayout === "classic" ? "classic" : "calm",
+      idleHelp: parsed.idleHelp === true,
+      draft: { ...defaultDraft, ...parsed.draft },
+      invest: {
+        ...fresh().invest,
+        ...parsed.invest,
+        step: Number.isInteger(parsed.invest?.step) ? Math.max(0, Math.min(parsed.invest!.step, 5)) : 0,
+      },
+      fixedDeposit: {
+        ...fresh().fixedDeposit,
+        ...parsed.fixedDeposit,
+        step: Number.isInteger(parsed.fixedDeposit?.step) ? Math.max(0, Math.min(parsed.fixedDeposit!.step, 4)) : 0,
+      },
+    };
   } catch {
     return fresh();
   }
@@ -72,11 +109,17 @@ type Store = {
   completeOnboarding: (prefs: Preferences) => void;
   setMode: (mode: Mode) => void;
   setTextSize: (textSize: TextSize) => void;
-  setToggle: (key: "plainLanguage" | "offerPerson" | "readAmounts", value: boolean) => void;
-  go: (screen: Screen) => void;
+  setToggle: (key: "plainLanguage" | "offerPerson" | "readAmounts" | "idleHelp", value: boolean) => void;
+  setHomeLayout: (layout: Preferences["homeLayout"]) => void;
+  setEverydayActions: (actions: EverydayAction[]) => void;
+  go: (screen: Screen) => boolean;
+  journeyGuidance: boolean | null;
+  chooseJourneyGuidance: (guided: boolean) => void;
+  updateFixedDeposit: (patch: Partial<FixedDepositState>) => void;
+  completeFixedDeposit: () => void;
   openHelp: () => void;
   closeHelp: () => void;
-  openPrefs: () => void;
+  openPrefs: (section?: "everyday-actions") => void;
   closePrefs: () => void;
   prefsOpen: boolean;
   personOpen: boolean;
@@ -86,7 +129,7 @@ type Store = {
   submitMove: (transfer: Transfer, issueClear?: boolean) => void;
   setIssue: (issue: string | null) => void;
   setInvestStep: (step: number) => void;
-  savePlan: (monthly: 50 | 100 | 200) => void;
+  completeInvest: () => void;
   clearPlan: () => void;
   ask: (text: string) => void;
   runAction: (action: ChatAction) => void;
@@ -107,6 +150,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [announce, setAnnounce] = useState("");
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [personOpen, setPersonOpen] = useState(false);
+  const [journeyGuidance, setJourneyGuidance] = useState<boolean | null>(null);
 
   useEffect(() => {
     const saved = read();
@@ -120,7 +164,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!ready) return;
     applyRoot(snapshot);
-    localStorage.setItem(KEY, JSON.stringify({ ...snapshot, helpOpen: false }));
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ ...snapshot, helpOpen: false }));
+    } catch {
+      // Keep this session usable when storage is blocked or full.
+    }
   }, [ready, snapshot]);
 
   const money = useMemo(() => balances(snapshot.transfers), [snapshot.transfers]);
@@ -171,6 +219,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const go = (screen: Screen) => {
+    if (screen !== snapshot.screen) {
+      if (journeyGuidance === true && !window.confirm("Exit this journey? Your progress will be saved.")) return false;
+      setJourneyGuidance(null);
+    }
+    withTransition(() => patch({ screen, helpOpen: false }), "screen-title");
+    return true;
+  };
+
   const value: Store = {
     ready,
     snapshot,
@@ -192,10 +249,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           : "Standard mode. Accounts and activity together.",
       );
     },
+    setHomeLayout: (homeLayout) => patch({ homeLayout }),
     setTextSize: (textSize) => patch({ textSize }),
     setToggle: (key, value) => patch({ [key]: value }),
-    go: (screen) => {
-      withTransition(() => patch({ screen, helpOpen: false }), "screen-title");
+    setEverydayActions: (actions) => patch({ everydayActions: [...new Set(actions)].slice(0, 4) }),
+    go,
+    journeyGuidance,
+    chooseJourneyGuidance: (guided) => {
+      if (snapshot.screen !== "invest" && snapshot.screen !== "fixed-deposit") return;
+      if (snapshot.screen === "invest" ? snapshot.invest.done : snapshot.fixedDeposit.reference) return;
+      setJourneyGuidance(guided);
+      if (snapshot.screen === "fixed-deposit" && !guided && snapshot.fixedDeposit.step === 0) {
+        setSnapshot((current) => ({ ...current, fixedDeposit: { ...current.fixedDeposit, step: 1 } }));
+      }
+    },
+    updateFixedDeposit: (draftPatch) => {
+      setSnapshot((current) => ({ ...current, fixedDeposit: { ...current.fixedDeposit, ...draftPatch } }));
+    },
+    completeFixedDeposit: () => {
+      if (snapshot.fixedDeposit.step !== 4 || !validFixedDeposit(snapshot.fixedDeposit)) return;
+      setSnapshot((current) => ({ ...current, fixedDeposit: { ...current.fixedDeposit, reference: `FD-DEMO-${crypto.randomUUID()}` } }));
+      setJourneyGuidance(null);
+      setAnnounce("Application simulated. No fixed deposit was opened and no money moved.");
     },
     openHelp: () => {
       setPrefsOpen(false);
@@ -206,9 +281,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       patch({ helpOpen: false });
       requestAnimationFrame(() => document.getElementById("screen-title")?.focus());
     },
-    openPrefs: () => {
+    openPrefs: (section) => {
       setPersonOpen(false);
       setPrefsOpen(true);
+      if (section) requestAnimationFrame(() => document.querySelector<HTMLInputElement>(".sheet .everyday-actions input")?.focus());
     },
     closePrefs: () => setPrefsOpen(false),
     openPerson: () => {
@@ -231,12 +307,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setInvestStep: (step) => {
       setSnapshot((current) => ({ ...current, invest: { ...current.invest, step } }));
     },
-    savePlan: (monthly) => {
-      setSnapshot((current) => ({
-        ...current,
-        invest: { step: current.invest.step, monthly, done: true },
-      }));
-      setAnnounce(`Practice plan saved. ${monthly} dollars a month. No money moved.`);
+    completeInvest: () => {
+      if (snapshot.invest.step !== 5) return;
+      setSnapshot((current) => ({ ...current, invest: { ...current.invest, done: true } }));
+      setJourneyGuidance(null);
+      setAnnounce("Investing process completed. No investment was made and no money moved.");
     },
     clearPlan: () => {
       patch({ invest: { step: 0, monthly: null, done: false } });
@@ -249,11 +324,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (action.type === "screen") {
-        withTransition(() => patch({ screen: action.screen, helpOpen: false }), "screen-title");
+        go(action.screen);
         return;
       }
       if (action.type === "navigate" && action.actionId === "fixed_deposit.start") {
-        withTransition(() => patch({ screen: "fixed-deposit", helpOpen: false }), "screen-title");
+        go("fixed-deposit");
         return;
       }
       if (action.type === "person") {
@@ -272,10 +347,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setAnnounce(`Practice request ${request.id} saved. Nobody will call.`);
     },
     resetDemo: () => {
-      localStorage.removeItem(KEY);
+      try {
+        localStorage.removeItem(KEY);
+      } catch {
+        // Reset in memory even when storage is unavailable.
+      }
       const next = fresh();
       applyRoot(next);
       setSnapshot(next);
+      setJourneyGuidance(null);
       setPrefsOpen(false);
       setPersonOpen(false);
       setAnnounce("Demo reset.");

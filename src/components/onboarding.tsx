@@ -1,17 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useStore } from "@/lib/store";
-import type { Mode, Preferences, TextSize } from "@/lib/types";
-
-const demo: Preferences = {
-  onboarded: true,
-  mode: "guided",
-  textSize: "large",
-  plainLanguage: true,
-  offerPerson: true,
-  readAmounts: false,
-};
+import { DEFAULT_PREFERENCES, useStore } from "@/lib/store";
+import type { EverydayAction, Mode, TextSize } from "@/lib/types";
+import { EverydayActions } from "@/components/everyday-actions";
 
 export function Onboarding() {
   const store = useStore();
@@ -21,6 +13,8 @@ export function Onboarding() {
   const [plainLanguage, setPlainLanguage] = useState(true);
   const [offerPerson, setOfferPerson] = useState(true);
   const [readAmounts, setReadAmounts] = useState(false);
+  const [everydayActions, setEverydayActions] = useState<EverydayAction[]>(DEFAULT_PREFERENCES.everydayActions);
+  const [idleHelp, setIdleHelp] = useState(false);
   const [missing, setMissing] = useState(false);
   const firstStep = useRef(true);
 
@@ -35,12 +29,15 @@ export function Onboarding() {
   const finish = () => {
     if (mode === "" || textSize === "") return;
     store.completeOnboarding({
+      homeLayout: "calm",
       onboarded: true,
       mode,
       textSize,
       plainLanguage,
       offerPerson,
       readAmounts,
+      everydayActions,
+      idleHelp,
     });
   };
 
@@ -69,16 +66,21 @@ export function Onboarding() {
           setStep(2);
           return;
         }
+        if (step === 2) {
+          setStep(3);
+          return;
+        }
         finish();
       }}
     >
       <p className="steps">
         <span aria-current={step === 0 ? "step" : undefined}>Mode</span>
         <span aria-current={step === 1 ? "step" : undefined}>Text</span>
-        <span aria-current={step === 2 ? "step" : undefined}>Help</span>
+        <span aria-current={step === 2 ? "step" : undefined}>Actions</span>
+        <span aria-current={step === 3 ? "step" : undefined}>Help</span>
       </p>
-      <ol className="track thirds" aria-hidden="true">
-        {[0, 1, 2].map((index) => (
+      <ol className="track" aria-hidden="true">
+        {[0, 1, 2, 3].map((index) => (
           <li key={index} className={index < step ? "done" : index === step ? "now" : ""} />
         ))}
       </ol>
@@ -193,12 +195,28 @@ export function Onboarding() {
 
       {step === 2 && (
         <>
+          <h1 id="screen-title" tabIndex={-1}>What do you do most often?</h1>
+          <EverydayActions value={everydayActions} onChange={setEverydayActions} />
+        </>
+      )}
+
+      {step === 3 && (
+        <>
           <h1 id="screen-title" tabIndex={-1}>
             What kind of help do you want?
           </h1>
-          <p className="lede">These stay on until you change them in Adjust.</p>
+          <p className="lede">You can change these choices later in Adjust.</p>
           <fieldset>
             <legend>While you bank</legend>
+            <label className="check">
+              <input
+                type="checkbox"
+                name="idleHelp"
+                checked={idleHelp}
+                onChange={(event) => setIdleHelp(event.target.checked)}
+              />
+              <span>Offer help if I pause on a screen</span>
+            </label>
             <label className="check">
               <input
                 type="checkbox"
@@ -244,14 +262,12 @@ export function Onboarding() {
           </button>
         )}
         <button type="submit" className="btn btn-primary">
-          {step === 2 ? "Open my bank" : "Continue"}
+          {step === 3 ? "Open my bank" : "Continue"}
         </button>
       </div>
-      {step === 0 && (
-        <button type="button" className="btn btn-quiet align-start" onClick={() => store.completeOnboarding(demo)}>
-          Demo path
-        </button>
-      )}
+      <button type="button" className="btn btn-quiet align-start" onClick={() => store.completeOnboarding(DEFAULT_PREFERENCES)}>
+        Skip
+      </button>
     </form>
   );
 }

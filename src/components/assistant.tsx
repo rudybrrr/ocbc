@@ -40,15 +40,15 @@ export function Assistant() {
   useEffect(() => () => recognitionRef.current?.stop(), []);
 
   const context =
-    snapshot.screen === "move"
-      ? snapshot.lastIssue
-        ? "This payment stopped. Ask what to change."
-        : "Ask about the payment on this screen."
-      : snapshot.screen === "invest"
-        ? "Ask about this practice walk. It is education, not advice."
-        : snapshot.screen === "activity"
-          ? "Ask what a transaction means."
-          : "Ask about the money you can use today.";
+    snapshot.lastIssue
+      ? "This payment stopped. Ask what to change."
+      : ["move", "amount", "review", "receipt"].includes(snapshot.screen)
+        ? "Ask about the payment on this screen."
+        : snapshot.screen === "invest"
+          ? "Ask about this practice walk. It is education, not advice."
+          : snapshot.screen === "activity"
+            ? "Ask what a transaction means."
+            : "Ask about the money you can use today.";
 
   const send = (text: string) => {
     const trimmed = text.trim();

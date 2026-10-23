@@ -39,3 +39,23 @@ Keep the entire interactive app demo inside a centered iPhone frame. Use the des
 Treat the surrounding presentation as a separate layer from the app inside the phone, so slide content can change alongside the demo without interrupting app interactions or resetting its state. On narrow screens, prioritize the phone demo and collapse or hide the surrounding slides.
 
 The iframe publishes only its current feature identifier through same-origin window messages. The surrounding page accepts messages only from that iframe and uses local sample copy in `src/lib/demo-slides.ts`. Balances, payment details, and chat content are not sent to the presentation.
+
+## Phase 2: calm home and intent routing
+
+After setup, Home defaults to **Calm**. Legacy saved preferences migrate to Calm without clearing drafts, payments, or plans. **More → Accessibility & preferences → Home layout** switches between Calm and the original Classic home. **Edit** under the everyday tiles opens the existing action picker.
+
+The **I want to…** field and microphone route into a fixed journey catalogue. Routing only navigates and prefills; reviewing and confirming remain manual. Incomplete requests ask a clarification question with up to three choices. Unknown contacts stay in contact search. Explore offers lists the original promotional content; a journey may invite one dismissible related offer. Calm Home never displays offer cards.
+
+Set `GROQ_API_KEY` on the server to enable live intent classification. Optional `GROQ_INTENT_MODEL` overrides the default `llama-3.3-70b-versatile` (listed in [Groq's supported production models](https://console.groq.com/docs/models)). The route uses JSON object output, validates the complete response, and falls back to local rules after four seconds or on any failure. Typing works without a key; microphone transcription still needs the existing Groq Whisper setup. Do not use a `NEXT_PUBLIC_` key.
+
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run eval:intent
+```
+
+The evaluation loads Next.js environment files and runs the same server router over 40 labelled utterances, printing overall/category accuracy and every miss. It runs independently of the build. A missing key uses rules; live errors also fall back. Its score measures journey classification, not model confidence calibration or slot accuracy.
+
+Scan & Pay and Foreign Exchange retain their demo-only availability: routing opens a clearly labelled placeholder. Offers, transactions, contact data, investing and banker requests are simulated. Fixed-deposit amounts can prefill the existing application; transfer amounts and known recipients prefill the existing payment form. No routing action submits anything.

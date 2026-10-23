@@ -6,6 +6,7 @@ import {
   companionReply,
   FLOW_VIEWS,
   guideStep,
+  type JourneyGuide,
   issueLine,
   peekLine,
   STUCK_MS,
@@ -30,10 +31,13 @@ type Args = {
   amount: number;
   name: string;
   issue: string;
+  idleHelp: boolean;
+  journey?: JourneyGuide;
+  onJourneyGuidanceChange?: (guided: boolean) => void;
   assist: AssistContext;
   pay: (to: DestinationId, amount: string) => void;
   openFixedDeposit: () => void;
-  go: (view: string) => void;
+  go: (view: string) => boolean | void;
 };
 
 export function useCompanion({
@@ -43,6 +47,9 @@ export function useCompanion({
   amount,
   name,
   issue,
+  idleHelp,
+  journey,
+  onJourneyGuidanceChange,
   assist,
   pay,
   openFixedDeposit,
@@ -61,9 +68,10 @@ export function useCompanion({
 
   // a reply belongs to the screen state it was made for. once the user moves on or edits
   // the amount the key changes, so stale replies disappear without any cleanup code
-  const key = `${view}|${amountRaw}`;
-  const step = guideStep(view, { amountOk, amount, name });
-  const active = guiding && FLOW_VIEWS.includes(view);
+  const journeyView = view === "invest" || view === "fixed-deposit";
+  const key = `${view}|${amountRaw}${journeyView ? `|${journey?.step}|${journey?.guided}` : ""}`;
+  const step = guideStep(view, { amountOk, amount, name }, journey);
+  const active = journeyView ? journey?.guided === true : guiding && FLOW_VIEWS.includes(view);
   const target = active ? step.target : null;
   const line =
     (reply?.key === key && reply.text) ||
@@ -74,7 +82,7 @@ export function useCompanion({
   // if it runs out the user has stopped, so penny peeks in. activity while she peeks means
   // the user is not stuck after all, so she tucks away and the timer starts again
   useEffect(() => {
-    if (!STUCK_VIEWS.includes(view) || mode === "panel" || guiding || muted) return;
+    if (!idleHelp || !STUCK_VIEWS.includes(view) || mode === "panel" || guiding || muted) return;
     let timer = 0;
     const arm = () => {
       window.clearTimeout(timer);
@@ -92,7 +100,7 @@ export function useCompanion({
       window.clearTimeout(timer);
       for (const type of ACTIVITY) document.removeEventListener(type, onActivity, LISTEN);
     };
-  }, [view, key, mode, guiding, muted]);
+  }, [idleHelp, view, key, mode, guiding, muted]);
 
   // bring the highlighted control into view, since the contact list and form can scroll
   useEffect(() => {
@@ -103,8 +111,9 @@ export function useCompanion({
   }, [target]);
 
   const startGuide = () => {
+    if (journeyView) onJourneyGuidanceChange?.(true);
     setMode("panel");
-    setGuiding(true);
+    setGuiding(!journeyView);
     setReply(null);
   };
 
@@ -117,7 +126,7 @@ export function useCompanion({
 
   return {
     open: mode === "panel",
-    peeking: mode === "peek",
+    peeking: idleHelp && mode === "peek",
     peekLine: peekLine(view),
     origin,
     guiding: active,
@@ -164,12 +173,13 @@ export function useCompanion({
       if (result.kind === "go") {
         // navigating can close the panel, so reopen it after and key the reply to the new
         // screen. react applies these updates together, so the confirmation survives
-        go(result.view);
+        if (go(result.view) === false) return;
         setMode("panel");
         setReply({ text: result.text, key: `${result.view}|${amountRaw}` });
         return;
       }
       if (result.kind === "stop") {
+        if (journeyView) onJourneyGuidanceChange?.(false);
         setGuiding(false);
         setReply({ text: result.text, key });
         return;

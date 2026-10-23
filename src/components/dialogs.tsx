@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useEffect, useRef } from "react";
 import { Assistant } from "@/components/assistant";
+import { EverydayActions } from "@/components/everyday-actions";
 import { useStore } from "@/lib/store";
 import type { BankerRequest } from "@/lib/types";
 
@@ -71,6 +72,17 @@ export function PreferencesDialog() {
           Mode, text size, and help can change at any time. A practice plan and a payment you already typed stay put.
         </p>
         <fieldset>
+          <legend>Home layout</legend>
+          <div className="choice-list">
+            {(["calm", "classic"] as const).map((layout) => (
+              <label className="choice" key={layout}>
+                <input type="radio" name="home-layout" checked={snapshot.homeLayout === layout} onChange={() => store.setHomeLayout(layout)} />
+                <span><strong>{layout === "calm" ? "Calm" : "Classic"}</strong><span>{layout === "calm" ? "Your balance and chosen everyday actions." : "The original home, including promotions."}</span></span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset>
           <legend>Assistance mode</legend>
           <div className="choice-list">
             <label className="choice">
@@ -122,8 +134,17 @@ export function PreferencesDialog() {
             ))}
           </div>
         </fieldset>
+        <EverydayActions value={snapshot.everydayActions} onChange={store.setEverydayActions} />
         <fieldset>
           <legend>While you bank</legend>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={snapshot.idleHelp}
+              onChange={(event) => store.setToggle("idleHelp", event.target.checked)}
+            />
+            <span>Offer help if I pause on a screen</span>
+          </label>
           <label className="check">
             <input
               type="checkbox"

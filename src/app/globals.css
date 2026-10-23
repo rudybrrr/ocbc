@@ -1836,7 +1836,18 @@ dialog.drawer::backdrop {
 .oc-app[data-guide-active="search"] [data-guide="search"],
 .oc-app[data-guide-active="amount"] [data-guide="amount"],
 .oc-app[data-guide-active="next"] [data-guide="next"],
-.oc-app[data-guide-active="confirm"] [data-guide="confirm"] {
+.oc-app[data-guide-active="confirm"] [data-guide="confirm"],
+.oc-app[data-guide-active="invest-intro"] [data-guide="invest-intro"],
+.oc-app[data-guide-active="invest-terms"] [data-guide="invest-terms"],
+.oc-app[data-guide-active="invest-fees"] [data-guide="invest-fees"],
+.oc-app[data-guide-active="invest-risks"] [data-guide="invest-risks"],
+.oc-app[data-guide-active="invest-review"] [data-guide="invest-review"],
+.oc-app[data-guide-active="invest-confirm"] [data-guide="invest-confirm"],
+.oc-app[data-guide-active="fd-intro"] [data-guide="fd-intro"],
+.oc-app[data-guide-active="fd-tenor"] [data-guide="fd-tenor"],
+.oc-app[data-guide-active="fd-withdrawal"] [data-guide="fd-withdrawal"],
+.oc-app[data-guide-active="fd-review"] [data-guide="fd-review"],
+.oc-app[data-guide-active="fd-confirm"] [data-guide="fd-confirm"] {
   outline: 3px solid var(--red);
   outline-offset: 3px;
   animation: penny-guide 1.4s ease-in-out infinite;

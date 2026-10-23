@@ -12,7 +12,28 @@ export const STUCK_VIEWS = ["pay", "amount", "review"];
 // screens that belong to the transfer flow, the guide ends when the user leaves them
 export const FLOW_VIEWS = [...STUCK_VIEWS, "receipt"];
 
-export type GuideTarget = "search" | "amount" | "next" | "confirm";
+export type JourneyGuide = { guided: boolean; step: number };
+export type GuideTarget = "search" | "amount" | "next" | "confirm"
+  | "invest-intro" | "invest-terms" | "invest-fees" | "invest-risks" | "invest-review" | "invest-confirm"
+  | "fd-intro" | "fd-tenor" | "fd-withdrawal" | "fd-review" | "fd-confirm";
+
+const JOURNEY_STEPS: Record<string, GuideStep[]> = {
+  invest: [
+    { target: "invest-intro", line: "Read what this process covers, then continue. Your place will be saved." },
+    { target: "invest-terms", line: "Read the key terms. Continue when you are ready, or talk to a person." },
+    { target: "invest-fees", line: "Check which fees a real application would disclose, then continue." },
+    { target: "invest-risks", line: "Read the risks before continuing. Returns are not guaranteed." },
+    { target: "invest-review", line: "Review the process. Continue opens a separate confirmation." },
+    { target: "invest-confirm", line: "Confirm only if you want to mark the process as completed. No order is placed." },
+  ],
+  "fixed-deposit": [
+    { target: "fd-intro", line: "Read how a fixed deposit works, then continue." },
+    { target: "fd-tenor", line: "Enter your own amount and choose a tenor. No tenor is suggested." },
+    { target: "fd-withdrawal", line: "Read the early-withdrawal effects and fees, then continue to review." },
+    { target: "fd-review", line: "Check your amount, tenor and account before opening the confirmation." },
+    { target: "fd-confirm", line: "Confirm only when the details are correct. This simulates an application; no money moves." },
+  ],
+};
 
 export type GuideStep = { target: GuideTarget | null; line: string };
 
@@ -51,7 +72,11 @@ const NAV: [RegExp, string][] = [
 export function guideStep(
   view: string,
   draft: { amountOk: boolean; amount: number; name: string },
+  journey?: JourneyGuide,
 ): GuideStep {
+  if (view in JOURNEY_STEPS) {
+    return journey?.guided ? JOURNEY_STEPS[view][journey.step] ?? { target: null, line: "" } : { target: null, line: "" };
+  }
   if (view === "pay")
     return {
       target: "search",
