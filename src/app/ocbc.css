@@ -1755,9 +1755,9 @@ html[data-text="largest"] .oc-app {
 .oc-bottom-nav-item[aria-current="page"] .oc-nav-icon img { filter: invert(14%) sepia(99%) saturate(7000%) hue-rotate(354deg) brightness(.95); }
 
 /* ---- weekly spending tokens ---- */
-.oc-tokens-live { padding: 0 16px 0 10px !important; gap: 6px; border-color: #b9d8c6 !important; background: #f4faf6 !important; }
-.oc-tokens-live.oc-tokens-low { border-color: #f0d28a !important; background: #fffaf0 !important; }
-.oc-tokens-live.oc-tokens-empty { border-color: #d8dcde !important; background: #f6f7f7 !important; }
+.oc-tokens-live { padding: 0 16px 0 10px !important; gap: 6px; border-color: #f0b4b0 !important; background: #fff4f3 !important; }
+.oc-tokens-live.oc-tokens-low { border-color: #e2554f !important; background: #ffe9e7 !important; }
+.oc-tokens-live.oc-tokens-empty { border-color: #ddd0d0 !important; background: #f7f4f4 !important; }
 .oc-tokens-text { animation: oc-token-pop 420ms ease-out; font-weight: 600; }
 @keyframes oc-token-pop { 0% { transform: scale(.9); opacity: .4; } 60% { transform: scale(1.06); } 100% { transform: none; opacity: 1; } }
 @keyframes oc-token-bounce { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-4px) rotate(-4deg); } }
@@ -1775,8 +1775,8 @@ html[data-text="largest"] .oc-app {
 .oc-token-count strong { font-size: calc(40px * var(--oc-font-scale)); font-weight: 700; line-height: 1.1; }
 .oc-token-count span { color: #3a4048; font-size: calc(18px * var(--oc-font-scale)); }
 .oc-token-money { margin-top: 2px; font-size: calc(17px * var(--oc-font-scale)); font-weight: 600; }
-.oc-token-good { color: #2f7d5a; }
-.oc-token-low { color: #b9770e; }
+.oc-token-good { color: #d71920; }
+.oc-token-low { color: #a8141b; }
 .oc-token-empty { color: #5a666d; }
 .oc-token-grid { display: grid; grid-template-columns: repeat(6, 1fr); justify-items: center; gap: 8px 4px; margin: 16px 0 8px; }
 .oc-token-rate { color: #5a666d; font-size: calc(13px * var(--oc-font-scale)); }
@@ -1793,7 +1793,7 @@ html[data-text="largest"] .oc-app {
 .oc-token-sheet .oc-button { min-height: 50px; border-radius: 5px !important; background: #3f5361 !important; }
 .oc-token-off { display: block; width: 100%; min-height: 44px; margin-top: 6px; color: #5a666d !important; font-size: calc(14px * var(--oc-font-scale)); text-decoration: underline; text-underline-offset: 3px; }
 
-.oc-receipt-tokens { display: flex; align-items: center; gap: 12px; margin-top: 22px; padding: 12px 14px; border-radius: 12px; background: #fff8e6; }
+.oc-receipt-tokens { display: flex; align-items: center; gap: 12px; margin-top: 22px; padding: 12px 14px; border-radius: 12px; background: #fff1f0; }
 .oc-receipt-tokens p { display: grid; gap: 1px; }
 .oc-receipt-tokens strong { font-size: calc(16px * var(--oc-font-scale)); }
-.oc-receipt-tokens span { color: #5a4a1a; font-size: calc(14px * var(--oc-font-scale)); }
+.oc-receipt-tokens span { color: #6b3a38; font-size: calc(14px * var(--oc-font-scale)); }
