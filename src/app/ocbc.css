@@ -1635,7 +1635,6 @@ html[data-text="largest"] .oc-app {
 .oc-amount-real .oc-amount-entry input { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; color: #1f2429; font-size: calc(44px * var(--oc-font-scale)); font-weight: 300; }
 .oc-amount-real .oc-amount-entry input::placeholder { color: #b9bdc2; }
 .oc-amount-real .oc-amount-entry input:focus-visible { outline: none; }
-.oc-amount-real .oc-amount-entry span { color: #3a4048; font-size: calc(18px * var(--oc-font-scale)); }
 .oc-amount-real .oc-daily-limit { color: #2f3a40; font-size: calc(16px * var(--oc-font-scale)); }
 .oc-amount-real .oc-daily-limit strong { color: #0b63e5; font-weight: 400; }
 .oc-amount-real .oc-add-note { display: inline-flex; width: fit-content; min-height: 44px; align-items: center; padding: 0 20px !important; border: 0 !important; border-radius: 99px !important; background: #3f5361 !important; color: #fff !important; font-size: calc(15px * var(--oc-font-scale)); }
@@ -1666,3 +1665,21 @@ html[data-text="largest"] .oc-app {
 .oc-pay-real .oc-transfer-next { box-shadow: 0 0 0 10px #fff; }
 .oc-pay-real { padding-bottom: 28px; }
 .oc-pay-real .oc-safe-note { padding-top: 14px; }
+
+/* ---- amount screen rhythm, tuned against the real app's spacing ---- */
+.oc-amount-real .oc-amount-entry { display: flex; align-items: baseline; gap: 8px; }
+.oc-amount-field { display: inline-grid; min-width: 0; max-width: calc(100% - 52px); }
+.oc-amount-field > * { grid-area: 1 / 1; min-width: 0; }
+.oc-amount-sizer { visibility: hidden; font-size: calc(44px * var(--oc-font-scale)); font-weight: 300; line-height: 1.1; white-space: pre; overflow: hidden; }
+.oc-amount-real .oc-amount-entry input { width: 100%; max-width: none; line-height: 1.1; }
+.oc-amount-currency { color: #3a4048; font-size: calc(18px * var(--oc-font-scale)); }
+.oc-amount-real .oc-amount-entry span.oc-amount-currency { font-size: calc(18px * var(--oc-font-scale)); }
+.oc-payto { gap: 2px; margin-top: 24px; }
+.oc-payto h2 { font-size: calc(28px * var(--oc-font-scale)); line-height: 1.2; }
+.oc-amount-real { gap: 16px; margin-top: 22px; }
+.oc-from-real { gap: 0; margin-top: 26px; padding-top: 24px; }
+.oc-from-real .oc-balance-toggle { margin-top: 6px; }
+.oc-pay-error { margin-top: 8px; }
+.oc-amount-real .oc-amount-entry .oc-amount-sizer { font-size: calc(44px * var(--oc-font-scale)); font-weight: 300; color: transparent; }
+.oc-amount-real .oc-amount-entry .oc-amount-currency { color: #3a4048; font-size: calc(18px * var(--oc-font-scale)); font-weight: 400; }
+.oc-amount-real .oc-amount-field input { width: 0; min-width: 100%; }

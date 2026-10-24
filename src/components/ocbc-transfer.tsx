@@ -49,19 +49,21 @@ export function TransferForm({
       <section className="oc-amount-real" aria-label="Payment amount">
         <label className="oc-sr" htmlFor="oc-amount">How much would you like to send?</label>
         <div className="oc-amount-entry">
-          <input
-            id="oc-amount"
-            data-guide="amount"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0.00"
-            style={{ width: `${Math.max(4, amount.length + 1)}ch` }}
-            value={amount}
-            onChange={(event) => onAmountChange(event.target.value)}
-            aria-invalid={issue ? "true" : undefined}
-            aria-describedby={issue ? "oc-payment-error" : "oc-daily-limit"}
-          />
-          <span aria-hidden="true">SGD</span>
+          <span className="oc-amount-field">
+            <span className="oc-amount-sizer" aria-hidden="true">{amount || "0.00"}</span>
+            <input
+              id="oc-amount"
+              data-guide="amount"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0.00"
+              value={amount}
+              onChange={(event) => onAmountChange(event.target.value)}
+              aria-invalid={issue ? "true" : undefined}
+              aria-describedby={issue ? "oc-payment-error" : "oc-daily-limit"}
+            />
+          </span>
+          <span className="oc-amount-currency" aria-hidden="true">SGD</span>
         </div>
         <p id="oc-daily-limit" className="oc-daily-limit">
           Daily limit remaining: <strong>1,000.00 SGD</strong>
