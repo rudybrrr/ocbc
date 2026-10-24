@@ -1,4 +1,5 @@
 :root {
+  --font-sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--font-inter), "Helvetica Neue", Arial, sans-serif;
   --ocbc-red: #e60012;
   --ocbc-ink: #202124;
   --ocbc-teal: #36545f;
@@ -23,7 +24,7 @@
   flex-direction: column;
   background: var(--ocbc-background);
   color: var(--ocbc-ink);
-  font-family: var(--font-sans), Arial, sans-serif;
+  font-family: var(--font-sf);
   font-size: calc(14px * var(--oc-font-scale));
   line-height: 1.45;
 }
@@ -1550,3 +1551,53 @@ html[data-text="largest"] .oc-app {
 .oc-journey-offer { margin: 12px 18px; padding: 12px; border: 1px solid var(--ocbc-line); border-radius: 10px; background: #fff; font-size: calc(12px * var(--oc-font-scale)); }
 .oc-journey-offer > button:first-child { float: right; min-height: 32px; }
 .oc-journey-offer p { clear: both; margin: 6px 0; }
+
+/* ---- login: full-bleed campaign photo, matches the consumer app's launch screen ---- */
+.oc-welcome-app .oc-main { background: #f7f7f6; }
+.oc-login { position: relative; display: flex; min-height: 100%; flex-direction: column; background: #f7f7f6; }
+.oc-login-bg { object-fit: cover; object-position: center top; }
+.oc-login::before { position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, rgb(0 0 0 / 38%) 0, rgb(0 0 0 / 0) 18%, rgb(247 247 246 / 0) 52%, #f7f7f6 70%); content: ""; pointer-events: none; }
+.oc-login-top { position: relative; z-index: 2; display: flex; justify-content: space-between; padding: 22px 20px 0; }
+.oc-login-top button { position: relative; display: grid; width: 44px; height: 44px; place-items: center; filter: brightness(0) invert(1); }
+.oc-login-bell i { position: absolute; top: 7px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: #ff3b30; filter: none; }
+.oc-login-bottom { position: relative; z-index: 2; display: grid; gap: 16px; margin-top: auto; padding: 0 15px 18px; }
+.oc-login-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 0; }
+.oc-login-grid .oc-quick-action { min-height: 92px; gap: 9px; font-size: calc(12.5px * var(--oc-font-scale)); color: #2f3a40 !important; }
+.oc-login-grid .oc-quick-action-icon { width: 54px; height: 54px; background: #efeeed; }
+.oc-login .oc-button { min-height: 52px; border-radius: 5px !important; background: #3f5361 !important; font-size: calc(16px * var(--oc-font-scale)); font-weight: 600; }
+.oc-login .oc-education-label { padding: 0; }
+
+/* ---- home: top bar, hero, quick actions, account card ---- */
+.oc-tokens { display: inline-flex; min-height: 40px; align-items: center; gap: 7px; border: 2px solid #eaa7a7 !important; background: #fff !important; font-size: calc(13px * var(--oc-font-scale)) !important; font-weight: 500 !important; }
+.oc-tokens .ocbc-sprite { filter: invert(62%) sepia(55%) saturate(900%) hue-rotate(2deg); }
+.oc-bell-dot { position: relative; }
+.oc-bell-dot i { position: absolute; top: 6px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: #e60012; }
+.oc-toolbar > .oc-logout { margin-left: 6px; padding: 0 6px !important; font-size: calc(15px * var(--oc-font-scale)); text-decoration: none; }
+.oc-home-promo { min-height: 190px; grid-template-columns: 1.15fr 0.85fr; }
+.oc-home-promo-copy { justify-content: flex-start; gap: 8px; padding: 26px 14px 48px 18px; }
+.oc-home-promo-copy > span { font-size: calc(17px * var(--oc-font-scale)); }
+.oc-home-promo-copy p { max-width: 17ch; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-home-promo-photo::before { left: -52px; width: 104px; }
+.oc-shortcuts { grid-template-columns: 1fr 1fr 1.1fr auto 1fr; align-items: stretch; margin: -48px 12px 0; padding: 12px 4px; border: 0; border-radius: 14px; }
+.oc-shortcuts .oc-quick-action { min-height: 84px; font-size: calc(12.5px * var(--oc-font-scale)); gap: 8px; }
+.oc-shortcuts .oc-quick-action:last-child .oc-quick-action-icon { background: #ebe6e3; width: 42px; height: 42px; }
+.oc-shortcuts-divider { width: 1px; margin: 6px 6px; background: #cfd3d5; }
+.oc-account { background: #f4f0ee; border: 0; }
+.oc-360 { color: #4a3b33; font-size: calc(12px * var(--oc-font-scale)); font-weight: 600; background: #f6d9c4; }
+.oc-account-name { display: grid; min-width: 0; gap: 1px; }
+.oc-account-name strong { font-size: calc(16px * var(--oc-font-scale)); font-weight: 600; }
+.oc-account-name small { color: var(--ocbc-ink); font-size: calc(12px * var(--oc-font-scale)); letter-spacing: .08em; }
+.oc-debit { display: flex; justify-content: space-between; padding-top: 4px; color: var(--ocbc-ink); font-size: calc(13px * var(--oc-font-scale)); }
+.oc-promo-tile { background: linear-gradient(135deg, #f4efee, #f9ece4); }
+.oc-promo-tile:nth-child(2) { background: linear-gradient(135deg, #fbe9dd, #fdf1e8); }
+.oc-bottom-nav-item .ocbc-sprite { filter: none; }
+
+/* ---- refinements after side-by-side check with the real screens ---- */
+.oc-login-bg-wrap { position: absolute; z-index: 0; inset: 0 0 auto 0; height: 62%; overflow: hidden; }
+.oc-login-bg-wrap .oc-login-bg { object-position: left top; }
+.oc-login::before { background: linear-gradient(180deg, rgb(0 0 0 / 30%) 0, rgb(0 0 0 / 0) 14%, rgb(247 247 246 / 0) 50%, #f7f7f6 62%); }
+.oc-home-promo { min-height: 250px; }
+.oc-shortcuts { margin-top: -114px; align-items: start; }
+.oc-shortcuts .oc-quick-action-icon,
+.oc-shortcuts .oc-quick-action:last-child .oc-quick-action-icon { width: 44px; height: 44px; }
+.oc-shortcuts-divider { align-self: stretch; }

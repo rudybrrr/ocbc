@@ -21,12 +21,12 @@ function render(homeLayout, actions = ['paynow', 'transfer']) {
 test('calm home renders only chosen actions, intent, balance and correctly labelled recent transactions', () => {
   const html = render('calm');
   for (const text of ['360 Account', '256.05 SGD', 'PayNow', 'Transfer', 'I want to…', 'Speak your request', 'Explore offers', 'Your everyday actions, chosen during setup', '4 most recent transactions']) assert.ok(html.includes(text), text);
-  for (const text of ['oc-home-promo', 'oc-promo-tile', 'SAVINGS GOAL', 'MONEY INSIGHTS', 'Scan &amp; Pay', 'Foreign Exchange', 'Related offer', 'last 7 days']) assert.ok(!html.includes(text), text);
+  for (const text of ['oc-home-promo', 'oc-promo-tile', 'SAVINGS GOAL', 'MONEY INSIGHTS', 'Scan &amp; Pay', 'Lock/unlock card', 'Customise', 'Related offer', 'last 7 days']) assert.ok(!html.includes(text), text);
 });
 
 test('classic home keeps original banner, shortcuts and promo tiles', () => {
   const html = render('classic');
-  for (const text of ['oc-home-promo', 'oc-promo-tile', 'SAVINGS GOAL', 'MONEY INSIGHTS', 'Scan &amp; Pay', 'Foreign Exchange', 'Up to 50 (last 7 days only)']) assert.ok(html.includes(text), text);
+  for (const text of ['oc-home-promo', 'oc-promo-tile', 'SAVINGS GOAL', 'MONEY INSIGHTS', 'Scan &amp; Pay', 'Lock/unlock card', 'Customise', 'Up to 50 (last 7 days only)']) assert.ok(html.includes(text), text);
   assert.ok(!html.includes('oc-intent'));
 });
 
