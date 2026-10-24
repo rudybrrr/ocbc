@@ -14,8 +14,11 @@ import {
 } from "@/components/ocbc-ui";
 import { TransferForm } from "@/components/ocbc-transfer";
 import { SlideToPay } from "@/components/slide-to-pay";
+import { CuteToken } from "@/components/cute-token";
+import { TokenSheet } from "@/components/token-sheet";
+import { formatTokens, tokenState, tokenWord, TOKEN_VALUE, weeklySpending } from "@/lib/tokens";
 import { useStore } from "@/lib/store";
-import { activity, DESTINATIONS } from "@/lib/data";
+import { activity, DESTINATIONS, destinationName } from "@/lib/data";
 import { sgd } from "@/lib/format";
 import { parseAmount, validateMove } from "@/lib/move";
 import type { DestinationId, Screen } from "@/lib/types";
@@ -72,6 +75,9 @@ export function OcbcApp() {
   const [notice, setNotice] = useState("");
   const [oneView, setOneView] = useState(false);
   const [receipt, setReceipt] = useState<{ amount: number; name: string; phone: string; id: string; at: string } | null>(null);
+  const [tokensOpen, setTokensOpen] = useState(false);
+  const [now, setNow] = useState<Date>(() => new Date(0));
+  useEffect(() => { const t = setTimeout(() => setNow(new Date()), 0); return () => clearTimeout(t); }, []);
   const [serviceOpen, setServiceOpen] = useState<"support" | "card" | null>("support");
   const [recipient, setRecipient] = useState<DestinationId>("mum");
   const money = store.balances.everyday;
@@ -157,6 +163,9 @@ export function OcbcApp() {
   };
   const openOffer = (offer: Offer) => offer.screen ? nav(offer.screen === "move" ? "pay" : offer.screen) : info(`${offer.label === "Welcome" ? "Important information" : offer.label === "GOALS" ? "Savings goals" : "Insurance planning"} is unavailable in this demo.`);
   const recentRows = activity(store.snapshot.transfers).slice(0, 4);
+  const weeklyBudget = store.snapshot.weeklyBudget ?? 0;
+  const week = weeklySpending(store.snapshot.transfers, now, destinationName);
+  const tokens = tokenState(weeklyBudget || 60, week.spent);
 
   const presentation: DemoSlide = store.prefsOpen
     ? "preferences"
@@ -282,13 +291,26 @@ export function OcbcApp() {
         ) : view === "home" ? (
           <>
             <header className="oc-toolbar">
-              <button
-                className="oc-tokens"
-                onClick={() => info("You have no OCBC Tokens in this demo.")}
-              >
-                <SpriteIcon name="token" size={20} />
-                OCBC Tokens
-              </button>
+              {weeklyBudget > 0 ? (
+                <button
+                  className={`oc-tokens oc-tokens-live oc-tokens-${tokens.tone}`}
+                  aria-label={`${formatTokens(tokens.left)} weekly spending tokens left. Open details.`}
+                  onClick={() => setTokensOpen(true)}
+                >
+                  <CuteToken state={tokens.tone === "empty" ? "empty" : "full"} size={26} />
+                  <span key={tokens.left} className="oc-tokens-text">
+                    {formatTokens(tokens.left)} {tokenWord(tokens.left)} left
+                  </span>
+                </button>
+              ) : (
+                <button
+                  className="oc-tokens"
+                  onClick={() => info("You have no OCBC Tokens in this demo.")}
+                >
+                  <SpriteIcon name="token" size={20} />
+                  OCBC Tokens
+                </button>
+              )}
               <button
                 aria-label="Notifications"
                 className="oc-bell oc-bell-dot"
@@ -733,6 +755,15 @@ export function OcbcApp() {
               <strong>{new Date(receipt?.at ?? 0).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</strong>
             </div>
             <button className="oc-link oc-receipt-details" onClick={() => info("Transaction details are unavailable in this demo.")}>See transaction details</button>
+            {weeklyBudget > 0 && receipt && (
+              <div className="oc-receipt-tokens">
+                <CuteToken state={tokens.tone === "empty" ? "empty" : "full"} size={34} className="is-bouncy" />
+                <p>
+                  <strong>You used {formatTokens(Math.round((receipt.amount / TOKEN_VALUE) * 2) / 2 || 0.5)} {tokenWord(receipt.amount / TOKEN_VALUE)}</strong>
+                  <span>{formatTokens(tokens.left)} {tokenWord(tokens.left)} left this week</span>
+                </p>
+              </div>
+            )}
             <p className="oc-receipt-id">
               Transaction ID: {receipt?.id}
               <small>This is a practice payment. No real money moved.</small>
@@ -838,6 +869,7 @@ export function OcbcApp() {
             <p>No rewards available in this demo.</p>
           </section>
         )}
+        {tokensOpen && weeklyBudget > 0 && <TokenSheet state={tokens} items={week.items} onClose={() => setTokensOpen(false)} />}
         {notice && (
           <div className="oc-notice" role="status">
             <p>{notice}</p>

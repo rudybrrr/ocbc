@@ -80,6 +80,7 @@ export type Preferences = {
   readAmounts: boolean;
   everydayActions: EverydayAction[];
   idleHelp: boolean;
+  weeklyBudget: number;
 };
 
 export type InvestState = {

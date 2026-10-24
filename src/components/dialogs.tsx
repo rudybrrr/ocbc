@@ -148,6 +148,14 @@ export function PreferencesDialog() {
           <label className="check">
             <input
               type="checkbox"
+              checked={(snapshot.weeklyBudget ?? 0) > 0}
+              onChange={(event) => store.setWeeklyBudget(event.target.checked ? 60 : 0)}
+            />
+            <span>Show my weekly spending as tokens</span>
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
               checked={snapshot.plainLanguage}
               onChange={(event) => store.setToggle("plainLanguage", event.target.checked)}
             />

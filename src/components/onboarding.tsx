@@ -38,6 +38,7 @@ export function Onboarding() {
       readAmounts,
       everydayActions,
       idleHelp,
+      weeklyBudget: store.snapshot.weeklyBudget,
     });
   };
 
