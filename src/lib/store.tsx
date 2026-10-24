@@ -55,7 +55,7 @@ function fresh(): Snapshot {
     // Keep the existing pre-login appearance; Skip uses the login defaults above.
     mode: "guided",
     textSize: "large",
-    screen: "welcome",
+    screen: "login",
     helpOpen: false,
     invest: { step: 0, monthly: null, done: false },
     fixedDeposit: { step: 0, amount: "", tenor: "", account: "everyday", reference: "" },
@@ -76,7 +76,7 @@ function read(): Snapshot {
       ...fresh(),
       ...parsed,
       // Preserve the login entry point; saved task state is still available after login.
-      screen: "welcome",
+      screen: "login",
       helpOpen: false,
       everydayActions: Array.isArray(parsed.everydayActions)
         ? [...new Set(parsed.everydayActions)].filter((action) => EVERYDAY_ACTIONS.some(([id]) => id === action)).slice(0, 4)

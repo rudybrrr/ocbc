@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Be_Vietnam_Pro } from "next/font/google";
+import { Inter } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import "./globals.css";
 import "./ocbc.css";
 
-const sans = Be_Vietnam_Pro({
+// Apple devices render SF Pro through the system stack in globals.css; Inter is the closest fallback elsewhere.
+const fallback = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-sans",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -25,8 +25,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} h-full`}>
-      <body className={`${sans.className} min-h-full antialiased`}>
+    <html lang="en" className={`${fallback.variable} h-full`}>
+      <body className={`min-h-full antialiased`}>
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>

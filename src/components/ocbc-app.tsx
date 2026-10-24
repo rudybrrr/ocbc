@@ -154,7 +154,6 @@ export function OcbcApp() {
     setJourneyOffer(OFFERS.find((offer) => offer.journeys.includes(journey)) ?? null);
   };
   const openOffer = (offer: Offer) => offer.screen ? nav(offer.screen === "move" ? "pay" : offer.screen) : info(`${offer.label === "Welcome" ? "Important information" : offer.label === "GOALS" ? "Savings goals" : "Insurance planning"} is unavailable in this demo.`);
-  const banner = OFFERS[0];
   const recentRows = activity(store.snapshot.transfers).slice(0, 4);
 
   const presentation: DemoSlide = store.prefsOpen
@@ -219,101 +218,40 @@ export function OcbcApp() {
           </aside>
         )}
         {welcome ? (
-          <>
-            <div className="oc-welcome-hero">
-              <IgniteImage
-                src="/ignite/auth/login-hero-artwork.webp"
-                alt="OCBC staff and customers together"
-                className="oc-welcome-artwork"
-                fill
-                eager
-              />
-              <button
-                className="oc-language"
-                aria-label="Chinese language"
-                onClick={() =>
-                  info(
-                    "中文服务将在正式版本提供。This demo is available in English.",
-                  )
-                }
-              ></button>
-              {view === "login" && (
-                <button
-                  className="oc-back"
-                  aria-label="Back"
-                  onClick={() => nav("welcome")}
-                >
-                  <SpriteIcon name="arrow-left" size={22} />
-                </button>
-              )}
-            </div>
-            <div
-              className={`oc-welcome-actions ${view === "login" ? "expanded" : ""}`}
-            >
-              {(view === "welcome"
-                ? ([
-                    ["volume", "Easy Q"],
-                    ["lightbulb", "Wealth Insights"],
-                    ["map-pin", "Locate OCBC"],
-                  ] as [SpriteName, string][])
-                : ([
-                    ["token", "OneToken"],
-                    ["scan", "Scan & Pay"],
-                    ["transfer-accent", "PayNow"],
-                    ["lightbulb", "Wealth Insights"],
-                    ["exchange", "Foreign Exchange"],
-                    ["more", "More"],
-                  ] as [SpriteName, string][])
-              ).map(([icon, label]) => (
-                <QuickAction
-                  key={label}
-                  icon={icon}
-                  label={label}
-                  onClick={() =>
-                    info(
-                      `${label} is unavailable in this local hackathon demo.`,
-                    )
-                  }
-                />
-              ))}
-            </div>
-            <div className="oc-welcome-buttons">
-              {view === "welcome" ? (
-                <>
-                  <OcbcButton
-                    onClick={() =>
-                      info(
-                        "New customer registration is unavailable in the demo. Use existing customer login to explore.",
-                      )
-                    }
-                  >
-                    Sign up as a new customer
-                  </OcbcButton>
-                  <OcbcButton variant="secondary" onClick={() => nav("login")}>
-                    Log in as existing customer
-                  </OcbcButton>
-                </>
-              ) : (
-                <OcbcButton onClick={login}>
-                  Log in to OCBC Singapore
-                </OcbcButton>
-              )}
-            </div>
-            <p className="oc-education-label">Educational prototype · Dummy data only</p>
-            <p className="oc-maintenance">
-              <strong>Scheduled maintenance:</strong> Various services will not
-              be available on 24 Oct (10pm) to 25 Oct (8am).{" "}
-              <button
-                onClick={() =>
-                  info(
-                    "Maintenance notice reproduced from the supplied design reference.",
-                  )
-                }
-              >
-                Learn more
+          <div className="oc-login">
+            <div className="oc-login-bg-wrap"><IgniteImage src="/ocbc/login-bg.webp" alt="" className="oc-login-bg" fill eager /></div>
+            <div className="oc-login-top">
+              <button aria-label="Scan to log in" onClick={() => info("Scan to log in is unavailable in this local hackathon demo.")}>
+                <SpriteIcon name="scan" size={26} />
               </button>
-            </p>
-          </>
+              <button aria-label="Notifications" className="oc-login-bell" onClick={() => info("You're all caught up. No new notifications.")}>
+                <SpriteIcon name="bell" size={26} />
+                <i aria-hidden="true" />
+              </button>
+            </div>
+            <div className="oc-login-bottom">
+              <div className="oc-login-grid">
+                {([
+                  ["token", "OneToken"],
+                  ["scan", "Scan & Pay"],
+                  ["transfer-accent", "PayNow"],
+                  ["lightbulb", "Wealth Insights"],
+                  ["exchange", "Foreign Exchange"],
+                  ["sparkles", "More"],
+                ] as [SpriteName, string][]).map(([icon, label]) => (
+                  <QuickAction
+                    key={label}
+                    icon={icon}
+                    iconSrc={label === "PayNow" ? "/ignite/brand/paynow-mark.svg" : undefined}
+                    label={label}
+                    onClick={() => info(`${label} is unavailable in this local hackathon demo.`)}
+                  />
+                ))}
+              </div>
+              <OcbcButton onClick={login}>Log in to OCBC Singapore</OcbcButton>
+              <p className="oc-education-label">Educational prototype · Dummy data only</p>
+            </div>
+          </div>
         ) : setup ? (
           <Onboarding />
         ) : view === "activity" ? (
@@ -346,37 +284,33 @@ export function OcbcApp() {
                 className="oc-tokens"
                 onClick={() => info("You have no OCBC Tokens in this demo.")}
               >
+                <SpriteIcon name="token" size={20} />
                 OCBC Tokens
               </button>
               <button
                 aria-label="Notifications"
-                className="oc-bell"
+                className="oc-bell oc-bell-dot"
                 onClick={() =>
                   info("You're all caught up. No new notifications.")
                 }
               >
-                <SpriteIcon name="bell" size={23} />
+                <SpriteIcon name="bell" size={25} />
+                <i aria-hidden="true" />
               </button>
-              <button className="oc-link" onClick={() => nav("login")}>
+              <button className="oc-link oc-logout" onClick={() => nav("login")}>
                 Logout
               </button>
             </header>
             <section className="oc-home-hero">
               <div className="oc-home-promo">
                 <div className="oc-home-promo-copy">
-                  <span>{banner.label}</span>
-                  <p>{banner.title}</p>
-                  <button
-                    className="oc-promo-link"
-                    onClick={() => info("Important information is unavailable in this local demo.")}
-                  >
-                    {banner.action} <SpriteIcon name="chevron-right" size={17} />
-                  </button>
+                  <span>Welcome</span>
+                  <p>Together, lifting everyone we serve.</p>
                 </div>
                 <div className="oc-home-promo-photo">
                   <IgniteImage
-                    src={banner.image!}
-                    alt={banner.imageAlt!}
+                    src="/ocbc/home-hero.webp"
+                    alt="Gardens by the Bay, Singapore"
                     className="oc-family-photo"
                     fill
                     eager
@@ -384,25 +318,11 @@ export function OcbcApp() {
                 </div>
               </div>
               <div className="oc-shortcuts" aria-label="Quick actions">
-                {[
-                  ["transfer-accent", "PayNow"],
-                  ["scan", "Scan & Pay"],
-                  ["exchange", "Foreign Exchange"],
-                  ["settings", "Customise"],
-                ].map(([icon, label]) => (
-                  <QuickAction
-                    key={label}
-                    icon={icon as SpriteName}
-                    label={label}
-                    onClick={() =>
-                      label === "PayNow"
-                        ? nav("pay")
-                        : label === "Customise"
-                          ? store.openPrefs()
-                          : info(`${label} is unavailable in this demo.`)
-                    }
-                  />
-                ))}
+                <QuickAction iconSrc="/ignite/brand/paynow-mark.svg" label="PayNow" onClick={() => nav("pay")} />
+                <QuickAction icon="scan" label="Scan & Pay" onClick={() => info("Scan & Pay is unavailable in this demo.")} />
+                <QuickAction iconSrc="/ignite/icons/lock.svg" label="Lock/unlock card" onClick={() => info("Lock/unlock card is unavailable in this demo.")} />
+                <span className="oc-shortcuts-divider" aria-hidden="true" />
+                <QuickAction icon="settings" label="Customise" onClick={() => store.openPrefs()} />
               </div>
             </section>
             <div className="oc-categories">
@@ -430,12 +350,15 @@ export function OcbcApp() {
                   className="oc-account-heading"
                   onClick={() =>
                     info(
-                      `360 Account · Available balance ${sgd(money)}. Fictional demo account.`,
+                      `OCBC FRANK Account · Available balance ${sgd(money)}. Fictional demo account.`,
                     )
                   }
                 >
-                  <span className="oc-360"><SpriteIcon name="wallet" size={21} /></span>
-                  <strong>360 Account</strong>
+                  <span className="oc-360">FRA</span>
+                  <span className="oc-account-name">
+                    <strong>OCBC FRANK Account</strong>
+                    <small>••••••••</small>
+                  </span>
                   <span className="oc-chevron"><SpriteIcon name="chevron-right" size={20} /></span>
                 </button>
                 <div className="oc-account-balance">
@@ -446,7 +369,7 @@ export function OcbcApp() {
                       : `${money.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SGD`}
                   </strong>
                 </div>
-                <div className="oc-debit">Debit card no.</div>
+                <div className="oc-debit"><span>Debit card no.</span><span>••••••••</span></div>
               </section>
             ) : (
               <section className="oc-account oc-empty">

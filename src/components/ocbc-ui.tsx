@@ -117,17 +117,24 @@ export function OcbcButton({
 
 export function QuickAction({
   icon,
+  iconSrc,
   label,
   onClick,
 }: {
-  icon: SpriteName;
+  icon?: SpriteName;
+  iconSrc?: string;
   label: string;
   onClick: () => void;
 }) {
   return (
     <button className="oc-quick-action" type="button" onClick={onClick}>
       <span className="oc-quick-action-icon">
-        <SpriteIcon name={icon} size={24} />
+        {iconSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={iconSrc} alt="" width={24} height={24} />
+        ) : (
+          <SpriteIcon name={icon!} size={24} />
+        )}
       </span>
       <span>{label}</span>
     </button>

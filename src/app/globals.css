@@ -46,7 +46,7 @@ body {
   margin: 0;
   background: var(--stage);
   color: var(--ink);
-  font-family: var(--font-sans), "Segoe UI", sans-serif;
+  font-family: var(--font-sf);
   line-height: 1.45;
   text-rendering: optimizeLegibility;
 }
