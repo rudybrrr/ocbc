@@ -1749,6 +1749,7 @@ html[data-text="largest"] .oc-app {
 
 /* bottom tab bar: circled Pay & Transfer, red active icon */
 .oc-bottom-nav-item[aria-current="page"] .ocbc-sprite { filter: invert(14%) sepia(99%) saturate(7000%) hue-rotate(354deg) brightness(.95); }
-.oc-nav-circle { display: grid; width: 46px; height: 46px; margin-top: -8px; place-items: center; border: 1.5px solid #3a4a52; border-radius: 50%; background: #fff; }
+.oc-nav-icon { display: grid; width: 32px; height: 32px; place-items: center; }
+.oc-nav-circle { border: 1.5px solid #3a4a52; border-radius: 50%; }
 .oc-bottom-nav-item[aria-current="page"] .oc-nav-circle { border-color: var(--ocbc-red); }
-.oc-bottom-nav-item:nth-child(3) { gap: 2px; }
+.oc-bottom-nav-item[aria-current="page"] .oc-nav-icon img { filter: invert(14%) sepia(99%) saturate(7000%) hue-rotate(354deg) brightness(.95); }

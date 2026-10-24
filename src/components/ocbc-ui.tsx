@@ -196,11 +196,14 @@ export function BottomNavigation({
           aria-current={current === item.target ? "page" : undefined}
           onClick={() => onNavigate(item.target)}
         >
-          {item.target === "pay" ? (
-            <span className="oc-nav-circle"><SpriteIcon name={item.icon} size={24} /></span>
-          ) : (
-            <SpriteIcon name={item.icon} size={23} />
-          )}
+          <span className={`oc-nav-icon ${item.target === "pay" ? "oc-nav-circle" : ""}`}>
+            {item.target === "plan" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src="/ignite/icons/sprout.svg" alt="" width={24} height={24} />
+            ) : (
+              <SpriteIcon name={item.icon} size={item.target === "pay" ? 19 : 23} />
+            )}
+          </span>
           <span>{item.label}</span>
         </button>
       ))}
