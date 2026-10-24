@@ -138,7 +138,7 @@ export function MoveMoney() {
         <div className="choice-list">
           {(
             [
-              ["everyday", "Everyday Account", money.everyday],
+              ["everyday", "OCBC FRANK Account", money.everyday],
               ["savings", "Savings Account", money.savings],
             ] as const
           ).map(([id, name, available]) => (

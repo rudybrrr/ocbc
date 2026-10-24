@@ -36,8 +36,8 @@ export function TransferForm({
     <div className="oc-transfer-screen oc-pay-real">
       <section className="oc-payto" aria-label="PayNow recipient">
         <p>Pay to</p>
-        <h2>{phone}</h2>
-        <span>{name}</span>
+        <h2>{name}</h2>
+        <span>{phone}</span>
       </section>
 
       <section className="oc-amount-real" aria-label="Payment amount">
@@ -60,11 +60,6 @@ export function TransferForm({
         <p id="oc-daily-limit" className="oc-daily-limit">
           Daily limit remaining: <strong>1,000.00 SGD</strong>
         </p>
-        {issue && (
-          <p id="oc-payment-error" className="oc-inline-error" role="alert">
-            {issue}
-          </p>
-        )}
         <button
           className="oc-add-note"
           type="button"
@@ -92,10 +87,17 @@ export function TransferForm({
         <strong>OCBC FRANK Account</strong>
         <span>•••-••••••-•••</span>
         {balanceVisible && <span className="oc-from-balance">{sgd(availableBalance)} available</span>}
-        <button className="oc-balance-toggle" type="button" onClick={onToggleBalance}>
-          <SpriteIcon name="eye" size={22} />
-          {balanceVisible ? "Hide available balance" : "Show available balance"}
-        </button>
+        {issue ? (
+          <p id="oc-payment-error" className="oc-pay-error" role="alert">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z" /><path d="M12 10v4.5M12 17.2v.1" /></svg>
+            <span>{issue}</span>
+          </p>
+        ) : (
+          <button className="oc-balance-toggle" type="button" onClick={onToggleBalance}>
+            <SpriteIcon name="eye" size={22} />
+            {balanceVisible ? "Hide available balance" : "Show available balance"}
+          </button>
+        )}
       </section>
 
       <p className="oc-safe-note">This is a practice transfer. No money will move.</p>

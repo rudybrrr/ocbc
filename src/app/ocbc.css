@@ -1652,3 +1652,8 @@ html[data-text="largest"] .oc-app {
 .oc-pay-real .oc-from-real .oc-balance-toggle { width: auto; height: auto; margin: 4px 0 0; justify-self: start; border-radius: 0 !important; place-items: unset; }
 .oc-pay-real .oc-transfer-next { box-shadow: none; background-clip: padding-box; }
 .oc-amount-real .oc-amount-entry input { width: auto; max-width: 100%; }
+.oc-pay-error { display: flex; align-items: flex-start; gap: 10px; margin-top: 6px; color: #c8372d; font-size: calc(16px * var(--oc-font-scale)); line-height: 1.35; }
+.oc-pay-error svg { flex: 0 0 auto; margin-top: 1px; }
+.oc-payto h2 { font-size: calc(30px * var(--oc-font-scale)); }
+.oc-from-real .oc-pay-error span { color: inherit; font-size: inherit; }
+.oc-from-real .oc-pay-error { color: #c8372d; }

@@ -42,7 +42,7 @@ export function Home() {
           <h1 id="screen-title" tabIndex={-1}>
             {first}, you can use <span className="balance">{sgd(balances.everyday)}</span> today.
           </h1>
-          <p className="lede">That figure is Everyday Account, the money ready to spend.</p>
+          <p className="lede">That figure is OCBC FRANK Account, the money ready to spend.</p>
           {snapshot.readAmounts && (
             <button
               type="button"
@@ -106,7 +106,7 @@ export function Home() {
             {greeting()}, {first}
           </h1>
           <section className="statement" aria-labelledby="everyday-title">
-            <h2 id="everyday-title">Everyday Account</h2>
+            <h2 id="everyday-title">OCBC FRANK Account</h2>
             <p className="statement-amount balance">{sgd(balances.everyday)}</p>
             <p className="row-detail">Ready to use</p>
             <div className="tool-row">
