@@ -13,6 +13,7 @@ import {
   type SpriteName,
 } from "@/components/ocbc-ui";
 import { TransferForm } from "@/components/ocbc-transfer";
+import { SlideToPay } from "@/components/slide-to-pay";
 import { useStore } from "@/lib/store";
 import { activity, DESTINATIONS } from "@/lib/data";
 import { sgd } from "@/lib/format";
@@ -70,7 +71,8 @@ export function OcbcApp() {
   const issue = store.snapshot.lastIssue ?? "";
   const [notice, setNotice] = useState("");
   const [oneView, setOneView] = useState(false);
-  const [receipt, setReceipt] = useState("");
+  const [receipt, setReceipt] = useState<{ amount: number; name: string; phone: string; id: string; at: string } | null>(null);
+  const [serviceOpen, setServiceOpen] = useState<"support" | "card" | null>("support");
   const [recipient, setRecipient] = useState<DestinationId>("mum");
   const money = store.balances.everyday;
   const contacts = DESTINATIONS.filter((item) => item.detail === "PayNow");
@@ -637,35 +639,44 @@ export function OcbcApp() {
             />
           </div>
         ) : view === "review" ? (
-          <>
+          <div className="oc-review-real">
             <header className="oc-page-heading">
               <button aria-label="Back" onClick={() => nav("amount")}>
                 <SpriteIcon name="arrow-left" size={21} />
               </button>
-              <h1>Review payment</h1>
+              <h1 className="oc-sr">Review payment</h1>
             </header>
-            <section className="oc-review-screen">
-              <SectionCard className="oc-review-card" label="Transfer summary">
-                <div className="oc-review-recipient">
-                  <span className="oc-review-check"><SpriteIcon name="check-circle" size={26} /></span>
-                  <span><small>Sending to</small><strong>{name}</strong><span>{contact?.phone ?? "PayNow recipient"}</span></span>
-                </div>
-                <div className="oc-review-amount"><small>Amount</small><strong>{sgd(amount.ok ? amount.amount : 0)}</strong></div>
-                <div className="oc-review-row"><span>From</span><strong>360 Account</strong></div>
-                {store.snapshot.draft.note && (
-                  <div className="oc-review-row"><span>Message</span><strong>{store.snapshot.draft.note}</strong></div>
-                )}
-              </SectionCard>
-              <p className="oc-demo-label">
-                This is a practice transfer. No bank is contacted and no real money moves.
+            <section className="oc-review-body">
+              <p className="oc-review-of">Review payment of</p>
+              <p className="oc-review-sum">
+                <strong>{(amount.ok ? amount.amount : 0).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                <span>SGD</span>
               </p>
-              {issue && (
-                <p className="oc-error" role="alert">
-                  {issue}
-                </p>
+              <div className="oc-review-payto">
+                <p>Pay to</p>
+                <strong>{name}</strong>
+                <span>{contact?.phone ?? "PayNow recipient"}</span>
+              </div>
+              <div className="oc-review-from">
+                <p>From</p>
+                <strong>OCBC FRANK Account</strong>
+                <span>•••-••••••-•••</span>
+              </div>
+              {store.snapshot.draft.note && (
+                <div className="oc-review-from">
+                  <p>Message</p>
+                  <strong>{store.snapshot.draft.note}</strong>
+                </div>
               )}
-              <OcbcButton data-guide="confirm"
-                onClick={() => {
+              {issue && (
+                <p className="oc-pay-error" role="alert">{issue}</p>
+              )}
+              <p className="oc-review-note">
+                Please check that all details are correct before proceeding.
+                <small>This is a practice payment. No bank is contacted and no real money moves.</small>
+              </p>
+              <SlideToPay
+                onConfirm={() => {
                   const result = validateMove(
                     store.snapshot.draft,
                     store.snapshot.transfers,
@@ -678,34 +689,58 @@ export function OcbcApp() {
                     flag("Daily demo limit exceeded.");
                     return;
                   }
+                  const now = new Date();
                   store.submitMove({
                     id: crypto.randomUUID(),
                     from: store.snapshot.draft.from,
                     to: recipient,
                     amount: result.amount,
                     note: store.snapshot.draft.note.trim(),
-                    at: new Date().toISOString(),
+                    at: now.toISOString(),
                   });
-                  setReceipt(`${sgd(result.amount)} to ${name}`);
+                  const stamp = `${String(now.getFullYear()).slice(2)}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+                  setReceipt({
+                    amount: result.amount,
+                    name: name ?? "Demo recipient",
+                    phone: contact?.phone ?? "PayNow recipient",
+                    id: `${stamp}${String(Math.floor(Math.random() * 1e10)).padStart(10, "0")}`,
+                    at: now.toISOString(),
+                  });
                   nav("receipt");
                 }}
-              >
-                Confirm practice payment
-              </OcbcButton>
-              <OcbcButton variant="secondary" onClick={() => nav("amount")}>
-                Change payment
-              </OcbcButton>
+              />
             </section>
-          </>
+          </div>
         ) : view === "receipt" ? (
-          <section className="oc-review-screen oc-receipt-screen">
-            <span className="oc-receipt-icon"><SpriteIcon name="check-circle" size={42} /></span>
-            <h1>Payment recorded</h1>
-            <h2>{receipt}</h2>
-            <p>This is a practice payment. No real money moved.</p>
-            <OcbcButton onClick={() => nav("home")}>
-              Back to Home
-            </OcbcButton>
+          <section className="oc-receipt-real">
+            <div className="oc-receipt-hero">
+              <button className="oc-link oc-receipt-logout" onClick={() => nav("login")}>Log out</button>
+              <IgniteImage src="/ocbc/receipt-art.webp" alt="" width={231} height={241} className="oc-receipt-art" eager />
+            </div>
+            <h1>
+              {(receipt?.amount ?? 0).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SGD paid
+            </h1>
+            <div className="oc-receipt-to">
+              <div>
+                <p>To</p>
+                <strong>{receipt?.name}</strong>
+                <span>{receipt?.phone}</span>
+              </div>
+              <button className="oc-link" onClick={() => info("Sharing is unavailable in this demo.")}>Share</button>
+            </div>
+            <div className="oc-receipt-when">
+              <p>When</p>
+              <strong>{new Date(receipt?.at ?? 0).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</strong>
+            </div>
+            <button className="oc-link oc-receipt-details" onClick={() => info("Transaction details are unavailable in this demo.")}>See transaction details</button>
+            <p className="oc-receipt-id">
+              Transaction ID: {receipt?.id}
+              <small>This is a practice payment. No real money moved.</small>
+            </p>
+            <div className="oc-receipt-actions">
+              <OcbcButton onClick={() => nav("pay")}>Go to Transfers</OcbcButton>
+              <OcbcButton variant="secondary" onClick={() => nav("home")}>Back to Home</OcbcButton>
+            </div>
           </section>
         ) : view === "fixed-deposit" ? (
           <>
@@ -728,26 +763,79 @@ export function OcbcApp() {
             </header>
             {store.journeyGuidance === null && !store.snapshot.invest.done ? <GuidanceChoice /> : <Invest />}
           </>
+        ) : view === "more" ? (
+          <div className="oc-more">
+            <header className="oc-more-head">
+              <h1>More</h1>
+              <button className="oc-more-help" aria-label="Speak to a person" onClick={store.openPerson}>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="3" y="13" width="4" height="6" rx="1.5" /><rect x="17" y="13" width="4" height="6" rx="1.5" /><path d="M19 19c0 1.5-1.5 2.5-4 2.5" /></svg>
+              </button>
+              <button className="oc-more-logout" onClick={() => nav("login")}>Logout</button>
+            </header>
+            <h2 className="oc-more-title">New features for you</h2>
+            <div className="oc-more-features">
+              <section className="oc-feature oc-feature-travel">
+                <div>
+                  <strong>Travel more, spend less</strong>
+                  <p>Claim vouchers from Alipay+ Travel Treat and use them on your trip.</p>
+                  <button className="oc-link" onClick={() => info("Alipay+ Travel Treat is unavailable in this demo.")}>Explore more</button>
+                </div>
+                <IgniteImage src="/ocbc/feature-travel.webp" alt="" width={121} height={170} className="oc-feature-art" />
+              </section>
+              <section className="oc-feature">
+                <div>
+                  <strong>Start investing</strong>
+                  <p>Begin with a small monthly amount at your own pace.</p>
+                  <button className="oc-link" onClick={() => nav("invest")}>Learn more</button>
+                </div>
+              </section>
+            </div>
+            <h2 className="oc-more-title">Apply</h2>
+            <div className="oc-more-grid">
+              {["accounts", "cards", "investments", "insurance", "loans"].map((id) => (
+                <button key={id} onClick={() => info(`Applying for ${id} is unavailable in this demo.`)}>
+                  <IgniteImage src={`/ocbc/apply-${id}.webp`} alt="" width={52} height={52} className="oc-apply-icon" />
+                  <span>{id[0].toUpperCase() + id.slice(1)}</span>
+                </button>
+              ))}
+            </div>
+            <h2 className="oc-more-title">Services</h2>
+            {([
+              ["support", "Accessibility & support", [
+                ["/ignite/icons/accessibility.svg", "Accessibility & preferences", () => store.openPrefs()],
+                ["/ignite/icons/chat.svg", "Ask OCBC Adaptive Assist", store.openHelp],
+                ["/ignite/icons/phone.svg", "Speak to a person", store.openPerson],
+              ]],
+              ["card", "Card services", [
+                ["/ignite/icons/circle-help.svg", "Report lost card", () => info("Report lost card is unavailable in this demo.")],
+                ["/ignite/icons/receipt.svg", "Dispute transaction", () => info("Dispute transaction is unavailable in this demo.")],
+                ["/ignite/icons/lock.svg", "Lock/unlock card", () => info("Lock/unlock card is unavailable in this demo.")],
+              ]],
+            ] as const).map(([key, title, items]) => (
+              <section className="oc-service" key={key}>
+                <button className="oc-service-head" aria-expanded={serviceOpen === key} onClick={() => setServiceOpen(serviceOpen === key ? null : key)}>
+                  <span>{title}</span>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ transform: serviceOpen === key ? "none" : "rotate(180deg)" }}><path d="m6 15 6-6 6 6" /></svg>
+                </button>
+                {serviceOpen === key && (
+                  <div className="oc-service-grid">
+                    {items.map(([icon, label, action]) => (
+                      <button key={label} onClick={action}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={icon} alt="" width={30} height={30} />
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </section>
+            ))}
+          </div>
         ) : (
           <section className="oc-menu">
-            <h1>{view === "more" ? "More" : "Rewards"}</h1>
-            {view === "more" ? (
-              <>
-                <button onClick={() => store.openPrefs()}>
-                  Accessibility & preferences
-                </button>
-                <button onClick={store.openHelp}>
-                  Ask OCBC Adaptive Assist
-                </button>
-                <button onClick={store.openPerson}>Speak to a person</button>
-                <button onClick={() => nav("login")}>Logout</button>
-              </>
-            ) : (
-              <>
-                <p>Enjoy more with OCBC.</p>
-                <p>No rewards available in this demo.</p>
-              </>
-            )}
+            <h1>Rewards</h1>
+            <p>Enjoy more with OCBC.</p>
+            <p>No rewards available in this demo.</p>
           </section>
         )}
         {notice && (

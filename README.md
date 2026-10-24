@@ -26,7 +26,7 @@ Voice uses Groq Whisper for transcription. Put your key in `.env` as `GROQ_API_K
 1. Tap **Log in as existing customer**, then **Log in to OCBC Singapore**. On Home tap **PayNow**.
 2. Wait about 8 seconds without tapping. Penny appears and offers help.
 3. Tap **Ask**, then **Speak**, and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Next**.
-4. Tap **Next**. Penny highlights **Confirm practice payment**. Tap it and she confirms on the receipt.
+4. Tap **Next**. Penny highlights the **Slide to pay** bar. Drag it, or just tap it, and she confirms on the receipt.
 5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Next, Confirm.
 6. Try `99999` as the amount. The payment is blocked and Penny explains why right away.
 

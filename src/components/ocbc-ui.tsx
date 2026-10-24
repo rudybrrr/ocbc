@@ -196,7 +196,11 @@ export function BottomNavigation({
           aria-current={current === item.target ? "page" : undefined}
           onClick={() => onNavigate(item.target)}
         >
-          <SpriteIcon name={item.icon} size={23} />
+          {item.target === "pay" ? (
+            <span className="oc-nav-circle"><SpriteIcon name={item.icon} size={24} /></span>
+          ) : (
+            <SpriteIcon name={item.icon} size={23} />
+          )}
           <span>{item.label}</span>
         </button>
       ))}
