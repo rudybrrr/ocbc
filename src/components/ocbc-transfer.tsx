@@ -1,4 +1,5 @@
-import { OcbcButton, SectionCard, SpriteIcon } from "@/components/ocbc-ui";
+import { useEffect, useRef } from "react";
+import { OcbcButton, SpriteIcon } from "@/components/ocbc-ui";
 import { sgd } from "@/lib/format";
 
 export function TransferForm({
@@ -32,56 +33,48 @@ export function TransferForm({
   onToggleBalance: () => void;
   onContinue: () => void;
 }) {
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  // on short screens the error sits below the fold, so bring it into view when it appears
+  useEffect(() => {
+    if (issue) errorRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [issue]);
   return (
-    <div className="oc-transfer-screen">
-      <div className="oc-transfer-progress" aria-label="Step 1 of 3">
-        <span className="is-current" />
-        <span />
-        <span />
-      </div>
-      <SectionCard className="oc-recipient-card" label="PayNow recipient">
-        <div className="oc-recipient-topline">
-          <span className="oc-recipient-mark">
-            <SpriteIcon name="transfer-accent" size={22} />
-          </span>
-          <span>PayNow</span>
-        </div>
+    <div className="oc-transfer-screen oc-pay-real">
+      <section className="oc-payto" aria-label="PayNow recipient">
+        <p>Pay to</p>
         <h2>{name}</h2>
-        <p>{phone}</p>
-      </SectionCard>
+        <span>{phone}</span>
+      </section>
 
-      <SectionCard className="oc-amount-card" label="Payment amount">
-        <label htmlFor="oc-amount">How much would you like to send?</label>
+      <section className="oc-amount-real" aria-label="Payment amount">
+        <label className="oc-sr" htmlFor="oc-amount">How much would you like to send?</label>
         <div className="oc-amount-entry">
-          <span aria-hidden="true">S$</span>
-          <input
-            id="oc-amount"
-            data-guide="amount"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0.00"
-            value={amount}
-            onChange={(event) => onAmountChange(event.target.value)}
-            aria-invalid={issue ? "true" : undefined}
-            aria-describedby={issue ? "oc-payment-error" : "oc-daily-limit"}
-          />
+          <span className="oc-amount-field">
+            <span className="oc-amount-sizer" aria-hidden="true">{amount || "0.00"}</span>
+            <input
+              id="oc-amount"
+              data-guide="amount"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0.00"
+              value={amount}
+              onChange={(event) => onAmountChange(event.target.value)}
+              aria-invalid={issue ? "true" : undefined}
+              aria-describedby={issue ? "oc-payment-error" : "oc-daily-limit"}
+            />
+          </span>
+          <span className="oc-amount-currency" aria-hidden="true">SGD</span>
         </div>
         <p id="oc-daily-limit" className="oc-daily-limit">
-          Daily limit remaining <strong>S$1,000.00</strong>
+          Daily limit remaining: <strong>1,000.00 SGD</strong>
         </p>
-        {issue && (
-          <p id="oc-payment-error" className="oc-inline-error" role="alert">
-            {issue}
-          </p>
-        )}
         <button
           className="oc-add-note"
           type="button"
           aria-expanded={showNote}
           onClick={onToggleNote}
         >
-          <span>{showNote ? "Remove message" : "Add a message"}</span>
-          <span aria-hidden="true">{showNote ? "−" : "+"}</span>
+          {showNote ? "Remove message" : "Add a message"}
         </button>
         {showNote && (
           <div className="oc-note-field">
@@ -95,31 +88,27 @@ export function TransferForm({
             />
           </div>
         )}
-      </SectionCard>
+      </section>
 
-      <SectionCard className="oc-from-card" label="Payment source account">
-        <div className="oc-from-icon">
-          <SpriteIcon name="wallet" size={22} />
-        </div>
-        <div className="oc-from-copy">
-          <small>Paying from</small>
-          <strong>360 Account</strong>
-          {balanceVisible && <span>{sgd(availableBalance)} available</span>}
-        </div>
-        <button
-          className="oc-balance-toggle"
-          type="button"
-          onClick={onToggleBalance}
-          aria-label={balanceVisible ? "Hide available balance" : "Show available balance"}
-        >
-          <SpriteIcon name="eye" size={21} />
-        </button>
-      </SectionCard>
+      <section className="oc-from-real" aria-label="Payment source account">
+        <p>From</p>
+        <strong>OCBC FRANK Account</strong>
+        <span>•••-••••••-•••</span>
+        {balanceVisible && <span className="oc-from-balance">{sgd(availableBalance)} available</span>}
+        {issue ? (
+          <p id="oc-payment-error" ref={errorRef} className="oc-pay-error" role="alert">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z" /><path d="M12 10v4.5M12 17.2v.1" /></svg>
+            <span>{issue}</span>
+          </p>
+        ) : (
+          <button className="oc-balance-toggle" type="button" onClick={onToggleBalance}>
+            <SpriteIcon name="eye" size={22} />
+            {balanceVisible ? "Hide available balance" : "Show available balance"}
+          </button>
+        )}
+      </section>
 
-      <p className="oc-safe-note">
-        <SpriteIcon name="shield-check" size={17} />
-        This is a practice transfer. No money will move.
-      </p>
+      <p className="oc-safe-note">This is a practice transfer. No money will move.</p>
       <OcbcButton
         className="oc-transfer-next"
         data-guide="next"
@@ -127,7 +116,7 @@ export function TransferForm({
         disabled={!amountValid}
         onClick={onContinue}
       >
-        Review transfer
+        Next
       </OcbcButton>
     </div>
   );

@@ -75,8 +75,8 @@ function norm(input: string) {
 
 function balanceReply(ctx: AssistContext): Reply {
   const text = ctx.plainLanguage
-    ? `You can use ${sgd(ctx.everyday)} in Everyday Account today. Savings holds ${sgd(ctx.savings)}. The ${CARD.name} shows ${sgd(CARD.due)} due on ${CARD.dueLabel}.`
-    : `Everyday Account ${sgd(ctx.everyday)}. Savings Account ${sgd(ctx.savings)}. ${CARD.name} ${sgd(CARD.due)} due ${CARD.dueLabel}. These figures are fictional.`;
+    ? `You can use ${sgd(ctx.everyday)} in OCBC FRANK Account today. Savings holds ${sgd(ctx.savings)}. The ${CARD.name} shows ${sgd(CARD.due)} due on ${CARD.dueLabel}.`
+    : `OCBC FRANK Account ${sgd(ctx.everyday)}. Savings Account ${sgd(ctx.savings)}. ${CARD.name} ${sgd(CARD.due)} due ${CARD.dueLabel}. These figures are fictional.`;
   return {
     text,
     actions: [

@@ -17,7 +17,7 @@ Voice uses Groq Whisper for transcription. Put your key in `.env` as `GROQ_API_K
 
 1. Log in, open **Customise**, and change text size or assistance mode. Close the panel to return to Home.
 2. Open **Plan → Start investing** to explore Pool, Risk, Mix, and Plan, then save a practice monthly amount.
-3. Open **Pay & Transfer**, select a contact, enter `20000`, and tap **Review transfer** to demonstrate recovery. Reduce the amount, review, and confirm a practice payment.
+3. Open **Pay & Transfer**, select a contact, enter `20000`, and tap **Next** to demonstrate recovery. Reduce the amount, review, and confirm a practice payment.
 4. Open **More** to try **Accessibility & preferences**, **Ask OCBC Adaptive Assist**, or **Speak to a person**.
 5. Side slides explain each feature, its customer benefit, and what to demonstrate next. Closing a support dialog restores the underlying screen's slide; slide changes do not reload the app.
 
@@ -25,9 +25,9 @@ Voice uses Groq Whisper for transcription. Put your key in `.env` as `GROQ_API_K
 
 1. Tap **Log in as existing customer**, then **Log in to OCBC Singapore**. On Home tap **PayNow**.
 2. Wait about 8 seconds without tapping. Penny appears and offers help.
-3. Tap **Ask**, then **Speak**, and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Review transfer**.
-4. Tap **Review transfer**. Penny highlights **Confirm practice payment**. Tap it and she confirms on the receipt.
-5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Review transfer, Confirm.
+3. Tap **Ask**, then **Speak**, and say "Help me send ten dollars to Mum", or type `pay Mum 10`. Penny picks Mum, fills in the amount and highlights **Next**.
+4. Tap **Next**. Penny highlights the **Slide to pay** bar. Drag it, or just tap it, and she confirms on the receipt.
+5. Or tap **Yes, guide me** and Penny highlights each step instead: search, amount, Next, Confirm.
 6. Try `99999` as the amount. The payment is blocked and Penny explains why right away.
 
 The stuck delay is `STUCK_MS` in `src/lib/companion.ts`.
@@ -59,3 +59,7 @@ npm run eval:intent
 The evaluation loads Next.js environment files and runs the same server router over 40 labelled utterances, printing overall/category accuracy and every miss. It runs independently of the build. A missing key uses rules; live errors also fall back. Its score measures journey classification, not model confidence calibration or slot accuracy.
 
 Scan & Pay and Foreign Exchange retain their demo-only availability: routing opens a clearly labelled placeholder. Offers, transactions, contact data, investing and banker requests are simulated. Fixed-deposit amounts can prefill the existing application; transfer amounts and known recipients prefill the existing payment form. No routing action submits anything.
+
+## Weekly tokens
+
+Tokens show a weekly spending budget as something you can see at a glance. 1 token = S$5, so the default S$60 a week is 12 tokens. The Home pill shows how many are left, and tapping it opens a sheet with the spend breakdown and a weekly amount stepper. After a payment the receipt shows how many tokens it used. Tokens are only a guide: they never block a payment or gate any accessibility feature. They can be turned off from Customise or from the sheet. Logic lives in `src/lib/tokens.ts`.

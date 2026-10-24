@@ -14,7 +14,7 @@ export const CARD = {
 } as const;
 
 export const ACCOUNTS: { id: AccountId; name: string; detail: string }[] = [
-  { id: "everyday", name: "Everyday Account", detail: "Spending" },
+  { id: "everyday", name: "OCBC FRANK Account", detail: "Spending" },
   { id: "savings", name: "Savings Account", detail: "Set aside" },
 ];
 
@@ -24,7 +24,7 @@ export const DESTINATIONS: {
   detail: string;
   phone?: string;
 }[] = [
-  { id: "everyday", name: "Everyday Account", detail: "Your account" },
+  { id: "everyday", name: "OCBC FRANK Account", detail: "Your account" },
   { id: "savings", name: "Savings Account", detail: "Your account" },
   { id: "alicia", name: "Alex Tan", detail: "PayNow", phone: "+65 •••• 0001" },
   {
@@ -60,35 +60,35 @@ const SEED: ActivityRow[] = [
   {
     id: "seed-salary",
     title: "Salary · Harbour & Co",
-    detail: "Everyday Account",
+    detail: "OCBC FRANK Account",
     amount: 4850,
     at: "2026-10-17T09:00:00+08:00",
   },
   {
     id: "seed-ntuc",
     title: "NTUC FairPrice",
-    detail: "Everyday Account",
+    detail: "OCBC FRANK Account",
     amount: -42.8,
     at: "2026-10-18T19:12:00+08:00",
   },
   {
     id: "seed-grab",
     title: "Grab",
-    detail: "Everyday Account",
+    detail: "OCBC FRANK Account",
     amount: -18.4,
     at: "2026-10-18T08:40:00+08:00",
   },
   {
     id: "seed-spotify",
     title: "Spotify",
-    detail: "Everyday Account",
+    detail: "OCBC FRANK Account",
     amount: -11.98,
     at: "2026-10-09T06:00:00+08:00",
   },
   {
     id: "seed-mum",
     title: "Mum · Tan Mei Ling",
-    detail: "PayNow · Everyday Account",
+    detail: "PayNow · OCBC FRANK Account",
     amount: -200,
     at: "2026-10-05T21:05:00+08:00",
   },

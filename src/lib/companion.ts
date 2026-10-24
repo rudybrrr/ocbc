@@ -90,7 +90,7 @@ export function guideStep(
   if (view === "amount")
     return {
       target: "next",
-      line: `${sgd(draft.amount)} to ${draft.name}. If that looks right, tap Review transfer.`,
+      line: `${sgd(draft.amount)} to ${draft.name}. If that looks right, tap Next.`,
     };
   if (view === "review")
     return {

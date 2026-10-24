@@ -2081,3 +2081,10 @@ dialog.drawer::backdrop {
     animation: none !important;
   }
 }
+
+.track.track-five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.steps { flex-wrap: wrap; row-gap: 0.2rem; }
+.token-setup-preview { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.2rem 0 0.6rem; }
+.token-setup-stepper { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.2rem 0.4rem 0.2rem 2.2rem; }
+.token-setup-stepper output { font-weight: 650; text-align: center; }
+.token-setup-stepper .btn { min-width: 3rem; }
