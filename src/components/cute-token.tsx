@@ -28,12 +28,12 @@ export function CuteToken({ state = "full", size = 28, className = "" }: { state
       )}
       {full ? (
         <>
-          <rect x="11.2" y="14.5" width="4.4" height="9" rx="2.2" fill="#fff" transform="rotate(-18 13.4 19)" />
-          <rect x="23.6" y="14.5" width="4.4" height="9" rx="2.2" fill="#fff" transform="rotate(-18 25.8 19)" />
+          <rect x="16.6" y="9.6" width="4.6" height="10.4" rx="2.3" fill="#fff" transform="rotate(-18 18.9 14.8)" />
+          <rect x="24" y="9.2" width="4.6" height="10.4" rx="2.3" fill="#fff" transform="rotate(-18 26.3 14.4)" />
         </>
       ) : (
         <>
-          <path d="M11.5 20q2.5 2.4 5 0M23.5 20q2.5 2.4 5 0" fill="none" stroke={half ? "#fff" : "#cdb8b8"} strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 17q2 2 4 0M23.5 16.5q2 2 4 0" fill="none" stroke={half ? "#fff" : "#cdb8b8"} strokeWidth="2" strokeLinecap="round" />
         </>
       )}
     </svg>

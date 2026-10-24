@@ -276,6 +276,24 @@ export function OcbcApp() {
           <section className="oc-menu"><button className="oc-link" onClick={() => nav("home")}>Back to Home</button><h1>{view === "scan-pay" ? "Scan & Pay" : "Foreign Exchange"}</h1><p>{view === "scan-pay" ? "QR scanning" : "Currency conversion"} is unavailable in this local demo.</p></section>
         ) : view === "home" && store.snapshot.homeLayout === "calm" ? (
           <div className="oc-calm-home">
+            <div className="oc-calm-tokens">
+              {weeklyBudget > 0 ? (
+                <button
+                  className={`oc-tokens oc-tokens-live oc-tokens-${tokens.tone}`}
+                  aria-label={`${formatTokens(tokens.left)} weekly spending tokens left. Open details.`}
+                  onClick={() => setTokensOpen(true)}
+                >
+                  <CuteToken state={tokens.tone === "empty" ? "empty" : "full"} size={26} />
+                  <span key={tokens.left} className="oc-tokens-text">
+                    {formatTokens(tokens.left)} {tokenWord(tokens.left)} left
+                  </span>
+                </button>
+              ) : (
+                <button className="oc-link" onClick={() => { store.setWeeklyBudget(60); setTokensOpen(true); }}>
+                  Set a weekly spending budget
+                </button>
+              )}
+            </div>
             <section className="oc-account" aria-label="Account balance">
               <div className="oc-account-heading"><span className="oc-360"><SpriteIcon name="wallet" size={21} /></span><h1>360 Account</h1><button className="oc-link" aria-label={hidden ? "Show balances" : "Hide balances"} onClick={() => setHidden(!hidden)}><SpriteIcon name="eye" size={20} /></button></div>
               <div className="oc-account-balance"><span>Available balance</span><strong>{hidden ? "••••••" : `${money.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SGD`}</strong></div>

@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { DEFAULT_PREFERENCES, useStore } from "@/lib/store";
 import type { EverydayAction, Mode, TextSize } from "@/lib/types";
 import { EverydayActions } from "@/components/everyday-actions";
+import { CuteToken } from "@/components/cute-token";
+import { clampBudget, DEFAULT_WEEKLY_BUDGET, MAX_WEEKLY_BUDGET, MIN_WEEKLY_BUDGET, TOKEN_VALUE } from "@/lib/tokens";
+
+const BUDGET_PRESETS = [30, 60, 100];
+const LAST_STEP = 4;
 
 export function Onboarding() {
   const store = useStore();
@@ -15,6 +20,9 @@ export function Onboarding() {
   const [readAmounts, setReadAmounts] = useState(false);
   const [everydayActions, setEverydayActions] = useState<EverydayAction[]>(DEFAULT_PREFERENCES.everydayActions);
   const [idleHelp, setIdleHelp] = useState(false);
+  const [budget, setBudget] = useState(DEFAULT_WEEKLY_BUDGET);
+  const [budgetOn, setBudgetOn] = useState(true);
+  const [customBudget, setCustomBudget] = useState(false);
   const [missing, setMissing] = useState(false);
   const firstStep = useRef(true);
 
@@ -38,7 +46,7 @@ export function Onboarding() {
       readAmounts,
       everydayActions,
       idleHelp,
-      weeklyBudget: store.snapshot.weeklyBudget,
+      weeklyBudget: budgetOn ? budget : 0,
     });
   };
 
@@ -67,8 +75,8 @@ export function Onboarding() {
           setStep(2);
           return;
         }
-        if (step === 2) {
-          setStep(3);
+        if (step < LAST_STEP) {
+          setStep(step + 1);
           return;
         }
         finish();
@@ -78,10 +86,11 @@ export function Onboarding() {
         <span aria-current={step === 0 ? "step" : undefined}>Mode</span>
         <span aria-current={step === 1 ? "step" : undefined}>Text</span>
         <span aria-current={step === 2 ? "step" : undefined}>Actions</span>
-        <span aria-current={step === 3 ? "step" : undefined}>Help</span>
+        <span aria-current={step === 3 ? "step" : undefined}>Budget</span>
+        <span aria-current={step === 4 ? "step" : undefined}>Help</span>
       </p>
-      <ol className="track" aria-hidden="true">
-        {[0, 1, 2, 3].map((index) => (
+      <ol className="track track-five" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((index) => (
           <li key={index} className={index < step ? "done" : index === step ? "now" : ""} />
         ))}
       </ol>
@@ -203,6 +212,59 @@ export function Onboarding() {
 
       {step === 3 && (
         <>
+          <h1 id="screen-title" tabIndex={-1}>How much do you want to spend each week?</h1>
+          <p className="lede">We turn it into tokens so you can see what is left at a glance. 1 token is S$5. It is only a guide and never stops a payment.</p>
+          <div className="token-setup-preview" role="img" aria-label={budgetOn ? `${Math.round(budget / TOKEN_VALUE)} tokens a week` : "Weekly tokens are off"}>
+            {Array.from({ length: budgetOn ? Math.min(20, Math.round(budget / TOKEN_VALUE)) : 6 }, (_, index) => (
+              <CuteToken key={index} state={budgetOn ? "full" : "empty"} size={30} />
+            ))}
+          </div>
+          <fieldset>
+            <legend>Weekly spending</legend>
+            <div className="choice-list">
+              {BUDGET_PRESETS.map((amount) => (
+                <label className="choice" key={amount}>
+                  <input
+                    type="radio"
+                    name="budget"
+                    value={amount}
+                    checked={budgetOn && !customBudget && budget === amount}
+                    onChange={() => { setBudgetOn(true); setCustomBudget(false); setBudget(amount); }}
+                  />
+                  <span>
+                    <strong>S${amount} a week</strong>
+                    <span>{amount / TOKEN_VALUE} tokens</span>
+                  </span>
+                </label>
+              ))}
+              <label className="choice">
+                <input type="radio" name="budget" value="custom" checked={budgetOn && customBudget} onChange={() => { setBudgetOn(true); setCustomBudget(true); }} />
+                <span>
+                  <strong>My own amount</strong>
+                  <span>Pick a number that fits you.</span>
+                </span>
+              </label>
+              {budgetOn && customBudget && (
+                <div className="token-setup-stepper" role="group" aria-label="Weekly amount">
+                  <button type="button" className="btn btn-secondary" aria-label="Lower weekly amount by 5 dollars" disabled={budget <= MIN_WEEKLY_BUDGET} onClick={() => setBudget(clampBudget(budget - TOKEN_VALUE))}>−</button>
+                  <output aria-live="polite">S${budget} · {Math.round(budget / TOKEN_VALUE)} tokens</output>
+                  <button type="button" className="btn btn-secondary" aria-label="Raise weekly amount by 5 dollars" disabled={budget >= MAX_WEEKLY_BUDGET} onClick={() => setBudget(clampBudget(budget + TOKEN_VALUE))}>+</button>
+                </div>
+              )}
+              <label className="choice">
+                <input type="radio" name="budget" value="off" checked={!budgetOn} onChange={() => setBudgetOn(false)} />
+                <span>
+                  <strong>Not now</strong>
+                  <span>You can turn tokens on later from the Home screen.</span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+        </>
+      )}
+
+      {step === 4 && (
+        <>
           <h1 id="screen-title" tabIndex={-1}>
             What kind of help do you want?
           </h1>
@@ -263,7 +325,7 @@ export function Onboarding() {
           </button>
         )}
         <button type="submit" className="btn btn-primary">
-          {step === 3 ? "Open my bank" : "Continue"}
+          {step === LAST_STEP ? "Open my bank" : "Continue"}
         </button>
       </div>
       <button type="button" className="btn btn-quiet align-start" onClick={() => store.completeOnboarding(DEFAULT_PREFERENCES)}>

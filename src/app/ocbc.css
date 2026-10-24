@@ -1797,3 +1797,6 @@ html[data-text="largest"] .oc-app {
 .oc-receipt-tokens p { display: grid; gap: 1px; }
 .oc-receipt-tokens strong { font-size: calc(16px * var(--oc-font-scale)); }
 .oc-receipt-tokens span { color: #6b3a38; font-size: calc(14px * var(--oc-font-scale)); }
+
+.oc-calm-tokens { display: flex; margin: 14px 12px 2px; }
+.oc-calm-tokens .oc-tokens-live { min-height: 44px; }
