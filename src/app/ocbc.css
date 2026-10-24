@@ -1657,3 +1657,12 @@ html[data-text="largest"] .oc-app {
 .oc-payto h2 { font-size: calc(30px * var(--oc-font-scale)); }
 .oc-from-real .oc-pay-error span { color: inherit; font-size: inherit; }
 .oc-from-real .oc-pay-error { color: #c8372d; }
+
+/* ---- spacing fixes found at 360px wide and largest text ---- */
+.oc-home-promo-copy { padding-bottom: 132px; }
+.oc-account-balance, .oc-debit { flex-wrap: wrap; row-gap: 2px; }
+.oc-account-balance strong { margin-left: auto; white-space: nowrap; }
+.oc-search input { text-overflow: ellipsis; }
+.oc-pay-real .oc-transfer-next { box-shadow: 0 0 0 10px #fff; }
+.oc-pay-real { padding-bottom: 28px; }
+.oc-pay-real .oc-safe-note { padding-top: 14px; }
