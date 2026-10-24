@@ -27,15 +27,15 @@ function Row({ type, name, value, checked, disabled, onChange, title, detail, ch
 
 function Hero() {
   return (
-    <svg className="ob-art" viewBox="0 0 360 130" aria-hidden="true" focusable="false">
-      <ellipse cx="86" cy="96" rx="132" ry="46" fill="#cfe5e0" />
-      <ellipse cx="288" cy="104" rx="110" ry="40" fill="#e3e9ef" />
-      <circle cx="262" cy="44" r="20" fill="#fff" opacity=".9" /><circle cx="286" cy="52" r="14" fill="#fff" opacity=".9" /><circle cx="244" cy="54" r="12" fill="#fff" opacity=".9" />
-      <circle cx="180" cy="66" r="42" fill="#e61e25" />
-      <ellipse cx="164" cy="42" rx="17" ry="8" fill="#fff" opacity=".4" transform="rotate(-28 164 42)" />
-      <rect x="166" y="48" width="12" height="28" rx="6" fill="#fff" transform="rotate(-18 172 62)" />
-      <rect x="188" y="46" width="12" height="28" rx="6" fill="#fff" transform="rotate(-18 194 60)" />
-    </svg>
+    <div className="ob-brand">
+      <svg className="ob-ball" viewBox="0 0 80 80" aria-hidden="true" focusable="false">
+        <circle cx="40" cy="40" r="38" fill="#e61e25" />
+        <ellipse cx="29" cy="20" rx="13" ry="6.5" fill="#fff" opacity=".4" transform="rotate(-28 29 20)" />
+        <rect x="31" y="26" width="9" height="22" rx="4.5" fill="#fff" transform="rotate(-18 35.5 37)" />
+        <rect x="47" y="24.5" width="9" height="22" rx="4.5" fill="#fff" transform="rotate(-18 51.5 35.5)" />
+      </svg>
+      <p className="ob-welcome">Welcome to OCBC<span>Let’s set things up for you.</span></p>
+    </div>
   );
 }
 
@@ -101,6 +101,7 @@ export function Onboarding() {
       }}
     >
       <header className="ob-hero">
+        <div className="ob-topbar">
         {step > 0 ? (
           <button type="button" className="ob-back" aria-label="Back to the previous question" onClick={() => { setMissing(false); setStep((current) => current - 1); }}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
@@ -108,6 +109,7 @@ export function Onboarding() {
         ) : (
           <span className="ob-back-gap" aria-hidden="true" />
         )}
+        </div>
         <Hero />
       </header>
 
