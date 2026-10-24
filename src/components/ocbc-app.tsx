@@ -530,8 +530,8 @@ export function OcbcApp() {
             </div>
           </section>
         ) : view === "pay" ? (
-          <>
-            <header className="oc-page-heading">
+          <div className="oc-pay-list">
+            <header className="oc-page-heading oc-heading-light">
               <button aria-label="Back" onClick={() => nav("home")}>
                 <SpriteIcon name="arrow-left" size={21} />
               </button>
@@ -545,7 +545,7 @@ export function OcbcApp() {
                   )
                 }
               >
-                <SpriteIcon name="user" size={24} />
+                <IgniteImage src="/ocbc/nric.webp" alt="" width={44} height={44} className="oc-pay-type-icon" />
                 NRIC/FIN
               </button>
               <button
@@ -555,7 +555,7 @@ export function OcbcApp() {
                   )
                 }
               >
-                <SpriteIcon name="building" size={24} />
+                <IgniteImage src="/ocbc/uen.webp" alt="" width={44} height={44} className="oc-pay-type-icon" />
                 UEN/VPA
               </button>
             </div>
@@ -591,14 +591,14 @@ export function OcbcApp() {
                 </p>
               )}
             </section>
-          </>
+          </div>
         ) : view === "amount" ? (
           <div className="oc-payment">
             <header className="oc-page-heading">
               <button aria-label="Back" onClick={() => nav("pay")}>
                 <SpriteIcon name="arrow-left" size={21} />
               </button>
-              <h1>PayNow</h1>
+              <h1 className="oc-sr">PayNow</h1>
             </header>
             <TransferForm
               name={name ?? "Demo recipient"}

@@ -81,7 +81,7 @@ export const demoSlides = {
       ["Check available money", "Show available balance without leaving the task."],
       ["Review comes next", "Valid amounts continue to a separate review screen before confirmation."],
     ],
-    cue: "Try a small amount and tap Review transfer, or enter 20,000 to demonstrate recovery.",
+    cue: "Try a small amount and tap Next, or enter 20,000 to demonstrate recovery.",
   },
   recovery: {
     label: "Payment recovery",
@@ -93,7 +93,7 @@ export const demoSlides = {
       ["Keep the context", "The recipient and typed details remain available for correction."],
       ["Try again confidently", "Change to an affordable amount, then return to review."],
     ],
-    cue: "Read the message in the phone, reduce the amount, and tap Review transfer again.",
+    cue: "Read the message in the phone, reduce the amount, and tap Next again.",
   },
   review: {
     label: "Payment review",

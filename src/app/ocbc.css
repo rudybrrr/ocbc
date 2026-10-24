@@ -1601,3 +1601,54 @@ html[data-text="largest"] .oc-app {
 .oc-shortcuts .oc-quick-action-icon,
 .oc-shortcuts .oc-quick-action:last-child .oc-quick-action-icon { width: 44px; height: 44px; }
 .oc-shortcuts-divider { align-self: stretch; }
+
+/* ---- Pay & Transfer: match the consumer app's PayNow list and amount screens ---- */
+.oc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.oc-pay-list { min-height: 100%; background: linear-gradient(180deg, #f6eeee 0, #f9f2f2 250px, #f6f6f5 250px); }
+.oc-heading-light { background: transparent; }
+.oc-heading-light h1 { color: #4b5258; font-size: calc(17px * var(--oc-font-scale)); font-weight: 400; }
+.oc-pay-types { min-height: 0; padding: 22px 16px 22px; background: transparent; }
+.oc-pay-types button { flex-direction: column; gap: 10px; min-height: 86px; border: 0 !important; background: transparent !important; color: #2f3a40 !important; font-size: calc(15px * var(--oc-font-scale)); font-weight: 400; }
+.oc-pay-type-icon { width: 44px; height: 44px; object-fit: contain; }
+.oc-contacts { min-height: 0; border-radius: 18px 18px 0 0; }
+.oc-search { margin: 18px 15px 10px; border: 0; border-radius: 8px; background: #eceef6; }
+.oc-search input { font-size: calc(15px * var(--oc-font-scale)); }
+.oc-contact-tabs { padding: 0; border-bottom: 1px solid #c8ccd4; }
+.oc-contact-tabs button { min-height: 52px; color: #3a4048 !important; font-size: calc(16px * var(--oc-font-scale)); font-weight: 600; }
+.oc-contact-tabs button[aria-pressed="true"] { color: #1f2429 !important; font-weight: 700; }
+.oc-contact-row { min-height: 84px; gap: 16px; padding: 12px 18px !important; border-bottom: 1px solid #c8ccd4 !important; }
+.oc-contact-avatar { width: 48px; height: 48px; background: #3d4a60; color: #fff; font-size: calc(13px * var(--oc-font-scale)); font-weight: 500; }
+.oc-contact-copy { gap: 3px; }
+.oc-contact-copy strong { font-size: calc(18px * var(--oc-font-scale)); font-weight: 500; }
+.oc-contact-copy small { color: #2f3a40; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-contact-chevron { display: none; }
+
+.oc-payment { background: #fff; }
+.oc-payment .oc-page-heading { background: #fff; }
+.oc-pay-real { display: flex; min-height: calc(100dvh - 58px); flex-direction: column; gap: 0; padding: 8px 18px 22px; background: #fff; }
+.oc-payto { display: grid; gap: 4px; margin-top: 22px; }
+.oc-payto p { color: #3a4048; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-payto h2 { font-size: calc(26px * var(--oc-font-scale)); font-weight: 700; }
+.oc-payto span { color: #3a4048; font-size: calc(15px * var(--oc-font-scale)); }
+.oc-amount-real { display: grid; gap: 14px; margin-top: 34px; }
+.oc-amount-real .oc-amount-entry { display: flex; align-items: baseline; gap: 8px; padding: 0; border: 0; background: transparent; }
+.oc-amount-real .oc-amount-entry input { width: 100%; min-width: 0; padding: 0; border: 0; background: transparent; color: #1f2429; font-size: calc(44px * var(--oc-font-scale)); font-weight: 300; }
+.oc-amount-real .oc-amount-entry input::placeholder { color: #b9bdc2; }
+.oc-amount-real .oc-amount-entry input:focus-visible { outline: none; }
+.oc-amount-real .oc-amount-entry span { color: #3a4048; font-size: calc(18px * var(--oc-font-scale)); }
+.oc-amount-real .oc-daily-limit { color: #2f3a40; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-amount-real .oc-daily-limit strong { color: #0b63e5; font-weight: 400; }
+.oc-amount-real .oc-add-note { display: inline-flex; width: fit-content; min-height: 44px; align-items: center; padding: 0 20px !important; border: 0 !important; border-radius: 99px !important; background: #3f5361 !important; color: #fff !important; font-size: calc(15px * var(--oc-font-scale)); }
+.oc-from-real { display: grid; gap: 6px; margin-top: 30px; padding-top: 28px; border-top: 1px solid #c8ccd4; }
+.oc-from-real p { color: #3a4048; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-from-real strong { font-size: calc(19px * var(--oc-font-scale)); font-weight: 700; }
+.oc-from-real span { color: #2f3a40; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-from-real .oc-balance-toggle { display: inline-flex; width: fit-content; min-height: 44px; align-items: center; gap: 8px; margin-top: 4px; padding: 0 !important; color: #0b63e5 !important; font-size: calc(16px * var(--oc-font-scale)); }
+.oc-from-real .oc-balance-toggle .ocbc-sprite { filter: invert(25%) sepia(95%) saturate(3000%) hue-rotate(205deg); }
+.oc-pay-real .oc-safe-note { margin-top: auto; padding-bottom: 14px; color: #5a666d; font-size: calc(12px * var(--oc-font-scale)); text-align: center; }
+.oc-pay-real .oc-transfer-next { min-height: 52px; border: 1px solid #b8bec6 !important; border-radius: 5px !important; font-size: calc(18px * var(--oc-font-scale)); font-weight: 500; }
+.oc-pay-real .oc-transfer-next:disabled { background: #fff !important; color: #aab0b8 !important; }
+.oc-pay-real .oc-transfer-next:not(:disabled) { border-color: transparent !important; background: #3f5361 !important; color: #fff !important; }
+.oc-pay-real .oc-from-real .oc-balance-toggle { width: auto; height: auto; margin: 4px 0 0; justify-self: start; border-radius: 0 !important; place-items: unset; }
+.oc-pay-real .oc-transfer-next { box-shadow: none; background-clip: padding-box; }
+.oc-amount-real .oc-amount-entry input { width: auto; max-width: 100%; }

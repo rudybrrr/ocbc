@@ -1,4 +1,4 @@
-import { OcbcButton, SectionCard, SpriteIcon } from "@/components/ocbc-ui";
+import { OcbcButton, SpriteIcon } from "@/components/ocbc-ui";
 import { sgd } from "@/lib/format";
 
 export function TransferForm({
@@ -33,41 +33,32 @@ export function TransferForm({
   onContinue: () => void;
 }) {
   return (
-    <div className="oc-transfer-screen">
-      <div className="oc-transfer-progress" aria-label="Step 1 of 3">
-        <span className="is-current" />
-        <span />
-        <span />
-      </div>
-      <SectionCard className="oc-recipient-card" label="PayNow recipient">
-        <div className="oc-recipient-topline">
-          <span className="oc-recipient-mark">
-            <SpriteIcon name="transfer-accent" size={22} />
-          </span>
-          <span>PayNow</span>
-        </div>
-        <h2>{name}</h2>
-        <p>{phone}</p>
-      </SectionCard>
+    <div className="oc-transfer-screen oc-pay-real">
+      <section className="oc-payto" aria-label="PayNow recipient">
+        <p>Pay to</p>
+        <h2>{phone}</h2>
+        <span>{name}</span>
+      </section>
 
-      <SectionCard className="oc-amount-card" label="Payment amount">
-        <label htmlFor="oc-amount">How much would you like to send?</label>
+      <section className="oc-amount-real" aria-label="Payment amount">
+        <label className="oc-sr" htmlFor="oc-amount">How much would you like to send?</label>
         <div className="oc-amount-entry">
-          <span aria-hidden="true">S$</span>
           <input
             id="oc-amount"
             data-guide="amount"
             inputMode="decimal"
             autoComplete="off"
             placeholder="0.00"
+            style={{ width: `${Math.max(4, amount.length + 1)}ch` }}
             value={amount}
             onChange={(event) => onAmountChange(event.target.value)}
             aria-invalid={issue ? "true" : undefined}
             aria-describedby={issue ? "oc-payment-error" : "oc-daily-limit"}
           />
+          <span aria-hidden="true">SGD</span>
         </div>
         <p id="oc-daily-limit" className="oc-daily-limit">
-          Daily limit remaining <strong>S$1,000.00</strong>
+          Daily limit remaining: <strong>1,000.00 SGD</strong>
         </p>
         {issue && (
           <p id="oc-payment-error" className="oc-inline-error" role="alert">
@@ -80,8 +71,7 @@ export function TransferForm({
           aria-expanded={showNote}
           onClick={onToggleNote}
         >
-          <span>{showNote ? "Remove message" : "Add a message"}</span>
-          <span aria-hidden="true">{showNote ? "−" : "+"}</span>
+          {showNote ? "Remove message" : "Add a message"}
         </button>
         {showNote && (
           <div className="oc-note-field">
@@ -95,31 +85,20 @@ export function TransferForm({
             />
           </div>
         )}
-      </SectionCard>
+      </section>
 
-      <SectionCard className="oc-from-card" label="Payment source account">
-        <div className="oc-from-icon">
-          <SpriteIcon name="wallet" size={22} />
-        </div>
-        <div className="oc-from-copy">
-          <small>Paying from</small>
-          <strong>360 Account</strong>
-          {balanceVisible && <span>{sgd(availableBalance)} available</span>}
-        </div>
-        <button
-          className="oc-balance-toggle"
-          type="button"
-          onClick={onToggleBalance}
-          aria-label={balanceVisible ? "Hide available balance" : "Show available balance"}
-        >
-          <SpriteIcon name="eye" size={21} />
+      <section className="oc-from-real" aria-label="Payment source account">
+        <p>From</p>
+        <strong>OCBC FRANK Account</strong>
+        <span>•••-••••••-•••</span>
+        {balanceVisible && <span className="oc-from-balance">{sgd(availableBalance)} available</span>}
+        <button className="oc-balance-toggle" type="button" onClick={onToggleBalance}>
+          <SpriteIcon name="eye" size={22} />
+          {balanceVisible ? "Hide available balance" : "Show available balance"}
         </button>
-      </SectionCard>
+      </section>
 
-      <p className="oc-safe-note">
-        <SpriteIcon name="shield-check" size={17} />
-        This is a practice transfer. No money will move.
-      </p>
+      <p className="oc-safe-note">This is a practice transfer. No money will move.</p>
       <OcbcButton
         className="oc-transfer-next"
         data-guide="next"
@@ -127,7 +106,7 @@ export function TransferForm({
         disabled={!amountValid}
         onClick={onContinue}
       >
-        Review transfer
+        Next
       </OcbcButton>
     </div>
   );
