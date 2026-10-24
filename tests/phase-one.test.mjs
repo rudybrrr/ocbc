@@ -11,7 +11,7 @@ test("legacy snapshots retain data and receive preference defaults", () => {
   const { StoreProvider } = h.load(resolve("src/lib/store.tsx"));
   const store = h.render(() => StoreProvider({ children: null }).props.value);
   assert.deepEqual(store.snapshot.everydayActions, defaults);
-  assert.equal(store.snapshot.homeLayout, "calm");
+  assert.equal(store.snapshot.homeLayout, "classic");
   assert.equal(store.snapshot.idleHelp, false);
   assert.equal(store.snapshot.draft.amount, "12");
   assert.equal(store.snapshot.bankerRequests[0].id, "keep");
@@ -91,8 +91,8 @@ test("idle timer is opt-in, cancels on opt-out, and errors still open immediatel
   assert.match(companion.line, /Daily demo limit exceeded/);
 });
 
-test("home layout persists, defaults invalid values to calm and retains existing classic choice", () => {
-  for (const [saved, expected] of [[undefined, "calm"], ["invalid", "calm"], ["classic", "classic"]]) {
+test("home layout persists, defaults invalid values to classic and retains an existing calm choice", () => {
+  for (const [saved, expected] of [[undefined, "classic"], ["invalid", "classic"], ["calm", "calm"]]) {
     const h = harness({ homeLayout: saved, onboarded: true, draft: { amount: "25" } });
     const { StoreProvider } = h.load(resolve("src/lib/store.tsx"));
     const render = () => h.render(() => StoreProvider({ children: null }).props.value);

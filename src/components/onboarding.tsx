@@ -69,7 +69,7 @@ export function Onboarding() {
   const finish = () => {
     if (mode === "" || textSize === "") return;
     store.completeOnboarding({
-      homeLayout: "calm",
+      homeLayout: "classic",
       onboarded: true,
       mode,
       textSize,

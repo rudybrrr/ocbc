@@ -33,7 +33,7 @@ import { clampBudget, DEFAULT_WEEKLY_BUDGET } from "@/lib/tokens";
 const KEY = "ocbc-adaptive-assist-v1";
 
 export const DEFAULT_PREFERENCES: Preferences = {
-  homeLayout: "calm",
+  homeLayout: "classic",
   onboarded: false,
   mode: "standard",
   textSize: "default",
@@ -84,7 +84,7 @@ function read(): Snapshot {
       everydayActions: Array.isArray(parsed.everydayActions)
         ? [...new Set(parsed.everydayActions)].filter((action) => EVERYDAY_ACTIONS.some(([id]) => id === action)).slice(0, 4)
         : DEFAULT_PREFERENCES.everydayActions,
-      homeLayout: parsed.homeLayout === "classic" ? "classic" : "calm",
+      homeLayout: parsed.homeLayout === "calm" ? "calm" : "classic",
       idleHelp: parsed.idleHelp === true,
       weeklyBudget: typeof parsed.weeklyBudget === "number" ? (parsed.weeklyBudget === 0 ? 0 : clampBudget(parsed.weeklyBudget)) : DEFAULT_WEEKLY_BUDGET,
       draft: { ...defaultDraft, ...parsed.draft },

@@ -197,7 +197,12 @@ export function BottomNavigation({
           onClick={() => onNavigate(item.target)}
         >
           <span className={`oc-nav-icon ${item.target === "pay" ? "oc-nav-circle" : ""}`}>
-            {item.target === "plan" ? (
+            {item.target === "home" && current === "home" ? (
+              <svg width="25" height="25" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2.6 2.8 10.4c-.5.4-.2 1.2.4 1.2H4.4V20a1.4 1.4 0 0 0 1.4 1.4h12.4a1.4 1.4 0 0 0 1.4-1.4v-8.4h1.2c.6 0 .9-.8.4-1.2L12 2.6Z" fill="currentColor" />
+                <circle cx="12" cy="14.6" r="2.4" fill="#fff" />
+              </svg>
+            ) : item.target === "plan" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src="/ignite/icons/sprout.svg" alt="" width={24} height={24} />
             ) : (
