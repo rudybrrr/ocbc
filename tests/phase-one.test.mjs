@@ -24,8 +24,12 @@ test("onboarding, navigation actions, shared errors and preferences persist", ()
   const render = () => h.render(() => StoreProvider({ children: null }).props.value);
   let store = render();
   assert.equal(store.snapshot.onboarded, false);
+  assert.equal(store.snapshot.screen, "login");
+  store.login(); store = render();
+  assert.equal(store.snapshot.screen, "onboarding");
   store.completeOnboarding(DEFAULT_PREFERENCES);
   store = render();
+  assert.equal(store.snapshot.screen, "home");
   assert.equal(store.snapshot.mode, "standard");
   assert.equal(store.snapshot.textSize, "default");
   store.go("plan"); store = render();
@@ -41,8 +45,52 @@ test("onboarding, navigation actions, shared errors and preferences persist", ()
   assert.deepEqual(h.saved().everydayActions, ["invest", "paynow"]);
   assert.equal(h.saved().idleHelp, true);
   store.resetDemo(); store = render();
+  assert.equal(store.snapshot.screen, "login");
   assert.equal(store.snapshot.onboarded, false);
   assert.deepEqual(store.snapshot.everydayActions, defaults);
+  store.login(); store = render();
+  assert.equal(store.snapshot.screen, "onboarding");
+});
+
+test("setup is offered on first login per page load while saved banking state survives", () => {
+  const h = harness({
+    onboarded: true, screen: "home", mode: "standard", textSize: "largest",
+    homeLayout: "calm", weeklyBudget: 35, idleHelp: true,
+    draft: { amount: "12" }, bankerRequests: [{ id: "keep" }],
+  });
+  const { StoreProvider } = h.load(resolve("src/lib/store.tsx"));
+  const render = () => h.render(() => StoreProvider({ children: null }).props.value);
+  let store = render();
+  assert.equal(store.snapshot.screen, "login");
+  assert.equal(store.snapshot.textSize, "largest");
+  assert.equal(store.snapshot.weeklyBudget, 35);
+  store.login(); store = render();
+  assert.equal(store.snapshot.screen, "onboarding");
+  // The skip path also completes setup with the existing preferences.
+  store.completeOnboarding(store.snapshot);
+  store = render();
+  assert.equal(store.snapshot.screen, "home");
+  store.go("login"); store = render();
+  assert.equal(store.snapshot.screen, "login");
+  store.login();
+  store = render();
+  assert.equal(store.snapshot.screen, "home");
+  assert.equal(store.snapshot.homeLayout, "calm");
+  assert.equal(store.snapshot.idleHelp, true);
+  assert.equal(store.snapshot.draft.amount, "12");
+  assert.equal(store.snapshot.bankerRequests[0].id, "keep");
+
+  const reloaded = harness(h.saved());
+  const ReloadedProvider = reloaded.load(resolve("src/lib/store.tsx")).StoreProvider;
+  const renderReload = () => reloaded.render(() => ReloadedProvider({ children: null }).props.value);
+  let next = renderReload();
+  assert.equal(next.snapshot.screen, "login");
+  assert.equal(next.snapshot.onboarded, true);
+  assert.equal(next.snapshot.draft.amount, "12");
+  next.login(); next = renderReload();
+  assert.equal(next.snapshot.screen, "onboarding");
+  assert.equal(next.snapshot.textSize, "largest");
+  assert.equal(next.snapshot.bankerRequests[0].id, "keep");
 });
 
 test("blocked storage does not prevent startup, changes or reset", () => {

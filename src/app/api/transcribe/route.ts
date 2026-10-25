@@ -15,12 +15,14 @@ const PROMPT = `A bank customer asks for help with a transfer, for example: Pay 
 
 // this runs on the server, so the groq key is never sent to the browser
 export async function POST(request: Request) {
-  const key = process.env.GROQ_API_KEY;
+  const key = process.env.GROQ_API_KEY?.trim();
   if (!key) {
-    return Response.json({ error: "GROQ_API_KEY is not set" }, { status: 500 });
+    return Response.json({ error: "Voice input is not configured. You can type instead." }, { status: 503 });
   }
 
-  const form = await request.formData();
+  let form: FormData;
+  try { form = await request.formData(); }
+  catch { return Response.json({ error: "Invalid recording." }, { status: 400 }); }
   const audio = form.get("audio");
   if (!(audio instanceof File) || audio.size === 0) {
     return Response.json({ error: "No audio received" }, { status: 400 });
@@ -31,20 +33,25 @@ export async function POST(request: Request) {
 
   const body = new FormData();
   body.append("file", audio, audio.name || "speech.webm");
-  body.append("model", "whisper-large-v3-turbo");
+  body.append("model", process.env.GROQ_TRANSCRIPTION_MODEL?.trim() || "whisper-large-v3-turbo");
   body.append("language", "en");
   body.append("prompt", PROMPT);
   body.append("response_format", "json");
 
-  const response = await fetch(GROQ_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}` },
-    body,
-  });
-  if (!response.ok) {
-    return Response.json({ error: "Transcription failed" }, { status: 502 });
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(12000)]);
+  try {
+    const response = await fetch(GROQ_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}` },
+      body,
+      signal,
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("Transcription failed");
+    const data: unknown = await response.json();
+    if (typeof data !== "object" || data === null || !("text" in data) || typeof data.text !== "string" || !data.text.trim() || data.text.length > 2000) throw new Error("Invalid transcript");
+    return Response.json({ text: data.text.trim() }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return Response.json({ error: "Could not transcribe. Please try again or type instead." }, { status: signal.aborted ? 504 : 502 });
   }
-
-  const data = (await response.json()) as { text?: string };
-  return Response.json({ text: (data.text ?? "").trim() });
 }

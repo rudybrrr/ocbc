@@ -3,6 +3,7 @@
 import { OcbcButton } from "@/components/ocbc-ui";
 import { JourneyHelp } from "@/components/journey-guidance";
 import { useStore } from "@/lib/store";
+import { useContentMotion } from "@/lib/use-content-motion";
 
 const LABELS = ["Before you begin", "Key terms", "Fees", "Risks", "Review", "Confirm"];
 const TARGETS = ["invest-intro", "invest-terms", "invest-fees", "invest-risks", "invest-review", "invest-confirm"];
@@ -11,9 +12,10 @@ export function Invest() {
   const store = useStore();
   const { invest, plainLanguage: plain } = store.snapshot;
   const step = invest.step;
+  const contentRef = useContentMotion<HTMLElement>(invest.done ? "done" : step);
 
   if (invest.done) return (
-    <section className="fd-screen">
+    <section className="fd-screen" ref={contentRef}>
       <h2 id="screen-title" tabIndex={-1}>Investing process completed</h2>
       <p>Your progress is saved on this device. No product, amount or allocation was selected, and no money moved.</p>
       <OcbcButton onClick={() => store.go("home")}>Back to Home</OcbcButton>
@@ -23,7 +25,7 @@ export function Invest() {
   );
 
   return (
-    <section className="fd-screen">
+    <section className="fd-screen" ref={contentRef}>
       <p className="oc-demo-label">Step {step + 1} of {LABELS.length} · {LABELS[step]}</p>
       <h2 id="screen-title" tabIndex={-1}>{LABELS[step]}</h2>
       {step === 0 ? <>

@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { sourceLoader } from './load-source.mjs';
 
 function render(homeLayout, actions = ['paynow', 'transfer']) {
-  const store = { ready: true, balances: { everyday: 256.05, savings: 0 }, snapshot: { homeLayout, screen: 'home', everydayActions: actions, transfers: [], draft: { amount: '' }, invest: { step: 0 }, fixedDeposit: { step: 0 } }, assistContext: {} };
+  const store = { ready: true, tokenTransfers: [], balances: { everyday: 256.05, savings: 0 }, snapshot: { homeLayout, screen: 'home', everydayActions: actions, transfers: [], draft: { amount: '' }, invest: { step: 0 }, fixedDeposit: { step: 0 } }, assistContext: {} };
   const load = sourceLoader({
     '@/lib/store': { useStore: () => store },
     '@/lib/use-companion': { useCompanion: () => ({ target: null }) },

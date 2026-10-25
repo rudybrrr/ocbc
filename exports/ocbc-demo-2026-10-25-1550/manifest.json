@@ -1,0 +1,104 @@
+{
+  "captured": "2026-10-25",
+  "source": "http://localhost:3000/",
+  "viewport": {
+    "width": 1600,
+    "height": 900
+  },
+  "slides": [
+    {
+      "slide": 1,
+      "file": "01-problem-login.png",
+      "beat": 1,
+      "title": "Problem",
+      "state": "Fresh login",
+      "note": "The same customer can want speed for familiar tasks and explanation for unfamiliar ones."
+    },
+    {
+      "slide": 2,
+      "file": "02-customer-choice.png",
+      "beat": 2,
+      "title": "Customer control",
+      "state": "Setup: Standard selected",
+      "note": "Support starts with a choice made by the customer."
+    },
+    {
+      "slide": 3,
+      "file": "03a-readability.png",
+      "beat": 3,
+      "title": "Preferences",
+      "state": "Setup: text size",
+      "note": "Readability is chosen by the customer. This capture preserves the saved Default choice."
+    },
+    {
+      "slide": 4,
+      "file": "03b-calm-home.png",
+      "beat": 3,
+      "title": "Calm Home",
+      "state": "Home after Set up later",
+      "note": "Setup can be postponed. Home shows essentials and the everyday-language entry."
+    },
+    {
+      "slide": 5,
+      "file": "04a-payment-request.png",
+      "beat": 4,
+      "title": "Familiar task",
+      "state": "Home: pay Mum 10 typed",
+      "note": "The request prepares a supported task. It does not send money."
+    },
+    {
+      "slide": 6,
+      "file": "04b-payment-details.png",
+      "beat": 4,
+      "title": "Payment draft",
+      "state": "Mum and S$10 resolved",
+      "note": "The recipient and amount are ready for the customer to inspect. The optional related offer was dismissed."
+    },
+    {
+      "slide": 7,
+      "file": "04c-payment-review.png",
+      "beat": 4,
+      "title": "Customer review",
+      "state": "Review payment before confirmation",
+      "note": "The customer checks recipient, amount and account. No confirmation was made during this capture."
+    },
+    {
+      "slide": 8,
+      "file": "05a-journey-choice.png",
+      "beat": 5,
+      "title": "Unfamiliar task",
+      "state": "Invest: guidance choice",
+      "note": "The same customer can choose guidance for this journey. Overall preferences stay the same."
+    },
+    {
+      "slide": 9,
+      "file": "05b-guided-terms.png",
+      "beat": 5,
+      "title": "Help for this task",
+      "state": "Invest: Key terms, step 2 of 6",
+      "note": "Plain-language process guidance. No product, investment amount or allocation is selected."
+    },
+    {
+      "slide": 10,
+      "file": "06-validation-context.png",
+      "beat": 6,
+      "title": "Contribution and validation",
+      "state": "Reused journey-choice capture",
+      "note": "Visual context only: no validation page exists. Improved understanding and efficiency remain hypotheses. Propose testing completion, errors, comprehension and perceived control."
+    },
+    {
+      "slide": 11,
+      "file": "07-customer-control.png",
+      "beat": 7,
+      "title": "Closing",
+      "state": "Reused journey-choice capture",
+      "note": "Adapt support to the task while leaving the decision with the customer."
+    }
+  ],
+  "limitations": [
+    "Static screenshots; UI elements are not editable and web animations do not play.",
+    "Payment receipt omitted to preserve practice transaction records.",
+    "Validation and closing intentionally reuse a real guidance-choice capture.",
+    "Concept mockup See what changes is not implemented and is excluded."
+  ]
+}

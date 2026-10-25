@@ -56,6 +56,8 @@ export function harness(saved, blocked = false) {
     const localRequire = (id) => {
       if (id === "react") return react;
       if (id === "@/lib/transition") return { withTransition: (fn) => fn() };
+      // DOM animation is verified in the browser; this harness exercises banking state.
+      if (id === "@/lib/use-content-motion") return { useContentMotion: () => undefined };
       if (!id.startsWith("@/")) return loadPackage(id);
       const base = resolve("src", id.slice(2));
       return load(existsSync(`${base}.ts`) ? `${base}.ts` : `${base}.tsx`);

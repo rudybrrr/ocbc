@@ -1,4 +1,16 @@
 export const demoSlides = {
+  setup: {
+    label: "Make it yours",
+    title: "Set up banking your way.",
+    description: "Choose how the app looks and offers help before you start banking.",
+    heading: "Your preferences come first.",
+    points: [
+      ["Choose your experience", "Pick Standard or Guided and a comfortable text size."],
+      ["Make support personal", "Choose weekly spending tokens, plain language, and when help is offered."],
+      ["Continue when ready", "Save your choices and open Home, or skip setup. You can adjust preferences later."],
+    ],
+    cue: "Walk through setup, then open Home. Refresh and log in to replay setup with your saved choices.",
+  },
   welcome: {
     label: "Welcome",
     title: "Banking at your pace.",
