@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useContentMotion, useMotionInput } from "@/lib/use-content-motion";
 import type { DemoSlide } from "@/lib/demo-slides";
 import {
   ContactRow,
@@ -63,6 +64,8 @@ function Art({ name, className = "" }: { name: string; className?: string }) {
 export function OcbcApp() {
   const store = useStore();
   const view: View = store.snapshot.screen === "move" ? "pay" : store.snapshot.screen;
+  useMotionInput();
+  const contentRef = useContentMotion<HTMLElement>(view);
   const [journeyOffer, setJourneyOffer] = useState<Offer | null>(null);
   const [intentAmount, setIntentAmount] = useState("");
   const [category, setCategory] = useState("Accounts");
@@ -100,7 +103,9 @@ export function OcbcApp() {
     return true;
   };
   const login = () => {
-    nav(store.snapshot.onboarded ? "home" : "onboarding");
+    store.login();
+    setNotice("");
+    store.setIssue(null);
   };
   const choose = (id: DestinationId, amountValue = "") => {
     setRecipient(id);
@@ -164,7 +169,7 @@ export function OcbcApp() {
   const openOffer = (offer: Offer) => offer.screen ? nav(offer.screen === "move" ? "pay" : offer.screen) : info(`${offer.label === "Welcome" ? "Important information" : offer.label === "GOALS" ? "Savings goals" : "Insurance planning"} is unavailable in this demo.`);
   const recentRows = activity(store.snapshot.transfers).slice(0, 4);
   const weeklyBudget = store.snapshot.weeklyBudget ?? 0;
-  const week = weeklySpending(store.snapshot.transfers, now, destinationName);
+  const week = weeklySpending(store.tokenTransfers, now, destinationName);
   const tokens = tokenState(weeklyBudget || 60, week.spent);
 
   const presentation: DemoSlide = store.prefsOpen
@@ -178,7 +183,7 @@ export function OcbcApp() {
           : issue
             ? "recovery"
             : setup
-              ? "preferences"
+              ? "setup"
               : ["activity", "explore", "scan-pay", "foreign-exchange"].includes(view)
                 ? "home"
                 : view as DemoSlide;
@@ -219,7 +224,7 @@ export function OcbcApp() {
       <a className="skip" href="#oc-main">
         Skip to content
       </a>
-      <main id="oc-main" className="oc-main" key={view}>
+      <main id="oc-main" className="oc-main" key={view} ref={contentRef} tabIndex={-1}>
         {journeyOffer && !welcome && !setup && view !== "home" && view !== "receipt" && view !== "explore" && (
           <aside className="oc-journey-offer" aria-label="Related offer">
             <button className="oc-link" aria-label="Dismiss related offer" onClick={() => setJourneyOffer(null)}>Dismiss</button>
@@ -887,7 +892,7 @@ export function OcbcApp() {
             <p>No rewards available in this demo.</p>
           </section>
         )}
-        {tokensOpen && weeklyBudget > 0 && <TokenSheet state={tokens} items={week.items} onClose={() => setTokensOpen(false)} />}
+        <TokenSheet open={tokensOpen && weeklyBudget > 0} state={tokens} items={week.items} onClose={() => setTokensOpen(false)} />
         {notice && (
           <div className="oc-notice" role="status">
             <p>{notice}</p>

@@ -6,22 +6,7 @@ import { FinancialEducationResponse } from "@/components/chat-response";
 import { suggestions } from "@/lib/assistant";
 import { useStore } from "@/lib/store";
 import type { ChatAction } from "@/lib/types";
-
-type SpeechRecognitionInstance = {
-  lang: string;
-  interimResults: boolean;
-  maxAlternatives: number;
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-  onerror: (() => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
-type SpeechCapableWindow = Window & {
-  SpeechRecognition?: SpeechRecognitionConstructor;
-  webkitSpeechRecognition?: SpeechRecognitionConstructor;
-};
+import { useListen } from "@/lib/use-voice";
 
 export function Assistant() {
   const store = useStore();
@@ -30,14 +15,14 @@ export function Assistant() {
   const [voiceStatus, setVoiceStatus] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const voice = useListen((text) => { setDraft(text); setVoiceStatus("Review what I heard, then choose Send."); }, setVoiceStatus, snapshot.helpOpen);
   const prompts = suggestions(assistContext);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
   }, [snapshot.messages.length]);
 
-  useEffect(() => () => recognitionRef.current?.stop(), []);
+
 
   const context =
     snapshot.lastIssue
@@ -55,40 +40,6 @@ export function Assistant() {
     if (!trimmed) return;
     store.ask(trimmed);
     setDraft("");
-  };
-
-  const startVoice = () => {
-    const speechWindow = window as SpeechCapableWindow;
-    const SpeechRecognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setVoiceStatus("Voice input is not available in this browser. Type your request below.");
-      inputRef.current?.focus();
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognitionRef.current = recognition;
-    recognition.lang = "en-SG";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0]?.transcript ?? "")
-        .join(" ")
-        .trim();
-      if (transcript) {
-        setDraft(transcript);
-        setVoiceStatus("Review what I heard, then choose Send.");
-      } else {
-        setVoiceStatus("I did not catch that. Type your request below.");
-      }
-    };
-    recognition.onerror = () => setVoiceStatus("I could not hear that. Type your request below.");
-    recognition.onend = () => {
-      recognitionRef.current = null;
-    };
-    setVoiceStatus("Listening… Say “Pay someone” or ask a question.");
-    recognition.start();
   };
 
   return (
@@ -120,7 +71,7 @@ export function Assistant() {
         </p>
         {snapshot.messages.length === 0 && (
           <p className="assist-empty">
-            Replies stay on this phone. They explain this practice bank and are not advice for you.
+            Practice guidance, not financial advice. Voice input uses Groq.
           </p>
         )}
         {snapshot.messages.map((message, index) => {
@@ -175,8 +126,9 @@ export function Assistant() {
         <button
           type="button"
           className="assist-voice"
-          onClick={startVoice}
-          aria-label="Speak your question"
+          onClick={() => { setVoiceStatus(""); void voice.listen(); }}
+          disabled={!voice.supported || voice.state === "transcribing"}
+          aria-label={voice.state === "listening" ? "Stop recording" : "Speak your question"}
         >
           <SpriteIcon name="microphone-accent" size={20} />
         </button>
@@ -184,7 +136,7 @@ export function Assistant() {
           Send
         </button>
       </form>
-      <p className="assist-voice-status" role="status" aria-live="polite">{voiceStatus}</p>
+      <p className="assist-voice-status" role="status" aria-live="polite">{voice.state === "listening" ? "Listening…" : voice.state === "transcribing" ? "Transcribing…" : voiceStatus}</p>
     </section>
   );
 }

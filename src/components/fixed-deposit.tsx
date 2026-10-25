@@ -7,6 +7,7 @@ import { ACCOUNTS } from "@/lib/data";
 import { FIXED_DEPOSIT, validFixedDeposit } from "@/lib/fixed-deposit-data";
 import { sgd } from "@/lib/format";
 import { useStore } from "@/lib/store";
+import { useContentMotion } from "@/lib/use-content-motion";
 
 const LABELS = ["What it is", "Tenor options", "Early withdrawal", "Review", "Confirm"];
 
@@ -15,6 +16,7 @@ export function FixedDepositApplication() {
   const { fixedDeposit: draft, plainLanguage: plain } = store.snapshot;
   const guided = store.journeyGuidance === true;
   const { step, amount, tenor, account, reference } = draft;
+  const contentRef = useContentMotion<HTMLElement>(reference ? "done" : step);
   const [issue, setIssue] = useState("");
   const valid = validFixedDeposit(draft);
   const term = FIXED_DEPOSIT.tenors.find((option) => option.id === tenor);
@@ -31,7 +33,7 @@ export function FixedDepositApplication() {
   };
 
   if (reference) return (
-    <section className="oc-review-screen oc-receipt-screen fd-success">
+    <section className="oc-review-screen oc-receipt-screen fd-success" ref={contentRef}>
       <span className="oc-receipt-icon"><SpriteIcon name="check-circle" size={42} /></span>
       <h2 id="screen-title" tabIndex={-1}>Application simulated</h2>
       <p>Your sample fixed-deposit application {reference} is complete.</p>
@@ -41,7 +43,7 @@ export function FixedDepositApplication() {
   );
 
   return (
-    <section className="fd-screen">
+    <section className="fd-screen" ref={contentRef}>
       {guided && <p className="oc-demo-label">Step {step + 1} of {LABELS.length} · {LABELS[step]}</p>}
       <h2 id="screen-title" tabIndex={-1}>{LABELS[step]}</h2>
       {step === 0 ? <>

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { StoreProvider } from "@/lib/store";
 import "./globals.css";
 import "./ocbc.css";
+import "./motion.css";
 
 // Apple devices render SF Pro through the system stack in globals.css; Inter is the closest fallback elsewhere.
 const fallback = Inter({

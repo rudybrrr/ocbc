@@ -4,15 +4,7 @@ import { activity, CARD, CUSTOMER } from "@/lib/data";
 import { sgd, spokenSgd } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import { Icon } from "@/components/icons";
-
-function hear(text: string) {
-  if (!("speechSynthesis" in window)) return false;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-SG";
-  window.speechSynthesis.speak(utterance);
-  return true;
-}
+import { speak as hear } from "@/lib/speech-client";
 
 function greeting() {
   const hour = new Date().getHours();

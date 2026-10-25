@@ -1,23 +1,18 @@
 import { flushSync } from "react-dom";
 
+let pendingFocus: number | undefined;
+
 export function withTransition(update: () => void, focusId?: string) {
+  if (pendingFocus !== undefined) cancelAnimationFrame(pendingFocus);
   const focus = () => {
+    pendingFocus = undefined;
     document.querySelector<HTMLElement>(".oc-main")?.scrollTo(0, 0);
     if (!focusId) return;
-    document.getElementById(focusId)?.focus();
+    (document.getElementById(focusId) ?? document.getElementById("oc-main"))?.focus({ preventScroll: true });
   };
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduced || typeof document.startViewTransition !== "function") {
-    update();
-    requestAnimationFrame(focus);
-    return;
-  }
-
-  const transition = document.startViewTransition(() => {
-    flushSync(update);
-  });
-  // a quick second tap skips this transition; the update still runs, so the rejection is expected
-  transition.ready.catch(() => {});
-  transition.finished.then(focus, focus);
+  // Keep the live screen interactive while Motion handles its short entrance.
+  // A document snapshot would hide that animation and postpone focus until it ends.
+  flushSync(update);
+  pendingFocus = requestAnimationFrame(focus);
 }

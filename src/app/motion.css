@@ -1,0 +1,73 @@
+/* Short, purposeful feedback. Banking values and text-size changes stay immediate. */
+:root { --oc-ease-out: cubic-bezier(.23, 1, .32, 1); }
+
+.oc-app :is(.oc-button, .oc-quick-action, .oc-contact-row, .ob-next, .ob-back),
+.sheet .btn, .drawer .btn {
+  transition: transform 120ms var(--oc-ease-out), background-color 140ms ease, border-color 140ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .oc-app :is(.oc-button, .oc-quick-action, .ob-next):not(:disabled):hover { filter: brightness(.97); }
+}
+
+.oc-app :is(.oc-button, .oc-quick-action, .oc-contact-row, .ob-next, .ob-back):not(:disabled):active,
+.sheet .btn:not(:disabled):active, .drawer .btn:not(:disabled):active { transform: scale(.98); }
+
+.oc-service-head svg { transition: transform 180ms var(--oc-ease-out); }
+.ob-progress i { transition: background-color 160ms ease; }
+
+/* Native dialog keeps focus trapping and Escape, including during rapid reversals.
+   Discrete display/overlay transitions keep the top layer until the exit finishes. */
+:is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog) {
+  opacity: 0;
+  transform: translateY(8px) scale(.985);
+  transition: opacity 180ms var(--oc-ease-out), transform 220ms var(--oc-ease-out),
+    display 220ms allow-discrete, overlay 220ms allow-discrete;
+}
+dialog.drawer { transform: translateX(20px); }
+dialog.oc-token-dialog { transform: translateY(24px); }
+:is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog)[open] { opacity: 1; transform: none; }
+:is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog)::backdrop {
+  opacity: 0;
+  transition: opacity 180ms var(--oc-ease-out), display 220ms allow-discrete, overlay 220ms allow-discrete;
+}
+:is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog)[open]::backdrop { opacity: 1; }
+
+@starting-style {
+  :is(dialog.sheet, dialog.drawer)[open] { opacity: 0; transform: translateY(8px) scale(.985); }
+  dialog.drawer[open] { transform: translateX(20px); }
+  dialog.oc-token-dialog[open] { opacity: 0; transform: translateY(24px); }
+  :is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog)[open]::backdrop { opacity: 0; }
+}
+
+.oc-token-dialog {
+  position: fixed;
+  inset: auto 0 0;
+  margin: 0 auto;
+  padding: 0;
+  width: min(100%, 28rem);
+  max-width: 100%;
+  max-height: 92dvh;
+  overflow: auto;
+  border: 0;
+  border-radius: 22px 22px 0 0;
+  background: #fff;
+  color: var(--ocbc-ink);
+}
+.oc-token-dialog::backdrop { background: rgb(20 28 32 / 45%); }
+.oc-token-dialog .oc-token-sheet { max-height: none; overflow: visible; animation: none; }
+/* A spending guide should be calm; never bounce money or keep tokens moving. */
+.cute-token.is-bouncy, .oc-tokens-text { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .oc-app *, .sheet *, .drawer * { animation-duration: 0s !important; transition: none !important; }
+  :is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog),
+  :is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog)::backdrop { transition: none; transform: none; }
+  .oc-app button:active, .sheet .btn:active, .drawer .btn:active { transform: none !important; }
+}
+/* Pointer feedback and transitions do not slow keyboard actions. Keep Penny's
+   existing animation completion events intact; her lifecycle depends on them. */
+html[data-motion-input="keyboard"] :is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog),
+html[data-motion-input="keyboard"] :is(dialog.sheet, dialog.drawer, dialog.oc-token-dialog)::backdrop,
+html[data-motion-input="keyboard"] .oc-app button,
+html[data-motion-input="keyboard"] :is(.sheet, .drawer) .btn { transition: none; transform: none; }

@@ -9,7 +9,7 @@ If a named payment lacks an amount, use confidence below 0.75 and ask the amount
 
 export async function routeIntent(text: string, {
   key = process.env.GROQ_API_KEY,
-  model = process.env.GROQ_INTENT_MODEL || "llama-3.3-70b-versatile",
+  model = process.env.GROQ_INTENT_MODEL || process.env.GROQ_MODEL || "openai/gpt-oss-20b",
   fetcher = fetch,
   timeoutMs = 4000,
 }: { key?: string; model?: string; fetcher?: typeof fetch; timeoutMs?: number } = {}): Promise<Intent> {
@@ -23,7 +23,7 @@ export async function routeIntent(text: string, {
           method: "POST",
           headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
           signal: controller.signal,
-          body: JSON.stringify({ model, temperature: 0, max_completion_tokens: 400, response_format: { type: "json_object" }, messages: [{ role: "system", content: PROMPT }, { role: "user", content: text }] }),
+          body: JSON.stringify({ model, temperature: 0, max_completion_tokens: 1024, ...(model.startsWith("openai/gpt-oss-") ? { reasoning_effort: "low" } : {}), response_format: { type: "json_object" }, messages: [{ role: "system", content: PROMPT }, { role: "user", content: text }] }),
         });
         if (!response.ok) throw new Error("Intent request failed");
         const data = await response.json();

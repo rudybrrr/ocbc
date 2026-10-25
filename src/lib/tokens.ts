@@ -32,25 +32,13 @@ export function weekStart(now: Date) {
   return start;
 }
 
-// two small purchases earlier in the week so the demo opens part-way through a budget
-function seedSpending(now: Date): SpendItem[] {
-  const start = weekStart(now);
-  const day = (offset: number) => new Date(start.getTime() + offset * 86_400_000);
-  return [
-    { id: "week-grab", title: "Grab", amount: 12.4, at: day(1) },
-    { id: "week-kopi", title: "Kopi & toast", amount: 2.6, at: day(2) },
-  ]
-    .filter((item) => item.at <= now)
-    .map(({ id, title, amount }) => ({ id, title, amount }));
-}
-
 export function weeklySpending(transfers: Transfer[], now: Date, destinationName: (id: Transfer["to"]) => string) {
   const start = weekStart(now).toISOString();
   // moving money between your own accounts is saving, not spending
   const paid = transfers
     .filter((transfer) => transfer.at >= start && transfer.to !== "savings" && transfer.to !== "everyday")
     .map((transfer) => ({ id: transfer.id, title: destinationName(transfer.to), amount: transfer.amount }));
-  const items = [...paid.reverse(), ...seedSpending(now)];
+  const items = paid.reverse();
   const spent = items.reduce((sum, item) => sum + item.amount, 0);
   return { items, spent: Math.round(spent * 100) / 100 };
 }

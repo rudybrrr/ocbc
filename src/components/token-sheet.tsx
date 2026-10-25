@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useModalDialog } from "@/lib/use-modal-dialog";
 import { CuteToken } from "@/components/cute-token";
 import { useStore } from "@/lib/store";
 import {
@@ -16,17 +17,13 @@ import {
 
 const money = (value: number) => `S$${value.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-export function TokenSheet({ state, items, onClose }: { state: TokenState; items: SpendItem[]; onClose: () => void }) {
+export function TokenSheet({ open, state, items, onClose }: { open: boolean; state: TokenState; items: SpendItem[]; onClose: () => void }) {
   const store = useStore();
+  const ref = useModalDialog(open, onClose);
   const done = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    done.current?.focus();
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+    if (open) done.current?.focus({ preventScroll: true });
+  }, [open]);
 
   const budget = state.budget;
   const moneyLeft = Math.max(0, budget - state.spent);
@@ -39,8 +36,8 @@ export function TokenSheet({ state, items, onClose }: { state: TokenState; items
         : "You're doing well this week.";
 
   return (
-    <div className="oc-token-scrim" onClick={onClose}>
-      <section className="oc-token-sheet" role="dialog" aria-modal="true" aria-labelledby="token-title" onClick={(event) => event.stopPropagation()}>
+    <dialog ref={ref} className="oc-token-dialog" aria-labelledby="token-title">
+      <section className="oc-token-sheet">
         <span className="oc-token-grip" aria-hidden="true" />
         <p id="token-title" className="oc-token-kicker">Your weekly spending</p>
         <p className="oc-token-count">
@@ -53,7 +50,7 @@ export function TokenSheet({ state, items, onClose }: { state: TokenState; items
             <CuteToken key={index} state={kind} size={38} className={kind === "full" ? "is-bouncy" : ""} />
           ))}
         </div>
-        <p className="oc-token-rate">1 token = {money(TOKEN_VALUE).replace(".00", "")} · refills Monday</p>
+        <p className="oc-token-rate">1 token = {money(TOKEN_VALUE).replace(".00", "")} · starts full on reload</p>
         <p className="oc-token-message">{message}</p>
 
         <h2>Spent this week</h2>
@@ -83,6 +80,6 @@ export function TokenSheet({ state, items, onClose }: { state: TokenState; items
           Turn off weekly tokens
         </button>
       </section>
-    </div>
+    </dialog>
   );
 }

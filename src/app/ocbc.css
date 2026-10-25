@@ -1807,12 +1807,12 @@ html[data-text="largest"] .oc-app {
 
 .ob-back, .ob-back-gap { position: absolute; top: 10px; left: 6px; width: 48px; height: 48px; }
 .ob-back { display: grid; place-items: center; border: 0; border-radius: 50%; background: rgb(255 255 255 / 85%); color: #1f2933; }
-.ob-body { flex: 1; padding: 20px 20px 8px; }
+.ob-body { flex: 1; padding: 28px 24px 16px; }
 .ob-kicker { margin: 0; color: #4a5560; font-size: calc(14px * var(--oc-font-scale, 1)); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-.ob-progress { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; margin: 10px 0 18px; }
+.ob-progress { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; margin: 10px 0 28px; }
 .ob-progress i { height: 6px; border-radius: 6px; background: #d9dde1; }
 .ob-progress i.on { background: #d71920; }
-.ob h1 { margin: 0 0 8px; font-size: calc(26px * var(--oc-font-scale, 1)); font-weight: 700; line-height: 1.2; }
+.ob h1 { margin: 0 0 24px; font-size: calc(26px * var(--oc-font-scale, 1)); font-weight: 700; line-height: 1.2; text-wrap: balance; }
 .ob-lede { margin: 0 0 16px; color: #333c45; font-size: calc(17px * var(--oc-font-scale, 1)); line-height: 1.45; }
 .ob-error { margin: 0 0 12px; padding: 12px 14px; border-left: 4px solid #c8372d; border-radius: 6px; background: #fdecea; color: #8c1d14; font-size: calc(16px * var(--oc-font-scale, 1)); font-weight: 600; }
 .ob-list { display: block; margin: 0; padding: 0; border: 0; border-top: 1px solid #c9ced3; }
@@ -1841,10 +1841,13 @@ html[data-text="largest"] .oc-app {
 
 /* onboarding: rounded corners */
 .ob-hero { overflow: hidden; border-radius: 0 0 32px 32px; }
-.ob-list { display: grid; gap: 10px; border-top: 0; }
+.ob-list { display: grid; gap: 14px; border-top: 0; }
 .ob-row { border: 1.5px solid #c9ced3; border-radius: 18px; background: #fff; min-height: 68px; padding: 12px 16px; }
 .ob-row.is-on { border-color: #d71920; background: #fff4f3; box-shadow: 0 0 0 1px #d71920; }
 .ob-row:has(input:focus-visible) { outline-offset: 2px; }
+.ob-row-text { flex: 1; min-width: 0; }
+.ob-mode-list .ob-row { min-height: 112px; gap: 12px; }
+.ob-mode-preview { flex: none; width: 56px; height: 70px; }
 .ob-sample { border-radius: 18px; }
 .ob-error { border-radius: 14px; }
 .ob-stepper { border: 1.5px solid #c9ced3; border-radius: 18px; }
@@ -1856,6 +1859,6 @@ html[data-text="largest"] .oc-app {
 .ob-topbar { position: relative; height: 56px; }
 .ob-topbar .ob-back, .ob-topbar .ob-back-gap { top: 8px; left: 8px; }
 .ob-brand { display: flex; align-items: center; gap: 14px; padding: 0 20px; }
-.ob-ball { flex: none; width: 64px; height: 64px; }
+.ob-ball { flex: none; width: 48px; height: 48px; }
 .ob-welcome { display: grid; gap: 2px; margin: 0; font-size: calc(22px * var(--oc-font-scale, 1)); font-weight: 700; line-height: 1.2; }
 .ob-welcome span { color: #3a4550; font-size: calc(16px * var(--oc-font-scale, 1)); font-weight: 400; }

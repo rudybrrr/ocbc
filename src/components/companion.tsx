@@ -16,8 +16,8 @@ export function Companion({
   const [voiceOn, setVoiceOn] = useState(true);
   // the ask box stays folded so penny doesn't push the task off a small screen
   const [asking, setAsking] = useState(false);
-  const voice = useListen(companion.ask, companion.notify);
   const { open, line, origin } = companion;
+  const voice = useListen(companion.ask, companion.notify, open);
   const avatar = useRef<SVGSVGElement>(null);
 
   // opened by tapping the peek: the avatar starts where the peeking penny was and flies
@@ -41,7 +41,7 @@ export function Companion({
   useEffect(() => {
     if (!open || !voiceOn) return;
     const timer = window.setTimeout(() => speak(line), 500);
-    return () => window.clearTimeout(timer);
+    return () => { window.clearTimeout(timer); stopSpeaking(); };
   }, [open, line, voiceOn]);
 
   useEffect(() => () => stopSpeaking(), []);

@@ -55,7 +55,7 @@ const defaultDraft: Draft = {
 function fresh(): Snapshot {
   return {
     ...DEFAULT_PREFERENCES,
-    // Keep the existing pre-login appearance; Skip uses the login defaults above.
+    // Every page load starts at login; setup is gated separately in memory.
     mode: "guided",
     textSize: "large",
     screen: "login",
@@ -78,7 +78,7 @@ function read(): Snapshot {
     return {
       ...fresh(),
       ...parsed,
-      // Preserve the login entry point; saved task state is still available after login.
+      // Return to login without clearing preferences or task state.
       screen: "login",
       helpOpen: false,
       everydayActions: Array.isArray(parsed.everydayActions)
@@ -107,9 +107,11 @@ function read(): Snapshot {
 type Store = {
   ready: boolean;
   snapshot: Snapshot;
+  tokenTransfers: Transfer[];
   announce: string;
   balances: { everyday: number; savings: number };
   assistContext: AssistContext;
+  login: () => void;
   completeOnboarding: (prefs: Preferences) => void;
   setMode: (mode: Mode) => void;
   setTextSize: (textSize: TextSize) => void;
@@ -156,12 +158,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [personOpen, setPersonOpen] = useState(false);
   const [journeyGuidance, setJourneyGuidance] = useState<boolean | null>(null);
+  // Deliberately not persisted: the first login after each reload offers setup.
+  const [setupComplete, setSetupComplete] = useState(false);
+  // Each demo run starts with full tokens while retaining saved banking history.
+  const [tokenBaselineIds, setTokenBaselineIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     const saved = read();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate the demo baseline with saved banking state
+    setTokenBaselineIds(new Set(saved.transfers.map((transfer) => transfer.id)));
     applyRoot(saved);
     // localStorage is empty during SSR. The splash covers this first client update.
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate preferences after mount
     setSnapshot(saved);
     setReady(true);
   }, []);
@@ -236,13 +243,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value: Store = {
     ready,
     snapshot,
+    tokenTransfers: snapshot.transfers.filter((transfer) => !tokenBaselineIds.has(transfer.id)),
     announce,
     balances: money,
     assistContext,
     prefsOpen,
     personOpen,
+    login: () => { go(setupComplete ? "home" : "onboarding"); },
     completeOnboarding: (prefs) => {
       withTransition(() => {
+        setSetupComplete(true);
         patch({ ...prefs, onboarded: true, screen: "home", helpOpen: false });
       }, "screen-title");
     },
@@ -353,6 +363,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setAnnounce(`Practice request ${request.id} saved. Nobody will call.`);
     },
     resetDemo: () => {
+      setTokenBaselineIds(new Set());
       try {
         localStorage.removeItem(KEY);
       } catch {
@@ -361,6 +372,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const next = fresh();
       applyRoot(next);
       setSnapshot(next);
+      setSetupComplete(false);
       setJourneyGuidance(null);
       setPrefsOpen(false);
       setPersonOpen(false);
